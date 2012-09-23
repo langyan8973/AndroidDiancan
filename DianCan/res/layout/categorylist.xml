@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:background="@drawable/backimg"
+    android:orientation="vertical" 
+    android:gravity="fill_horizontal">
+    <LinearLayout android:id="@+id/categoryLayout"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:gravity="fill_horizontal">
+		<ListView android:id="@id/android:list" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:drawSelectorOnTop="false"
+			android:scrollbars="vertical" 
+			android:cacheColorHint="#00000000"
+			android:gravity="fill_horizontal"/>
+	</LinearLayout>
+
+</LinearLayout>

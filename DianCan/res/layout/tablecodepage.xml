@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="5dip"
+    android:paddingRight="5dip"
+    android:gravity="center_vertical" 
+    android:background="#FFCCCCCC">   
+	<LinearLayout android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:padding="5dip"
+	    android:background="@drawable/dialogback">
+	    <TextView android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FFFFFFFF"
+	        android:textSize="20sp"
+	        android:text="请输入餐桌邀请码"/>
+	    <EditText android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="20sp"
+	        android:inputType="number"
+	        android:id="@+id/inputCode"/>
+	    <LinearLayout android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:gravity="center_horizontal"	>
+	        <Button android:layout_width="100dip"
+	            android:layout_height="wrap_content"
+	            android:text="确定"
+	            android:id="@+id/btnyes"/>
+	    </LinearLayout>
+	</LinearLayout>
+</LinearLayout>
