@@ -295,8 +295,8 @@ public class MyService extends Activity {
                 String notificationUri = intent
                         .getStringExtra(Constants.NOTIFICATION_URI);
 
-                Toast toast = Toast.makeText(MyService.this, notificationMessage, Toast.LENGTH_SHORT); 
-	            toast.show();
+//                Toast toast = Toast.makeText(MyService.this, notificationMessage, Toast.LENGTH_SHORT); 
+//	            toast.show();
     		}
 		}
 		
