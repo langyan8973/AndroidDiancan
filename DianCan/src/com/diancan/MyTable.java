@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +36,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -50,6 +52,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,13 +65,28 @@ public class MyTable extends Activity {
 	HashMap<String, List<OrderItem>> hashOrderItems;
 	Button overButton;
 	Button flashButton;
-	Button backButton;
+	ProgressBar mProgressBar;
 	TextView sumTextView;
 	BroadcastReceiver receiver;
 	boolean isSelf=false;
 	String sumString;	
 	int sendId,sendCount;
 	Declare declare;
+	
+	private Handler httpHandler = new Handler() {  
+        public void handleMessage (Message msg) {//此方法在ui线程运行   
+            switch(msg.what) {  
+            case 0: 
+            	String errString=msg.obj.toString();
+            	ShowError(errString);
+                break;   
+            case 1: 
+            	String jsString=msg.obj.toString();
+            	ParseOrder(jsString);
+                break;  
+            }  
+        }  
+    }; 
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +100,8 @@ public class MyTable extends Activity {
 		sumTextView.setTextColor(Color.WHITE);
 		sumTextView.setTextSize(DisplayUtil.dip2px(16));
 		
+		mProgressBar=(ProgressBar)findViewById(R.id.httppro);
+		
 		overButton=(Button)findViewById(R.id.overbtn);
 		overButton.setText(getResources().getString(R.string.btnstr_over));
 		overButton.setOnClickListener(new OverBtnOnclick());
@@ -89,42 +109,15 @@ public class MyTable extends Activity {
 		flashButton=(Button)findViewById(R.id.BtnFlash);
 		flashButton.setOnClickListener(new FlashOnClick());
 		
-		backButton=(Button)findViewById(R.id.Btnback);
-		backButton.setOnClickListener(new BackOnClick());
-		
 		dicWidgets=new Hashtable<String, ClassListViewWidget>();
 		hashOrderItems=new HashMap<String, List<OrderItem>>();
 		
 		declare=(Declare)getApplicationContext();
-//		if(declare.curDeskObj!=null)
-//		{
-//			commitButton.setVisibility(View.VISIBLE);
-//			CreateElements();
-//		}
-//		else {
-//			commitButton.setVisibility(View.GONE);
-//		}	
-
     }
     @Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-//    	if(declare.curDeskObj!=null)
-//    	{
-//    		commitButton.setVisibility(View.VISIBLE);
-//    		overButton.setVisibility(View.GONE);
-//    		if(dicWidgets.size()<=0)
-//    		{
-//    			CreateElements();
-//    		}
-//    		else {
-//    			UpdateElement();
-//			} 		
-//    	}
-//    	else {
-//    		commitButton.setVisibility(View.GONE);
-//    		overButton.setVisibility(View.GONE);
-//		}
+    	mProgressBar.setVisibility(View.INVISIBLE);
     	dicWidgets.clear();
     	hashOrderItems.clear();
     	rootLayout.removeAllViews();
@@ -139,6 +132,19 @@ public class MyTable extends Activity {
 		super.onResume();
 	}
     
+    /**
+     * 显示错误信息
+     * @param strMess
+     */
+    public void ShowError(String strMess) {
+		mProgressBar.setVisibility(View.INVISIBLE);
+		Toast toast = Toast.makeText(MyTable.this, strMess, Toast.LENGTH_SHORT); 
+        toast.show();
+	}
+    
+    /**
+     * 初始化订单
+     */
     public void InitHashOrderItems()
     {
     	hashOrderItems.clear();
@@ -171,6 +177,8 @@ public class MyTable extends Activity {
 			map.put("price", "¥ "+orderItem.getRecipe().getPrice());
 			String strCount=orderItem.getCount()+"";
 			map.put("count", strCount);
+			Integer kk=orderItem.getStatus();
+			map.put("status", kk);
 			Bitmap imgBitmap=HttpDownloader.getStream(MenuUtils.imageUrl+orderItem.getRecipe().getImage());
 			map.put("img", imgBitmap);
 			
@@ -179,8 +187,6 @@ public class MyTable extends Activity {
 	}
     private void CreateElements()
     {
-//    	selectedProduct=declare.curDeskObj.getSelectedProduct();
-//    	Set<String> meenum = selectedProduct.getDicMenusHashtable().keySet();
     	String strKey;
     	Set<String> meenum=hashOrderItems.keySet();
     	
@@ -214,7 +220,6 @@ public class MyTable extends Activity {
 			sumTextView.setText("");
     		return;
     	}
-//    	selectedProduct=declare.curDeskObj.getSelectedProduct();
     	
     	String strKey;
     	Set<String> meenum;
@@ -274,15 +279,6 @@ public class MyTable extends Activity {
 		}
     	
     	sumTextView.setText(sumString+declare.getTotalPrice());
-//    	if(!selectedProduct.isbState())
-//    	{
-//    		commitButton.setVisibility(View.VISIBLE);
-//    		overButton.setVisibility(View.GONE);
-//    	}
-//    	else {
-//			commitButton.setVisibility(View.GONE);
-//			overButton.setVisibility(View.VISIBLE);
-//		}
     	if(hashOrderItems.size()<=0)
     	{
     		overButton.setVisibility(View.GONE);
@@ -299,18 +295,6 @@ public class MyTable extends Activity {
 				R.layout.select_list_item, new String[] { "title", "price","count","img"},
 				new int[] { R.id.mtitle, R.id.mprice,R.id.mcount,R.id.imgctrl});
     	simpleAdapter1.setOrderItemList(orderItemlist);
-//    	String sCategoryString="";
-//    	List<CategoryObj> cList=declare.getMenuListDataObj().getCategoryObjs();
-//    	Iterator<CategoryObj> iterator;
-//    	for(iterator=cList.iterator();iterator.hasNext();)
-//    	{
-//    		CategoryObj category=iterator.next();
-//    		if((category.getId()+"").equals(strtitle))
-//    		{
-//    			sCategoryString=category.getName();
-//    			break;
-//    		}
-//    	}
     	ClassListViewWidget cLvWidget=new ClassListViewWidget(this, orderItemlist, hashList, strtitle);
     	simpleAdapter1.setViewBinder(new CustomViewBinder());
     	cLvWidget.listView.setAdapter(simpleAdapter1);
@@ -341,29 +325,32 @@ public class MyTable extends Activity {
     
     public void PostToServer()
     {
-    	new Thread(){
-            public void run(){
-            	//加减菜
-        		JSONObject object = new JSONObject();
-        		try {
-        			object.put("rid", sendId);
-        			object.put("count", sendCount);
-        		} catch (JSONException e) {
-        		}		
-        		try {
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, declare.curOrder.getId(), object);
-        			System.out.println("resultString:"+resultString);
-        		} catch (ClientProtocolException e) {
-        		} catch (JSONException e) {
-        		} catch (IOException e) {
-        		} catch (Throwable e) {
-        			e.printStackTrace();
-        			//自定义的错误，在界面上显示
-        			Toast toast = Toast.makeText(MyTable.this, e.getMessage(), Toast.LENGTH_SHORT); 
-        			toast.show();
-        		}
-            }
-        }.start();
+    	mProgressBar.setVisibility(View.VISIBLE);
+    	//加减菜
+		final JSONObject object = new JSONObject();
+		try {
+			object.put("rid", sendId);
+			object.put("count", sendCount);
+		} catch (JSONException e) {
+		}	
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, declare.curOrder.getId(), object);
+					httpHandler.obtainMessage(1,resultString).sendToTarget();
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				}
+				
+			}
+		}).start();
+		
     }
 
     public class OverBtnOnclick implements View.OnClickListener{
@@ -371,42 +358,21 @@ public class MyTable extends Activity {
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
-//			List<SelectedProduct> hiSelectedProducts=declare.getHistory().getHisSelectedProducts();
-//			if(hiSelectedProducts==null)
-//			{
-//				hiSelectedProducts=new ArrayList<SelectedProduct>();
-//			}
-//			final Calendar c = Calendar.getInstance();
-//			int mYear = c.get(Calendar.YEAR); //获取当前年份
-//			int mMonth = c.get(Calendar.MONTH)+1;//获取当前月份
-//			int mDay = c.get(Calendar.DAY_OF_MONTH);//获取当前月份的日期号码
-//			int mHour = c.get(Calendar.HOUR_OF_DAY);//获取当前的小时数
-//			selectedProduct.setStrdate(mYear+"年"+mMonth+"月"+mDay+"日"+mHour+"时");
-//			hiSelectedProducts.add(selectedProduct);
-			
-//			v.setVisibility(View.GONE);			
-//			declare.curOrder=null;
-//			declare.getMenuListDataObj().RestoreCategoryMenuList();
-//			UpdateElement();
-//			//发广播更新餐桌tab标题
-//			Intent in = new Intent();
-//            in.setAction("selectedtable");
-//            in.putExtra("tablename","");
-//            in.addCategory(Intent.CATEGORY_DEFAULT);
-//            MyTable.this.sendBroadcast(in);
-//            ToTableList();
-//            SendSetCountMessage();
 			try {
-				HttpDownloader.RequestFinally(MenuUtils.initUrl, declare.curOrder.getId().toString());
+				String jsString = HttpDownloader.RequestFinally(MenuUtils.initUrl, declare.curOrder.getId().toString());
+				Order order=JsonUtils.ParseJsonToOrder(jsString);
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ShowError(e.getMessage());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ShowError(e.getMessage());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ShowError(e.getMessage());
+			} catch (Throwable e) {
+				// TODO Auto-generated catch block
+				ShowError(e.getMessage());
 			}
 		}    	
     }
@@ -416,33 +382,48 @@ public class MyTable extends Activity {
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
-			String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "orders/" +declare.curOrder.getId() );
-			final Order order=JsonUtils.ParseJsonToOrder(jsonString);
-			declare.curOrder=order;
-			dicWidgets.clear();
-			hashOrderItems.clear();
-	    	rootLayout.removeAllViews();
-			InitHashOrderItems();
-			CreateElements();
-			new Thread(){
-				public void run(){
-					declare.getMenuListDataObj().ChangeRecipeMapByOrder(order);
+			mProgressBar.setVisibility(View.VISIBLE);
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "orders/" +declare.curOrder.getId() );
+						httpHandler.obtainMessage(1,jsonString).sendToTarget();
+					} catch (Throwable e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+					}
+					
 				}
-			}.start();
+			}).start();
 			
 		}
     	
     }
     
-    class BackOnClick implements OnClickListener{
-
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			ToTableList();
-		}
-    	
-    }
+    private void ParseOrder(String jsString) {
+    	mProgressBar.setVisibility(View.INVISIBLE);
+    	if(jsString.equals(""))
+    	{
+    		ShowError("操作失败！");
+    	}
+    	final Order order=JsonUtils.ParseJsonToOrder(jsString);
+		declare.curOrder=order;
+		dicWidgets.clear();
+		hashOrderItems.clear();
+    	rootLayout.removeAllViews();
+		InitHashOrderItems();
+		CreateElements();
+		new Thread(){
+			public void run(){
+				declare.getMenuListDataObj().ChangeRecipeMapByOrder(order);
+			}
+		}.start();
+	}
+    
     
     public void ToTableList()
     {
@@ -462,51 +443,6 @@ public class MyTable extends Activity {
         view.setLayoutParams(params);
     }
     
-//    public void ChangeOrderFormState(DeskObj curDeskObj,Order order)
-//	{
-//    	String strInfo="";
-//		SelectedProduct orderform=curDeskObj.selectedProduct;
-//		
-//		HashMap<String, List<SelectedMenuObj>> dicMenusHashtable=orderform.dicMenusHashtable;
-//		Set<String> strSet=dicMenusHashtable.keySet();
-//		Iterator iterator;
-//		for(iterator=strSet.iterator();iterator.hasNext();)
-//		{
-//			String strKeyString=(String)iterator.next();
-//			List<SelectedMenuObj> menuList=dicMenusHashtable.get(strKeyString);
-//			Iterator iterator2;
-//			for(iterator2=menuList.iterator();iterator2.hasNext();)
-//			{
-//				SelectedMenuObj menuObj=(SelectedMenuObj)iterator2.next();
-//				OrderItem orderItem=GetItemById(Integer.parseInt(menuObj.getId()), order);
-//				if(orderItem!=null)
-//				{
-//					//如果提交状态为否，加入订单列表
-//					if(!menuObj.isCommit())
-//					{
-//						menuObj.setCommit(true);
-//						menuObj.setLockCount(orderItem.getCount());
-//						menuObj.setTotalPrice(menuObj.price*menuObj.lockCount);
-//					}
-//				}
-//				else {
-//					strInfo+=menuObj.getName()+"  ";
-//					menuList.remove(menuObj);					
-//					menuObj.setCount(0);
-//		            menuObj.setTotalPrice(0);
-//		            declare.getMenuListDataObj().ChangeMenuListByObj(menuObj);
-//				}
-//							
-//			}
-//		}
-//		orderform.setbState(true);
-//		if(!strInfo.equals(""))
-//		{
-//			strInfo="非常抱歉，"+strInfo+" 已经卖完";
-//			Toast toast = Toast.makeText(this, strInfo, Toast.LENGTH_SHORT); 
-//            toast.show();
-//		}
-//	}
 	
 	public OrderItem GetItemById(int id,Order order)
 	{
@@ -584,21 +520,17 @@ public class MyTable extends Activity {
 	        OrderItem orderItem=TableListAdapter.this.orderItemList.get(position);
 	        Map<String, Object> mMap=TableListAdapter.this.mItemList.get(position);
             int mCount=Integer.parseInt(mMap.get("count").toString());
-//	        if(menuObj.isCommit)
-//	         {
-//	        	imgdelete.setVisibility(View.INVISIBLE);
-//	        	imgadd.setVisibility(View.INVISIBLE);
-//	         }
-//	        else {
-//	        	if(mCount<=menuObj.getLockCount())
-//	        	{
-//	        		imgdelete.setVisibility(View.INVISIBLE);
-//	        	}
-//	        	else {
-//	        		imgdelete.setVisibility(View.VISIBLE);
-//				}
-//	        	imgadd.setVisibility(View.VISIBLE);
-//			}
+            
+            if(mMap.get("status")!=null)
+            {
+            	imgadd.setVisibility(View.INVISIBLE);
+            	imgdelete.setVisibility(View.INVISIBLE);
+            }
+            else {
+            	imgadd.setVisibility(View.VISIBLE);
+            	imgdelete.setVisibility(View.VISIBLE);
+			}
+            
 	        imgdelete.setTag(position);
 	        imgadd.setTag(position);
 	        
@@ -616,69 +548,65 @@ public class MyTable extends Activity {
 		             sendId=oItem.getRecipe().getId();
 		             sendCount=-1;
 		             
-		             count--;
-		             /////
-		             
-		             if(count<=0)
-		             {
-		            	 //因为删除操作要把个数传出去所以要删除后再设置个数以便后面的同步操作
-		            	 declare.RemoveItemFromOrder(oItem);
-		            	 oItem.setCount(0);
-//		            	 menuObj.setTotalPrice(0);
-		             }
-		             else {
-		            	 oItem.setCount(count);
-//		            	 menuObj.setTotalPrice(menuObj.getCount()*menuObj.getPrice());
-		            	 declare.SubtractionItemCount(oItem);
-					}
-		            //同步
-		            declare.getMenuListDataObj().ChangeRecipeMapByObj(oItem);
-		            
-		            MenuUtils.bUpdating=true;
-		            sumTextView.setText(sumString+declare.getTotalPrice());
-		            ////
-		            if(count<=0)
-		             {
-		            	 TableListAdapter.this.orderItemList.remove(position);
-		            	 TableListAdapter.this.mItemList.remove(position); 
-		            	 Animation aAnimation=new AlphaAnimation(1, 0);
-		            	 aAnimation.setDuration(300);
-		            	 aAnimation.setAnimationListener(new AnimationListener() {
-							
-							@Override
-							public void onAnimationStart(Animation animation) {}
-							
-							@Override
-							public void onAnimationRepeat(Animation animation) {}
-							
-							@Override
-							public void onAnimationEnd(Animation animation) {
-								// TODO Auto-generated method stub								
-								TableListAdapter.this.notifyDataSetChanged();
-								if(TableListAdapter.this.mItemList.size()<=0)
-					            {
-					            	try {
-					            		ClassListViewWidget clWidget=dicWidgets.get(cNameString);
-					            		rootLayout.removeView(clWidget);
-					            		dicWidgets.remove(cNameString);
-									} catch (Exception e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-					            }
-					            else {
-					            	setListViewHeight(listView);
-								}
-							}
-						});
-		            	localView.startAnimation(aAnimation);
-		             }
-		             else {
-						map.put("count", count+"");
-						TableListAdapter.this.notifyDataSetChanged();
-					 }
-		            
-		            SendSetCountMessage();
+//		             count--;
+//		             
+//		             if(count<=0)
+//		             {
+//		            	 //因为删除操作要把个数传出去所以要删除后再设置个数以便后面的同步操作
+//		            	 declare.RemoveItemFromOrder(oItem);
+//		            	 oItem.setCount(0);
+//		             }
+//		             else {
+//		            	 oItem.setCount(count);
+//		            	 declare.SubtractionItemCount(oItem);
+//					}
+//		            //同步
+//		            declare.getMenuListDataObj().ChangeRecipeMapByObj(oItem);
+//		            
+//		            MenuUtils.bUpdating=true;
+//		            sumTextView.setText(sumString+declare.getTotalPrice());
+//		            if(count<=0)
+//		             {
+//		            	 TableListAdapter.this.orderItemList.remove(position);
+//		            	 TableListAdapter.this.mItemList.remove(position); 
+//		            	 Animation aAnimation=new AlphaAnimation(1, 0);
+//		            	 aAnimation.setDuration(300);
+//		            	 aAnimation.setAnimationListener(new AnimationListener() {
+//							
+//							@Override
+//							public void onAnimationStart(Animation animation) {}
+//							
+//							@Override
+//							public void onAnimationRepeat(Animation animation) {}
+//							
+//							@Override
+//							public void onAnimationEnd(Animation animation) {
+//								// TODO Auto-generated method stub								
+//								TableListAdapter.this.notifyDataSetChanged();
+//								if(TableListAdapter.this.mItemList.size()<=0)
+//					            {
+//					            	try {
+//					            		ClassListViewWidget clWidget=dicWidgets.get(cNameString);
+//					            		rootLayout.removeView(clWidget);
+//					            		dicWidgets.remove(cNameString);
+//									} catch (Exception e) {
+//										// TODO Auto-generated catch block
+//										e.printStackTrace();
+//									}
+//					            }
+//					            else {
+//					            	setListViewHeight(listView);
+//								}
+//							}
+//						});
+//		            	localView.startAnimation(aAnimation);
+//		             }
+//		             else {
+//						map.put("count", count+"");
+//						TableListAdapter.this.notifyDataSetChanged();
+//					 }
+//		            
+//		            SendSetCountMessage();
 		            PostToServer();
 				}
 			});
@@ -693,109 +621,96 @@ public class MyTable extends Activity {
 					sendId=oItem.getRecipe().getId();
 		            sendCount=1;
 					
-		             Map<String, Object> map=TableListAdapter.this.mItemList.get(position);
-		             int count=Integer.parseInt(map.get("count").toString());
-		             count++;
-		             map.put("count", count+"");
-		             
-		             TableListAdapter.this.notifyDataSetChanged();
-		             oItem.setCount(count);
-		             declare.AddItemToOrder(oItem); 
-		             declare.getMenuListDataObj().ChangeRecipeMapByObj(oItem);
-			         MenuUtils.bUpdating=true;
-			         sumTextView.setText(sumString+declare.getTotalPrice());	
-			         setListViewHeight(listView);
-			         SendSetCountMessage();
+//		             Map<String, Object> map=TableListAdapter.this.mItemList.get(position);
+//		             int count=Integer.parseInt(map.get("count").toString());
+//		             count++;
+//		             map.put("count", count+"");
+//		             
+//		             TableListAdapter.this.notifyDataSetChanged();
+//		             oItem.setCount(count);
+//		             declare.AddItemToOrder(oItem); 
+//		             declare.getMenuListDataObj().ChangeRecipeMapByObj(oItem);
+//			         MenuUtils.bUpdating=true;
+//			         sumTextView.setText(sumString+declare.getTotalPrice());	
+//			         setListViewHeight(listView);
+//			         SendSetCountMessage();
 			         PostToServer();
 				}
 			});
 	        
-	        localView.setOnTouchListener(new View.OnTouchListener() {
-        		float sx,sy,ex,ey;
-        		boolean action;
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					// TODO Auto-generated method stub
-					if(event.getAction()==MotionEvent.ACTION_DOWN)
-					{
-						sx=event.getX();
-						sy=event.getY();
-						action=true;
-					}
-					else if(event.getAction()==MotionEvent.ACTION_MOVE)
-					{
-						ex=event.getX();
-						ey=event.getY();
-						if((ex-sx)>120&&action)
-						{
-							action=false;
-							final OrderItem orderItem=TableListAdapter.this.orderItemList.get(index);
-//				            if(menuObj.isCommit())
-//				            {
-//				            	return true;
-//				            }
-//				            else {
-//								if(menuObj.getLockCount()>0)
-//								{
-//									return true;
+//	        localView.setOnTouchListener(new View.OnTouchListener() {
+//        		float sx,sy,ex,ey;
+//        		boolean action;
+//				@Override
+//				public boolean onTouch(View v, MotionEvent event) {
+//					// TODO Auto-generated method stub
+//					if(event.getAction()==MotionEvent.ACTION_DOWN)
+//					{
+//						sx=event.getX();
+//						sy=event.getY();
+//						action=true;
+//					}
+//					else if(event.getAction()==MotionEvent.ACTION_MOVE)
+//					{
+//						ex=event.getX();
+//						ey=event.getY();
+//						if((ex-sx)>120&&action)
+//						{
+//							action=false;
+//							final OrderItem orderItem=TableListAdapter.this.orderItemList.get(index);
+//							Animation animation=AnimationUtils.loadAnimation(MyTable.this, R.anim.delete_anim);
+//				            animation.setAnimationListener(new AnimationListener() {
+//								
+//								@Override
+//								public void onAnimationStart(Animation animation) {}
+//								
+//								@Override
+//								public void onAnimationRepeat(Animation animation) {}
+//								
+//								@Override
+//								public void onAnimationEnd(Animation animation) {
+//									// TODO Auto-generated method stub
+//									sendId=orderItem.getRecipe().getId();
+//									sendCount=-orderItem.getCount();
+//						 			
+//									delete(orderItem);
+//									SendSetCountMessage();
+//									PostToServer();
 //								}
-//							}
-							Animation animation=AnimationUtils.loadAnimation(MyTable.this, R.anim.delete_anim);
-				            animation.setAnimationListener(new AnimationListener() {
-								
-								@Override
-								public void onAnimationStart(Animation animation) {}
-								
-								@Override
-								public void onAnimationRepeat(Animation animation) {}
-								
-								@Override
-								public void onAnimationEnd(Animation animation) {
-									// TODO Auto-generated method stub
-									sendId=orderItem.getRecipe().getId();
-									sendCount=-orderItem.getCount();
-						 			
-									delete(orderItem);
-									SendSetCountMessage();
-									PostToServer();
-								}
-							});
-				            localView.startAnimation(animation);
-						}
-						
-					}
-					return true;
-				}
-				public void delete(OrderItem orderItem)
-				{
-					declare.RemoveItemFromOrder(orderItem);	
-					orderItem.setCount(0);
-		            String cNameString=orderItem.getRecipe().getCname().toString();
-		            TableListAdapter.this.orderItemList.remove(index);
-		            TableListAdapter.this.mItemList.remove(index);
-		            TableListAdapter.this.notifyDataSetChanged();
-//		            menuObj.setCount(0);
-//		            menuObj.setTotalPrice(0);
-		            declare.getMenuListDataObj().ChangeRecipeMapByObj(orderItem);
-		            MenuUtils.bUpdating=true;
-		            sumTextView.setText(sumString+declare.getTotalPrice());
-		            if(TableListAdapter.this.mItemList.size()<=0)
-		            {
-		            	try {
-//							MyTable.this.UpdateElement();
-		            		ClassListViewWidget clWidget=dicWidgets.get(cNameString);
-		            		rootLayout.removeView(clWidget);
-		            		dicWidgets.remove(cNameString);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-		            }
-		            else {
-		            	setListViewHeight(listView);
-					} 
-				}
-			});
+//							});
+//				            localView.startAnimation(animation);
+//						}
+//						
+//					}
+//					return true;
+//				}
+//				public void delete(OrderItem orderItem)
+//				{
+//					declare.RemoveItemFromOrder(orderItem);	
+//					orderItem.setCount(0);
+//		            String cNameString=orderItem.getRecipe().getCname().toString();
+//		            TableListAdapter.this.orderItemList.remove(index);
+//		            TableListAdapter.this.mItemList.remove(index);
+//		            TableListAdapter.this.notifyDataSetChanged();
+//		            declare.getMenuListDataObj().ChangeRecipeMapByObj(orderItem);
+//		            MenuUtils.bUpdating=true;
+//		            sumTextView.setText(sumString+declare.getTotalPrice());
+//		            if(TableListAdapter.this.mItemList.size()<=0)
+//		            {
+//		            	try {
+//		            		ClassListViewWidget clWidget=dicWidgets.get(cNameString);
+//		            		rootLayout.removeView(clWidget);
+//		            		dicWidgets.remove(cNameString);
+//						} catch (Exception e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//		            }
+//		            else {
+//		            	setListViewHeight(listView);
+//					} 
+//				}
+//			});
 	        
 			return localView;
 		}

@@ -222,11 +222,9 @@ public class HttpDownloader {
 	 * @param rootUrl
 	 * @param idString
 	 * @return
-	 * @throws IOException 
-	 * @throws ClientProtocolException 
-	 * @throws JSONException 
+	 * @throws Throwable 
 	 */
-	public static String RequestFinally(String rootUrl,String idString) throws ClientProtocolException, IOException, JSONException
+	public static String RequestFinally(String rootUrl,String idString) throws Throwable
 	{
 		JSONObject object = new JSONObject();
 		object.put("status", 12);
@@ -237,9 +235,16 @@ public class HttpDownloader {
 		
 		HttpPut put=new HttpPut(rootUrl+"orders/"+idString);	
 		put.setEntity(entity);
-		client.execute(put);
-		
-		return null;
+		HttpResponse response=client.execute(put);
+		HttpEntity responseEntity = response.getEntity();
+		String jsonString=parseContent(responseEntity.getContent());
+		System.out.println(jsonString);
+		if (response.getStatusLine().getStatusCode() == 200) {
+			return jsonString;
+		}
+		else {
+			throw new Exception(jsonString);
+		}
 	}
 	
 	/**

@@ -13,6 +13,15 @@ public class OrderItem implements java.io.Serializable {
 	private Recipe recipe;
 	private Order order;
 	private Integer count;
+	private Integer status;
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
 
 	public OrderItem() {
 	}

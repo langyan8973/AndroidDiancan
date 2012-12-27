@@ -1,6 +1,8 @@
 package com.diancan;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,6 +41,24 @@ public class TableCodePage extends Activity {
 		okBtn=(Button)findViewById(R.id.btnyes);
 		okBtn.setOnClickListener(new BtnyesClick());
 		declare=(Declare)getApplicationContext();
+		PopInputMethod();
+	}
+	
+	/**
+	 * 弹出输入法
+	 */
+	public void PopInputMethod()
+	{
+		//弹出软键盘
+		inpuText.requestFocus();
+        Timer timer = new Timer(); //设置定时器
+        timer.schedule(new TimerTask() {
+        @Override
+        	public void run() { //弹出软键盘的代码
+        		InputMethodManager imm = (InputMethodManager)getSystemService(TableCodePage.this.INPUT_METHOD_SERVICE);
+        		imm.showSoftInput(inpuText, InputMethodManager.RESULT_SHOWN);
+        	}
+        }, 100);
 	}
 	
 	/***
@@ -109,6 +130,9 @@ public class TableCodePage extends Activity {
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
+			//隐藏软键盘
+			InputMethodManager imm = (InputMethodManager)getSystemService(TableCodePage.this.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(inpuText.getWindowToken(), 0);
 			String codeString=inpuText.getText().toString();
 			if(codeString=="")
 			{

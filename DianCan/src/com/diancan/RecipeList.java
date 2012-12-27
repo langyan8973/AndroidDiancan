@@ -98,7 +98,7 @@ public class RecipeList extends Activity {
 	public void InitCategoryList()
 	{
 		try {
-			declare.getMenuListDataObj().categories=MenuUtils.getAllCategory();
+//			declare.getMenuListDataObj().categories=MenuUtils.getAllCategory();
 			m_arr = declare.getMenuListDataObj().categories;
 			
 		} catch (Exception e) {

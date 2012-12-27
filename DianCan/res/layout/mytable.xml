@@ -9,15 +9,13 @@
         android:paddingLeft="3dip"
         android:paddingRight="3dip"
         android:background="@drawable/hejititle">
-        <Button android:layout_width="80dip"
-            android:layout_height="40dip"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/dianblack"
-            android:text="返回列表"
-            android:textColor="#FFFFFFFF"
-            android:visibility="invisible"
-            android:id="@+id/Btnback"/> 
+        <ProgressBar android:id="@+id/httppro"
+		      android:layout_width="wrap_content" 
+		      android:layout_height="wrap_content"
+		      android:layout_alignParentLeft="true"
+		      android:layout_centerVertical="true"
+		      style="?android:attr/progressBarStyleSmall">
+		</ProgressBar> 
         <TextView 
 		    android:layout_width="wrap_content"
 		    android:layout_height="33dip"
