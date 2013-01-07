@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,8 +29,10 @@ import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -37,6 +40,7 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,16 +60,13 @@ import com.model.OrderItem;
 import com.model.Recipe;
 
 public class HttpDownloader {
-	static HttpClient client;
-	public static String getString(String urlStr) {
+	public static String getString(String urlStr,String udid) {
 		StringBuffer sb = new StringBuffer();
-		if(client==null)
-		{
-			client= new DefaultHttpClient();
-		}
+		DefaultHttpClient client= new DefaultHttpClient();
 		HttpGet get = new HttpGet(urlStr);
 		get.addHeader("accept", "application/json;charset=UTF-8");
 		get.addHeader("Accept-Charset", "utf-8");
+		get.addHeader("X-device",udid);
 		try {
 			HttpResponse response = client.execute(get);
 
@@ -79,6 +80,7 @@ public class HttpDownloader {
 				while ((line = buffer.readLine()) != null) {
 					sb.append(line);
 				}
+				inputStream.close();
 				return sb.toString();
 			} else {
 				// TODO 返回错误信息
@@ -126,8 +128,20 @@ public class HttpDownloader {
 	  }
 	}
 
-	
-	public static String OrderForm(String rootUrl,Order order) throws ClientProtocolException, IOException,
+	public static String RegisterUdid(String id,String strurl) throws ClientProtocolException, IOException{
+		  DefaultHttpClient client= new DefaultHttpClient();
+		  HttpPost httppost = new HttpPost(strurl); 
+		  List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1); 
+		   nameValuePairs.add(new BasicNameValuePair("udid", id+""));
+		   httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs)); 
+
+		   HttpResponse response; 
+		   response=client.execute(httppost); 
+		   HttpEntity responseEntity = response.getEntity();
+		   String jsonString=parseContent(responseEntity.getContent());
+			return jsonString;
+	}
+	public static String OrderForm(String rootUrl,Order order,String udid) throws ClientProtocolException, IOException,
 		JSONException {
 		
 		DefaultHttpClient client;
@@ -135,6 +149,7 @@ public class HttpDownloader {
 		
 		System.out.println("提交订单:");
 		HttpPost post = new HttpPost(rootUrl + "orders");
+		post.addHeader("X-device",udid);
 		
 		JSONArray list = new JSONArray();
 		Iterator<OrderItem> iterator;
@@ -169,7 +184,7 @@ public class HttpDownloader {
 		return location;
 	}
 	
-	public static String GetOrderForm(String reqString) throws ClientProtocolException, IOException,
+	public static String GetOrderForm(String reqString,String udid) throws ClientProtocolException, IOException,
 	JSONException {
 		System.out.println("获取单个订单:");
 		DefaultHttpClient client;
@@ -178,6 +193,7 @@ public class HttpDownloader {
 		HttpGet get = new HttpGet(reqString);
 		get.addHeader("accept", "application/json;charset=UTF-8");
 		get.addHeader("Accept-Charset", "utf-8");
+		get.addHeader("X-device",udid);
 		HttpResponse response = client.execute(get);
 				
 		HttpEntity entity = response.getEntity();
@@ -188,7 +204,7 @@ public class HttpDownloader {
 	}
 	
 	//开台
-	public static String submitOrder(String rootUrl,int tid,int number) throws Throwable {
+	public static String submitOrder(String rootUrl,int tid,int number,String udid) throws Throwable {
 		JSONObject object = new JSONObject();
 		object.put("tid", tid);
 		object.put("number", number);
@@ -198,11 +214,12 @@ public class HttpDownloader {
 		entity.setContentEncoding("UTF-8");
 		
 		HttpPost post = new HttpPost(rootUrl + "orders");
+		post.addHeader("X-device",udid);
 		post.setEntity(entity);
 		post.setHeader("Content-Type", "application/json;charset=UTF-8");
 		
 		HttpClientParams.setRedirecting(post.getParams(), false);
-		
+		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(post);
 		HttpEntity responseEntity = response.getEntity();
 		String jsonString=parseContent(responseEntity.getContent());
@@ -224,7 +241,7 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable 
 	 */
-	public static String RequestFinally(String rootUrl,String idString) throws Throwable
+	public static String RequestFinally(String rootUrl,String idString,String udid) throws Throwable
 	{
 		JSONObject object = new JSONObject();
 		object.put("status", 12);
@@ -233,8 +250,10 @@ public class HttpDownloader {
 		entity.setContentType("application/json;charset=UTF-8");
 		entity.setContentEncoding("UTF-8");
 		
-		HttpPut put=new HttpPut(rootUrl+"orders/"+idString);	
+		HttpPut put=new HttpPut(rootUrl+"orders/"+idString);
+		put.addHeader("X-device",udid);
 		put.setEntity(entity);
+		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response=client.execute(put);
 		HttpEntity responseEntity = response.getEntity();
 		String jsonString=parseContent(responseEntity.getContent());
@@ -256,7 +275,7 @@ public class HttpDownloader {
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public static String RequestServices(String rootUrl,String strContent,String orderid) throws JSONException, ClientProtocolException, IOException
+	public static String RequestServices(String rootUrl,String strContent,String orderid,String udid) throws JSONException, ClientProtocolException, IOException
 	{
 		int statuscode;
 		if(strContent==MenuUtils.Service_2)
@@ -281,9 +300,10 @@ public class HttpDownloader {
 		HttpPost post = new HttpPost(rootUrl + "orders/"+orderid+"/assistent");
 		post.setEntity(entity);
 		post.setHeader("Content-Type", "application/json;charset=UTF-8");
+		post.addHeader("X-device",udid);
 		
 		HttpClientParams.setRedirecting(post.getParams(), false);
-		
+		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(post);
 		int code = response.getStatusLine().getStatusCode();
 		return null;
@@ -296,9 +316,11 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable
 	 */
-	public static String RequestOrderByCode(String rootUrl,String codeString) throws Throwable {
+	public static String RequestOrderByCode(String rootUrl,String codeString,String udid) throws Throwable {
 		
-		HttpPut put=new HttpPut(rootUrl+"orders/desk/"+codeString);		
+		HttpPut put=new HttpPut(rootUrl+"orders/desk/"+codeString);	
+		put.addHeader("X-device",udid);
+		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(put);
 		HttpEntity responseEntity = response.getEntity();
 		String jsonString=parseContent(responseEntity.getContent());
@@ -314,18 +336,18 @@ public class HttpDownloader {
 	}
 	
 	//加减菜
-	public static String alterRecipeCount(String rootUrl, int oid,JSONObject object) throws Throwable
+	public static String alterRecipeCount(String rootUrl, int oid,int rid,JSONObject object,String udid) throws Throwable
 	{
-		StringEntity entity = new StringEntity(object.toString(), "UTF-8");
-		entity.setContentType("application/json;charset=UTF-8");
-		entity.setContentEncoding("UTF-8");
+		String urlString=rootUrl + "restaurants/"+rid+"/orders/" + oid;
+		HttpPost post = new HttpPost(urlString);
 		
-		HttpPost post = new HttpPost(rootUrl + "orders/" + oid);
-		post.setEntity(entity);
-		post.setHeader("Content-Type", "application/json;charset=UTF-8");
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2); 
+		nameValuePairs.add(new BasicNameValuePair("rid", object.get("rid").toString()));
+		nameValuePairs.add(new BasicNameValuePair("count", object.get("count").toString()));
+		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		post.addHeader("X-device",udid);
 		
-		HttpClientParams.setRedirecting(post.getParams(), true);
-		
+		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(post);
 		HttpEntity responseEntity = response.getEntity();
 		String jsonString=parseContent(responseEntity.getContent());

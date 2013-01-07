@@ -220,7 +220,7 @@ public class MenuBook extends Activity {
 			try {
 				List<OrderItem> orderItems=new ArrayList<OrderItem>();
 				List<Recipe> recipes = MenuUtils
-						.getRecipesByCategory(category.getId());
+						.getRecipesByCategory(category.getId(),declare.udidString);
 				Iterator<Recipe> iterator;
 				for(iterator=recipes.iterator();iterator.hasNext();)
 				{
@@ -304,7 +304,8 @@ public class MenuBook extends Activity {
         			object.put("rid", sendId);
         			object.put("count", sendCount);
         			Declare d=(Declare)MenuBook.this.getApplicationContext();
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, d.curOrder.getId(), object);
+        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, d.curOrder.getId(),
+        					d.restaurantId, object,d.udidString);
         			System.out.println("resultString:"+resultString);
         		} catch (ClientProtocolException e) {
         		} catch (JSONException e) {

@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.androidpn.client.Constants;
-import org.androidpn.client.Notifier;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,9 +84,9 @@ public class MyService extends Activity {
 		//注册一个广播接收器，启动餐桌抖动动画  
 	    receiver = new NotifiReceiver();
 	    IntentFilter filter = new IntentFilter();
-	    filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
-        filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
-        filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
+//	    filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
+//        filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
+//        filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
 	    registerReceiver(receiver, filter);
 	}
 
@@ -185,7 +182,8 @@ public class MyService extends Activity {
 			messListView.setSelectionFromTop(messages.size()-1, 300);
 			
 			try {
-				HttpDownloader.RequestServices(MenuUtils.initUrl, sMess.getsText(), declare.curOrder.getId().toString());
+				HttpDownloader.RequestServices(MenuUtils.initUrl, sMess.getsText(), declare.curOrder.getId().toString(),
+						declare.udidString);
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -283,21 +281,21 @@ public class MyService extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
 			String action = intent.getAction();
-    		if (Constants.ACTION_SHOW_NOTIFICATION.equals(action)) {
-                String notificationId = intent
-                        .getStringExtra(Constants.NOTIFICATION_ID);
-                String notificationApiKey = intent
-                        .getStringExtra(Constants.NOTIFICATION_API_KEY);
-                String notificationTitle = intent
-                        .getStringExtra(Constants.NOTIFICATION_TITLE);
-                String notificationMessage = intent
-                        .getStringExtra(Constants.NOTIFICATION_MESSAGE);
-                String notificationUri = intent
-                        .getStringExtra(Constants.NOTIFICATION_URI);
+//    		if (Constants.ACTION_SHOW_NOTIFICATION.equals(action)) {
+//                String notificationId = intent
+//                        .getStringExtra(Constants.NOTIFICATION_ID);
+//                String notificationApiKey = intent
+//                        .getStringExtra(Constants.NOTIFICATION_API_KEY);
+//                String notificationTitle = intent
+//                        .getStringExtra(Constants.NOTIFICATION_TITLE);
+//                String notificationMessage = intent
+//                        .getStringExtra(Constants.NOTIFICATION_MESSAGE);
+//                String notificationUri = intent
+//                        .getStringExtra(Constants.NOTIFICATION_URI);
 
 //                Toast toast = Toast.makeText(MyService.this, notificationMessage, Toast.LENGTH_SHORT); 
 //	            toast.show();
-    		}
+//    		}
 		}
 		
 	}

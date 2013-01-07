@@ -529,7 +529,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
         		}		
         		try {
         			Declare d=(Declare)mContext.getApplicationContext();
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, d.curOrder.getId(), object);
+        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, d.curOrder.getId(),
+        					d.restaurantId, object,d.udidString);
         			System.out.println("resultString:"+resultString);
         		} catch (ClientProtocolException e) {
         		} catch (JSONException e) {

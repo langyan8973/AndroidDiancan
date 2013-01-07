@@ -90,7 +90,7 @@ public class MenuListDataObj {
 	
 	public void ChangeRecipeMapByOrder(Order order)
 	{
-		Set<OrderItem> orderitems=order.getOrderItems();
+		List<OrderItem> orderitems=order.getOrderItems();
 		Iterator<OrderItem> iterator;
 		for(iterator=orderitems.iterator();iterator.hasNext();)
 		{
@@ -144,7 +144,7 @@ public class MenuListDataObj {
 	public void SyncMenuListByCategory(Category category,Order order)
 	{
 		List<OrderItem> cOrderItems=recipeMap.get(category.getId());
-		Set<OrderItem> orderItems=order.getOrderItems();
+		List<OrderItem> orderItems=order.getOrderItems();
 		Iterator<OrderItem> iterator;
 		for(iterator=orderItems.iterator();iterator.hasNext();)
 		{

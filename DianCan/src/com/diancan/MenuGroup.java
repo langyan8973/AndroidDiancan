@@ -36,10 +36,7 @@ public class MenuGroup extends ActivityGroup {
 		rootLayout=(LinearLayout)findViewById(R.id.group_Layout);
 		rootLayout.removeAllViews();
 		activityManager = getLocalActivityManager();
-		//启用图片缓存
-		HttpDownloader.enableHttpResponseCache();
 		Intent intent=new Intent(MenuGroup .this,RecipeList.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         Window subActivity=getLocalActivityManager().startActivity("RecipeList",intent);
         View view=subActivity.getDecorView();
         rootLayout.addView(view);  

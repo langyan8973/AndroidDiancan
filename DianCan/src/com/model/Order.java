@@ -2,8 +2,10 @@ package com.model;
 
 // Generated 2012-2-28 10:39:34 by Hibernate Tools 3.4.0.CR1
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -20,7 +22,8 @@ public class Order implements java.io.Serializable {
 	private Date ordertime;
 	private Date enttime;
 	private Integer status;
-	private Set<OrderItem> orderItems = new HashSet<OrderItem>(0);
+	private String code;
+	private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
 	public Order() {
 	}
@@ -30,7 +33,7 @@ public class Order implements java.io.Serializable {
 	}
 
 	public Order(Desk desk, Integer number, Date starttime, Date ordertime,
-			Date enttime, Integer status, Set<OrderItem> orderItems) {
+			Date enttime, Integer status, List<OrderItem> orderItems) {
 		this.desk = desk;
 		this.number = number;
 		this.starttime = starttime;
@@ -96,11 +99,20 @@ public class Order implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Set<OrderItem> getOrderItems() {
-		return this.orderItems;
+	public String getCode() {
+		return code;
 	}
 
-	public void setOrderItems(Set<OrderItem> orderItems) {
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public List<OrderItem> getOrderItems() {
+		return orderItems;
+	}
+
+	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
 	}
+	
 }

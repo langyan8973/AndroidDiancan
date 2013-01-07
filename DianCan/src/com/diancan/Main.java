@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.androidpn.client.Constants;
-import org.androidpn.client.ServiceManager;
 
 import com.Utils.DisplayUtil;
 import com.Utils.JsonUtils;
@@ -68,6 +66,7 @@ public class Main extends TabActivity {
         m_tabHost = getTabHost();  
         m_tabHost.setup();
         m_tabHost.bringToFront();
+        m_tabHost.clearAllTabs();
         
         addMenuListTab();
         addMyTableTab();
@@ -238,7 +237,7 @@ public class Main extends TabActivity {
 //    	
 //    	declare.curDeskObj=null;
     	declare.history=null;
-    	declare.menuListDataObj=null;
+//    	declare.menuListDataObj=null;
 
     	unregisterReceiver(receiver);
 		super.onDestroy();

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mode.DeskObj;
 import com.mode.History;
 import com.model.Order;
+import com.model.OrderItem;
 
 public class JsonUtils {
 //	public static String ConvertDeskObjToJson(DeskObj deskObj)
@@ -53,7 +55,6 @@ public class JsonUtils {
 	{
 		Type objType=new TypeToken<Order>() {
 		}.getType();
-//		Gson sGson=new Gson();
 		Gson sGson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
 				.create();
 		Order order=null;
@@ -64,5 +65,20 @@ public class JsonUtils {
 			e.printStackTrace();
 		}
 		return order;
+	}
+	
+	public static Set<OrderItem> parseJsonToItems(String jsonString){
+		Type objType=new TypeToken<Set<OrderItem>>() {
+		}.getType();
+		Gson sGson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		Set<OrderItem> orderItems=null;
+		try {
+			orderItems = sGson.fromJson(jsonString, objType);
+		} catch (JsonSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return orderItems;
 	}
 }

@@ -31,7 +31,6 @@ public class TableGroup extends ActivityGroup {
 		if(declare.curOrder!=null)
 		{
 			Intent intent=new Intent(TableGroup .this,MyTable.class);
-//	      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        Window subActivity=getLocalActivityManager().startActivity("MyTable",intent);
 	        View view=subActivity.getDecorView();
 	        rootLayout.addView(view);  

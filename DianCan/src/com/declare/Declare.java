@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import cn.jpush.android.api.JPushInterface;
+
 import com.Utils.FileUtils;
 import com.download.MyResponseCache2;
 import com.mode.CategoryObj;
@@ -29,8 +31,11 @@ import android.os.Build.VERSION;
 import android.os.StrictMode;
 
 public class Declare extends Application {
+	public String udidString;
 	public MenuListDataObj menuListDataObj;
+	public HashMap<String, String> hashTypes;
 	public History history;
+	public int restaurantId;
 	
 	//2012.5.28
 	public Order curOrder;
@@ -65,6 +70,8 @@ public class Declare extends Application {
 //        .penaltyLog()
 //        .penaltyDeath()
 //        .build());
+		JPushInterface.setDebugMode(true); 	//设置开启日志,发布时请关闭日志
+        JPushInterface.init(this); 
 	}
 	
 	public MenuListDataObj getMenuListDataObj() {
@@ -116,7 +123,6 @@ public class Declare extends Application {
 			OrderItem oItem=iterator.next();
 			if(oItem.getRecipe().getId()==orderItem.getRecipe().getId())
 			{
-//				oItem.setCount(oItem.getCount()+1);
 				totalCount+=1;
 				totalPrice+=orderItem.getRecipe().getPrice();
 				isContains=true;
@@ -141,19 +147,6 @@ public class Declare extends Application {
 		totalPrice-=orderItem.getCount()*orderItem.getRecipe().getPrice();
 		curOrder.getOrderItems().remove(orderItem);
 		System.out.println("Remove2");
-//		Iterator<OrderItem> iterator;
-//		for(iterator=curOrder.getOrderItems().iterator();iterator.hasNext();)
-//		{
-//			OrderItem oItem=iterator.next();
-//			if(oItem.getRecipe().getId()==orderItem.getRecipe().getId())
-//			{
-//				totalCount-=oItem.getCount();
-//				totalPrice-=oItem.getCount()*oItem.getRecipe().getPrice();
-//				curOrder.getOrderItems().remove(oItem);
-//				System.out.println("Remove2");
-//				break;
-//			}
-//		}
 	}
 	
 	public void SubtractionItemCount(OrderItem orderItem)
@@ -162,17 +155,5 @@ public class Declare extends Application {
 		totalCount-=1;
 		totalPrice-=orderItem.getRecipe().getPrice();
 		System.out.println("Delete2");
-//		Iterator<OrderItem> iterator;
-//		for(iterator=curOrder.getOrderItems().iterator();iterator.hasNext();)
-//		{
-//			OrderItem oItem=iterator.next();
-//			if(oItem.getRecipe().getId()==orderItem.getRecipe().getId())
-//			{
-//				oItem.setCount(oItem.getCount()-1);
-//				totalCount-=1;
-//				totalPrice-=oItem.getRecipe().getPrice();
-//				break;
-//			}
-//		}
 	}
 }

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import android.R.integer;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import com.model.Category;
 import com.model.Desk;
 import com.model.DeskType;
 import com.model.Recipe;
+import com.model.Restaurant;
 
 public class MenuUtils {
 	public static final int CMD_STOP_SERVICE = 0;
@@ -39,11 +41,26 @@ public class MenuUtils {
 	public static String Service_1="加餐具";
 	public static String Service_2="加水";
 	public static String Service_3="服务员";
+	
+	/**
+	 * 获取所有餐厅
+	 * @return
+	 */
+	public static List<Restaurant> getAllRestaurants(String udid){
+		String urlString=initUrl+"restaurants";
+		String jsonString=HttpDownloader.getString(urlString,udid);
+		Type objType=new TypeToken<List<Restaurant>>() {
+		}.getType();
+		Gson sGson=new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		List<Restaurant> restaurants=sGson.fromJson(jsonString, objType);
+		return restaurants;
+	}
 
 	// 获取所有种类
-	public static List<Category> getAllCategory() {
-		String urlString = initUrl + "categories";
-		String jsonStr = HttpDownloader.getString(urlString);
+	public static List<Category> getAllCategory(int rid,String udid) {
+		String urlString = initUrl + "restaurants/"+rid+"/categories";
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 		System.out.println(jsonStr);
 
 		Type objType = new TypeToken<List<Category>>() {
@@ -55,10 +72,10 @@ public class MenuUtils {
 	}
 
 	// 获取某个种类的所有菜
-	public static List<Recipe> getRecipesByCategory(Integer id) {
+	public static List<Recipe> getRecipesByCategory(Integer id,String udid) {
 		String urlString = initUrl + "categories/" + id;
 
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 
 		Type objType = new TypeToken<List<Recipe>>() {
 		}.getType();
@@ -68,11 +85,11 @@ public class MenuUtils {
 		return infos;
 	}
 	
-	public static List<Recipe> getAllRecipes()
+	public static List<Recipe> getAllRecipes(int rid,String udid)
 	{
-		String urlString = initUrl + "recipes";
+		String urlString = initUrl + "restaurants/"+rid+"/recipes";
 
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 
 		Type objType = new TypeToken<List<Recipe>>() {
 		}.getType();
@@ -83,10 +100,10 @@ public class MenuUtils {
 	}
 
 	// 获取所有桌子
-	public static List<Desk> getAllDesks() {
+	public static List<Desk> getAllDesks(String udid) {
 		String urlString = initUrl + "desks";
 
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 
 		Type objType = new TypeToken<List<Desk>>() {
 		}.getType();
@@ -96,11 +113,11 @@ public class MenuUtils {
 		return infos;
 	}
 	//获取桌子分类
-	public static List<DeskType> getDeskTypes()
+	public static List<DeskType> getDeskTypes(String udid)
 	{
 		String urlString = initUrl + "desktypes";
 
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 
 		Type objType = new TypeToken<List<DeskType>>() {
 		}.getType();
@@ -110,11 +127,11 @@ public class MenuUtils {
 		return infos;
 	}
 	//获取分类桌子
-	public static List<Desk> getDesksByTid(int id)
+	public static List<Desk> getDesksByTid(int id,String udid)
 	{
 		String urlString = initUrl + "desktypes/"+id;
 
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 
 		Type objType = new TypeToken<List<Desk>>() {
 		}.getType();
@@ -124,12 +141,12 @@ public class MenuUtils {
 		return infos;
 	}
 
-	public static AllDomain DownloadMenusData(String strdate) {
+	public static AllDomain DownloadMenusData(String strdate,String udid) {
 		String urlString = initUrl + "all";
 		if (strdate != "") {
 			urlString += "/" + strdate;
 		}
-		String jsonStr = HttpDownloader.getString(urlString);
+		String jsonStr = HttpDownloader.getString(urlString,udid);
 		// System.out.println(jsonStr);
 
 		Type objType = new TypeToken<AllDomain>() {

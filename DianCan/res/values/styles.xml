@@ -1,5 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Widget" parent="@*android:style/Widget"/>
+	<style name="Widget.AbsListView" parent="@style/Widget">
+		<item name="android:scrollbars">vertical</item>
+		<item name="android:fadingEdge">vertical</item>
+		<item name="android:fadingEdgeLength">0.0dip</item>
+	</style>
+	<style name="Widget.AsyncImageView" parent="@style/Widget"/>
+	<style name="Widget.AsyncImageView.Default" parent="@style/Widget.AsyncImageView">
+		<item name="loadingBackground">@drawable/image_loading_small</item>
+		<item name="scaleType">centerCrop</item>
+	</style>
+	<style name="Widget.AsyncImageView.Large" parent="@style/Widget.AsyncImageView">
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">fill_parent</item>
+		<item name="loadingBackground">@drawable/image_loading_large</item>
+		<item name="progressStyle">?android:progressBarStyleLargeInverse</item>
+	</style>
+	<style name="Widget.Button" parent="@*android:style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceSmall</item>
+		<item name="android:background">@drawable/btn_default</item>
+	</style>
+	<style name="Widget.Button.Red" parent="@style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceMediumInverse</item>
+		<item name="android:textColor">?android:textColorPrimaryInverseDisableOnly</item>
+		<item name="android:background">@drawable/btn_red</item>
+	</style>
+	<style name="Widget.Button.Title" parent="@style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
+		<item name="android:textColor">?android:textColorPrimaryInverseDisableOnly</item>
+		<item name="android:background">@drawable/btn_title</item>
+	</style>
+	<style name="Widget.Button.TagLeft" parent="@style/Widget.Button">
+		<item name="android:textColor">@drawable/btn_tag_left_text</item>
+		<item name="android:background">@drawable/btn_tag_left</item>
+		<item name="android:button">@null</item>
+	</style>
+	<style name="Widget.EditText" parent="@*android:style/Widget.EditText">
+		<item name="android:textAppearance">?android:textAppearanceMedium</item>
+		<item name="android:background">@drawable/edit_text</item>
+	</style>
+	<style name="Widget.TextView" parent="@style/Widget"/>
+	<style name="Widget.TextView.TextArrow" parent="@style/Widget.TextView">
+		<item name="android:textAppearance">?android:textAppearanceMedium</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:background">@drawable/bkg_transluscent</item>
+		<item name="android:padding">10.0dip</item>
+		<item name="android:drawableRight">@drawable/ic_array_small</item>
+	</style>
+	<style name="Widget.TextView.Title" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/white</item>
+	</style>
+	<style name="Widget.TextView.Title.Item" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/gray</item>
+	</style>
+	<style name="Widget.ListView" parent="@style/Widget.AbsListView">
+		<item name="android:listSelector">@drawable/list_selector_background</item>
+		<item name="android:cacheColorHint">@null</item>
+		<item name="android:divider">@drawable/dotted_line</item>
+		<item name="android:footerDividersEnabled">false</item>
+	</style>
+	<style name="Widget.TextView.SpinnerItem" parent="@*android:style/Widget.TextView.SpinnerItem">
+		<item name="android:textAppearance">?android:textAppearanceMedium</item>
+		<item name="android:gravity">center</item>
+	</style>
+	<style name="ButtonBar">
+		<item name="android:gravity">center</item>
+		<item name="android:background">@drawable/bottom_bar</item>
+		<item name="android:paddingLeft">4.0dip</item>
+		<item name="android:paddingTop">5.0dip</item>
+		<item name="android:paddingRight">4.0dip</item>
+		<item name="android:paddingBottom">1.0dip</item>
+	</style>
     <style name="AnimationActivity" parent="@android:style/Animation.Activity" mce_bogus="1">    
 		<item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>          
 		<item name="android:activityOpenExitAnimation">@anim/push_left_out</item>          

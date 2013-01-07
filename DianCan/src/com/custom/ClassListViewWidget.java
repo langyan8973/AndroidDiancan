@@ -51,6 +51,7 @@ public class ClassListViewWidget extends LinearLayout {
 		this.addView(line);
 		
 		listView=new ListView(context);
+		listView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,300));
 		listView.setDivider(new ColorDrawable(Color.rgb(204, 204, 204)));
 		listView.setSelector(new ColorDrawable(Color.argb(0, 255, 255, 255)));
 		listView.setCacheColorHint(Color.TRANSPARENT);

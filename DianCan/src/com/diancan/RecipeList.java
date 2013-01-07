@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.Utils.CustomViewBinder;
 import com.Utils.DisplayUtil;
+import com.Utils.JsonUtils;
 import com.Utils.MenuUtils;
 import com.custom.ImageDownloader;
 import com.custom.ListImgDownloader;
@@ -18,6 +19,7 @@ import com.download.HttpDownloader;
 import com.mode.CategoryObj;
 import com.mode.SelectedMenuObj;
 import com.model.Category;
+import com.model.Order;
 import com.model.OrderItem;
 import com.model.Recipe;
 import android.app.Activity;
@@ -25,6 +27,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +50,26 @@ public class RecipeList extends Activity {
 	LinearLayout groupLayout;
 	ImageDownloader imgDownloader;
 	
+	private Handler httpHandler = new Handler() {  
+        public void handleMessage (Message msg) {//此方法在ui线程运行   
+            switch(msg.what) {  
+            case 0: 
+            	String errString=msg.obj.toString();
+            	ShowError(errString);
+                break;   
+            case 1: 
+            	RequestRecipes();
+                break;  
+            case 2:
+            	UpdateOrder();
+            	break;
+            case 3:
+            	InitCategoryList();
+            	break;
+            }  
+        }  
+    };
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -62,34 +85,155 @@ public class RecipeList extends Activity {
 		sHeight=DisplayUtil.DPHEIGHT-63;
 		
 		hashlist=new ArrayList<HashMap<String,Object>>();	
-		InitCategoryList();
+		RequestAllTypes();
 	}
 	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		if(m_arr==null){
+			return;
+		}
 		categoryList.postDelayed(new Runnable() {
 	        @Override
 	        public void run() {	
-	        	if(cIndex==-1)
-	        	{
-	        		HashMap<String, Object> map=hashlist.get(1);
-	        		String nameString=map.get("name").toString();
-	        		simpleAdapter.setSelectedName(nameString);
-	        		simpleAdapter.notifyDataSetChanged();
-	        		cIndex=1;
-	        		DisplayRecipeList(cIndex);
-	        	}
-	        	else {
-	        		HashMap<String, Object> map=hashlist.get(cIndex);
-	        		String nameString=map.get("name").toString();
-	        		simpleAdapter.setSelectedName(nameString);
-	        		simpleAdapter.notifyDataSetChanged();
-	        		DisplayRecipeList(cIndex);
-				}
+	        	HashMap<String, Object> map=hashlist.get(cIndex);
+        		String nameString=map.get("name").toString();
+        		simpleAdapter.setSelectedName(nameString);
+        		simpleAdapter.notifyDataSetChanged();
+        		DisplayRecipeList(cIndex);
 	        }
 	    }, 100);
+	}
+	
+	/**
+  	 * 显示错误信息
+  	 * @param strMess
+  	 */
+  	public void ShowError(String strMess) {
+		Toast toast = Toast.makeText(RecipeList.this, strMess, Toast.LENGTH_SHORT); 
+        toast.show();
+	}
+  	
+  	/**
+	 * 请求所有的菜的类型
+	 */
+	public void RequestAllTypes()
+	{
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+				try {
+					declare.getMenuListDataObj().categories=MenuUtils.getAllCategory(declare.restaurantId,declare.udidString);
+					declare.hashTypes=new HashMap<String, String>();
+					Iterator<Category> iterator;
+					for(iterator=declare.getMenuListDataObj().categories.iterator();iterator.hasNext();){
+						Category category=iterator.next();
+						declare.hashTypes.put(category.getId()+"", category.getName());
+					}
+					httpHandler.obtainMessage(1).sendToTarget();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				}
+				
+			}
+		}).start();
+		
+	}
+	
+	/**
+  	 * 请求所有的菜
+  	 */
+  	public void RequestRecipes()
+	{	
+  		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+				try {
+					List<Recipe> recipes=MenuUtils.getAllRecipes(declare.restaurantId,declare.udidString);
+					if(recipes==null){
+						String strnull="获取菜品失败！";
+						httpHandler.obtainMessage(0,strnull).sendToTarget();
+						return;
+					}
+					HashMap<Integer, List<OrderItem>> recipeHashMap=declare.getMenuListDataObj().getRecipeMap();
+					
+					Iterator<Recipe> iterator;
+					for(iterator=recipes.iterator();iterator.hasNext();)
+					{
+						Recipe recipe=iterator.next();
+						if(recipeHashMap.containsKey(recipe.getCid()))
+						{
+							List<OrderItem> orderItems=recipeHashMap.get(recipe.getCid());
+							OrderItem oItem=new OrderItem();
+							oItem.setRecipe(recipe);
+							oItem.setCount(0);
+							orderItems.add(oItem);
+						}
+						else {
+							List<OrderItem> orderItems=new ArrayList<OrderItem>();
+							recipeHashMap.put(recipe.getCid(), orderItems);
+							OrderItem oItem=new OrderItem();
+							oItem.setRecipe(recipe);
+							oItem.setCount(0);
+							orderItems.add(oItem);
+						}
+							
+					}
+					httpHandler.obtainMessage(2).sendToTarget();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					String strmsg=e.getMessage();
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				}
+				
+			}
+		}).start();
+  			
+	}
+  	
+  	public void UpdateOrder()
+	{
+		if(declare.curOrder==null)
+		{
+			InitCategoryList();
+		}
+		else {
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					
+					try {
+						String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+declare.restaurantId+"/orders/" +declare.curOrder.getId(),
+								declare.udidString);
+						if(resultString==null)
+						{
+							httpHandler.obtainMessage(0,"编码错误！").sendToTarget();
+							return;
+						}
+						else {
+						Order order=JsonUtils.ParseJsonToOrder(resultString);
+						declare.curOrder=order;
+						httpHandler.obtainMessage(3).sendToTarget();
+					}
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+					}
+					
+				}
+			}).start();
+	}
 	}
 	
 	/***
@@ -98,7 +242,6 @@ public class RecipeList extends Activity {
 	public void InitCategoryList()
 	{
 		try {
-//			declare.getMenuListDataObj().categories=MenuUtils.getAllCategory();
 			m_arr = declare.getMenuListDataObj().categories;
 			
 		} catch (Exception e) {
@@ -108,17 +251,7 @@ public class RecipeList extends Activity {
         	toast.show();
         	return;
 		}	
-//		if(categories!=null&&categories.size()>0)
-//		{
-//			for(Category category:categories)
-//			{
-//				declare.getMenuListDataObj().categoryObjs.add(new CategoryObj(category));
-//			}
-//		}
-//		else {
-//			return;
-//		}
-//		m_arr=declare.getMenuListDataObj().getCategoryObjs();
+
 		for(final Category category:m_arr)
 		{		
 			HashMap<String, Object> map=new HashMap<String, Object>();
@@ -133,7 +266,19 @@ public class RecipeList extends Activity {
 		simpleAdapter.setSelectedName("");
 		categoryList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		categoryList.setAdapter(simpleAdapter);
-		categoryList.setOnItemClickListener(new ListItemClick());	 
+		categoryList.setOnItemClickListener(new ListItemClick());
+		
+		categoryList.postDelayed(new Runnable() {
+	        @Override
+	        public void run() {	
+	        	HashMap<String, Object> map=hashlist.get(1);
+        		String nameString=map.get("name").toString();
+        		simpleAdapter.setSelectedName(nameString);
+        		simpleAdapter.notifyDataSetChanged();
+        		cIndex=1;
+        		DisplayRecipeList(cIndex);
+	        }
+	    }, 100);
 		
 	}
 	
@@ -164,7 +309,7 @@ public class RecipeList extends Activity {
 		{
 			try {
 				List<Recipe> recipes = MenuUtils
-						.getRecipesByCategory(category.getId());
+						.getRecipesByCategory(category.getId(),declare.udidString);
 				List<OrderItem> orderItems=new ArrayList<OrderItem>();
 				Iterator<Recipe> iterator;
 				for(iterator=recipes.iterator();iterator.hasNext();)

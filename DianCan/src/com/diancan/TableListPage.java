@@ -197,7 +197,7 @@ public class TableListPage extends Activity {
 	
 	private void InitDeskTypes()
 	{
-		types=MenuUtils.getDeskTypes();
+		types=MenuUtils.getDeskTypes(declare.udidString);
 		ArrayList<HashMap<String, Object>> typeHashMaps=new ArrayList<HashMap<String,Object>>();
 		for(final DeskType deskType:types)
 		{		
@@ -243,7 +243,7 @@ public class TableListPage extends Activity {
 		mDeskList.clear();
 		try {
 			
-			deskList=MenuUtils.getDesksByTid(selectDeskType.getId());
+			deskList=MenuUtils.getDesksByTid(selectDeskType.getId(),declare.udidString);
 			Iterator<Desk> iterator;
 			for(iterator=deskList.iterator();iterator.hasNext();)
 			{
@@ -491,7 +491,7 @@ public class TableListPage extends Activity {
 	{
 		//开台
 		try {
-			String resultString = HttpDownloader.submitOrder(MenuUtils.initUrl, id, count);
+			String resultString = HttpDownloader.submitOrder(MenuUtils.initUrl, id, count,declare.udidString);
 			System.out.println("resultString:"+resultString);
 			Order order=JsonUtils.ParseJsonToOrder(resultString);
 			declare.curOrder=order;

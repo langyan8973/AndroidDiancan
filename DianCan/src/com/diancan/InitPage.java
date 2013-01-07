@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import cn.jpush.android.api.JPushInterface;
+
 import com.Utils.DisplayUtil;
 import com.Utils.FileUtils;
 import com.Utils.JsonUtils;
@@ -18,13 +20,16 @@ import com.model.Order;
 import com.model.OrderItem;
 import com.model.Recipe;
 
+import android.R.string;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
@@ -41,10 +46,8 @@ public class InitPage extends Activity {
             	ShowError(errString);
                 break;   
             case 1: 
-            	RequestRecipes();
                 break;  
             case 2:
-            	UpdateOrder();
             	break;
             case 3:
             	ToMain();
@@ -72,40 +75,6 @@ public class InitPage extends Activity {
   		
   	    //获取应用全局变量   
         final Declare declare=(Declare)getApplicationContext();       
-//        DeskObj deskObj=null;
-//        String jsonString="";
-//        try {
-//			jsonString=FileUtils.ReadDingDan(this);
-//			deskObj=JsonUtils.ParseJsonToDeskObj(jsonString);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//			// TODO: handle exception
-//		}
-//        
-        History history=null;
-//        jsonString="";
-//        try {
-//			jsonString=FileUtils.ReadHistory(this);
-//			history=JsonUtils.ParseJsonToHistory(jsonString);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-        
-//        if(deskObj!=null)
-//        {
-//        	declare.curDeskObj=deskObj;
-//        }
-        if(history!=null)
-        {
-        	declare.history=history;
-        }
-        else {
-			declare.history=new History();			
-		}
         //初始化必要的全局变量
         declare.menuListDataObj=new MenuListDataObj();
         
@@ -116,137 +85,71 @@ public class InitPage extends Activity {
         MenuUtils.initUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.updateUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.imageUrl="http://"+getResources().getString(R.string.image_service);
+        HttpDownloader.enableHttpResponseCache();
         
-        RequestAllTypes();
+        SharedPreferences deviceInfo = getSharedPreferences("X-device", 0);
+        String deviceString = deviceInfo.getString("udid", "");
+        if(TextUtils.isEmpty(deviceString))
+        {
+        	deviceString =  JPushInterface.getUdid(getApplicationContext());
+        	deviceInfo.edit().putString("udid",deviceString).commit();
+        	RegisterUdid(deviceString);
+        }
+        declare.udidString=deviceString;
         //判断机型
         printDeviceInf();
-        // Start the service
-//      ServiceManager serviceManager = new ServiceManager(this);
-//      serviceManager.setNotificationIcon(R.drawable.notification);
-//      serviceManager.startService();
         int wifi=getWifiRssi();//获取wifi信号强度
         if(wifi<=-70)
         {
         	ShowError("当前网络信号强度非常差。");
         }
+        Sleep();
 	}
 	
-	/**
-	 * 请求所有的菜的类型
-	 */
-	public void RequestAllTypes()
-	{
+	private void RegisterUdid(final String udid){
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				
 				try {
-					Declare declare=(Declare)getApplicationContext();
-					declare.getMenuListDataObj().categories=MenuUtils.getAllCategory();
-					httpHandler.obtainMessage(1).sendToTarget();
-				} catch (Exception e) {
+					String resultString = HttpDownloader.RegisterUdid(udid,MenuUtils.initUrl+ "device");
+					
+				} catch (Throwable e) {
 					// TODO Auto-generated catch block
-					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+					e.printStackTrace();
 				}
-				
 			}
 		}).start();
-		
 	}
 	
-	/**
-  	 * 请求所有的菜
-  	 */
-  	public void RequestRecipes()
-	{	
-  		new Thread(new Runnable() {
+	public void Sleep(){
+		Thread th=new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				
 				try {
-					Declare declare=(Declare)getApplicationContext(); 
-					List<Recipe> recipes=MenuUtils.getAllRecipes();
-					HashMap<Integer, List<OrderItem>> recipeHashMap=declare.getMenuListDataObj().getRecipeMap();
-					
-					Iterator<Recipe> iterator;
-					for(iterator=recipes.iterator();iterator.hasNext();)
-					{
-						Recipe recipe=iterator.next();
-						if(recipeHashMap.containsKey(recipe.getCid()))
-						{
-							List<OrderItem> orderItems=recipeHashMap.get(recipe.getCid());
-							OrderItem oItem=new OrderItem();
-							oItem.setRecipe(recipe);
-							oItem.setCount(0);
-							orderItems.add(oItem);
-						}
-						else {
-							List<OrderItem> orderItems=new ArrayList<OrderItem>();
-							recipeHashMap.put(recipe.getCid(), orderItems);
-							OrderItem oItem=new OrderItem();
-							oItem.setRecipe(recipe);
-							oItem.setCount(0);
-							orderItems.add(oItem);
-						}
-							
-					}
-					httpHandler.obtainMessage(2).sendToTarget();
+					Thread.sleep(1000);
+					httpHandler.obtainMessage(3).sendToTarget();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 				}
 				
 			}
-		}).start();
-  			
+		});
+		th.start();
 	}
-  	
-  	public void UpdateOrder()
-  	{
-  		final Declare declare=(Declare)getApplicationContext();
-  		if(declare.curOrder==null)
-  		{
-  			ToMain();
-  		}
-  		else {
-  			new Thread(new Runnable() {
-  				
-  				@Override
-  				public void run() {
-  					// TODO Auto-generated method stub
-  					
-  					try {
-  						String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "orders/" +declare.curOrder.getId());
-  						if(resultString==null)
-  						{
-  							httpHandler.obtainMessage(0,"编码错误！").sendToTarget();
-  							return;
-  						}
-  						else {
-							Order order=JsonUtils.ParseJsonToOrder(resultString);
-							declare.curOrder=order;
-							httpHandler.obtainMessage(3).sendToTarget();
-						}
-  					} catch (Exception e) {
-  						// TODO Auto-generated catch block
-  						httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-  					}
-  					
-  				}
-  			}).start();
-		}
-  	}
+	
   	
   	/**
   	 * 跳转
   	 */
   	public void ToMain()
   	{
-  		Intent intent=new Intent(this,Main.class);
+  		Intent intent=new Intent(this,RestaurantActivity.class);
         startActivity(intent);
         this.finish();
   	}

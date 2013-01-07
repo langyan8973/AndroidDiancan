@@ -68,7 +68,8 @@ public class TableCodePage extends Activity {
 	public void RequestTable(String codeString)
 	{
 		try {
-			String resultString = HttpDownloader.getString(MenuUtils.initUrl+"orders/desk/"+codeString);
+			String resultString = HttpDownloader.getString(MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders?code="+codeString,
+					declare.udidString);
 			System.out.println("resultString:"+resultString);
 			final Order order=JsonUtils.ParseJsonToOrder(resultString);
 			declare.curOrder=order;
@@ -84,7 +85,6 @@ public class TableCodePage extends Activity {
 					declare.getMenuListDataObj().ChangeRecipeMapByOrder(order);
 				}
 			}.start();
-            ToMyTable();
             
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -93,6 +93,7 @@ public class TableCodePage extends Activity {
             toast.show();
             return;
 		}
+		ToMyTable();
 	}
 	
 	/***

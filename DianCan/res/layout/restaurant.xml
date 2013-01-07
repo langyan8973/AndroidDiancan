@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:orientation="vertical" 
+    android:background="@color/background_color" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+	<RelativeLayout android:background="@drawable/bkg_titlebar" 
+	    android:paddingLeft="10.0dip" 
+	    android:paddingRight="10.0dip" 
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content">
+		<TextView android:textAppearance="?android:textAppearanceMediumInverse" 
+		    android:gravity="center" 
+		    android:id="@+id/tv_title" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:text="餐厅" 
+		    android:lines="2" 
+		    style="@style/Widget.TextView.Title"
+		    android:layout_centerInParent="true"/>
+	</RelativeLayout>
+	<RelativeLayout android:layout_width="fill_parent" 
+	    android:layout_height="fill_parent">
+		<ListView android:id="@+id/rList" 
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:headerDividersEnabled="false"
+		    style="@style/Widget.ListView"
+		    />
+	</RelativeLayout>
+</LinearLayout>

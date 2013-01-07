@@ -169,7 +169,7 @@ public class SelectedProduct  implements Serializable {
 		bState=false;
 		strdate="";
 		dicMenusHashtable.clear();
-		Set<OrderItem> orderSet=order.getOrderItems();
+		List<OrderItem> orderSet=order.getOrderItems();
 		Iterator<OrderItem> iterator;
 		for(iterator=orderSet.iterator();iterator.hasNext();)
 		{
