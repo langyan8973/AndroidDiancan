@@ -28,7 +28,7 @@
 	</style>
 	<style name="Widget.Button.Title" parent="@style/Widget.Button">
 		<item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
-		<item name="android:textColor">?android:textColorPrimaryInverseDisableOnly</item>
+		<item name="android:textColor">@color/white</item>
 		<item name="android:background">@drawable/btn_title</item>
 	</style>
 	<style name="Widget.Button.TagLeft" parent="@style/Widget.Button">

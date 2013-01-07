@@ -19,10 +19,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ import android.widget.ListView;
 
 public class RestaurantActivity extends Activity {
 	ListView mListView;
+	Button cameraButton;
 	List<Restaurant> mRestaurants;
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
@@ -59,7 +62,8 @@ public class RestaurantActivity extends Activity {
 		
 		mListView=(ListView)findViewById(R.id.rList);
 		mListView.setOnItemClickListener(new ListItemClick());
-		
+		cameraButton=(Button)findViewById(R.id.bt_camera);
+		cameraButton.setOnClickListener(new cameraClick());
 		RequestRestaurants();
 	}
 	
@@ -119,6 +123,17 @@ public class RestaurantActivity extends Activity {
 		Toast toast = Toast.makeText(RestaurantActivity.this, strMess, Toast.LENGTH_SHORT); 
         toast.show();
 	}
+  	
+  	class cameraClick implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			Intent intent=new Intent(RestaurantActivity.this, CaptureActivity.class);
+		    startActivity(intent);
+		}
+  		
+  	}
   	
   	/***
   	 * 列表点击
