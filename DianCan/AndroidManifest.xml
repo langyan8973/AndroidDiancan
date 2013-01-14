@@ -52,7 +52,8 @@
         </activity>
         <activity android:name=".RestaurantActivity" />
         <activity android:name=".CaptureActivity"
-			android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
+			android:screenOrientation="landscape" 
+			android:configChanges="orientation|keyboardHidden"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 			android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name=".MenuGroup" />
@@ -66,7 +67,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".TableGroup" />
-        <activity android:name=".TableCodePage" />
+        <activity android:name=".TableCodePage" />        
         <activity android:name=".MyTable" />
         <activity android:name=".RecipeList" />
         <activity android:name=".RecipeFlipPage" />

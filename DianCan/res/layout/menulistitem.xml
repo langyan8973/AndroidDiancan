@@ -6,11 +6,10 @@
 <RelativeLayout android:orientation="vertical" 
     android:layout_width="fill_parent" 
 	android:layout_height="wrap_content">
-	<LinearLayout android:layout_width="fill_parent"
+	<LinearLayout android:layout_width="320dip"
 	    android:layout_height="wrap_content"
 	    android:orientation="horizontal"
-	    android:background="@drawable/leftviewcell"
-	    android:padding="3dip"
+	    style="@style/RecipeTopBar"
 	    android:id="@+id/toplayout">
 	    <ImageView android:id="@+id/img" 
 		    android:layout_width="64dip"

@@ -3,14 +3,24 @@ package com.diancan;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+
+import com.Utils.JsonUtils;
+import com.Utils.MenuUtils;
+import com.declare.Declare;
 import com.diancan.camera.CameraManager;
 import com.diancan.decoding.CaptureActivityHandler;
 import com.diancan.decoding.InactivityTimer;
 import com.diancan.view.ViewfinderView;
+import com.download.HttpDownloader;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.model.Order;
 
+import android.R.integer;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -18,11 +28,13 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CaptureActivity extends Activity implements Callback {
 
@@ -38,6 +50,21 @@ public class CaptureActivity extends Activity implements Callback {
 	private static final float BEEP_VOLUME = 0.10f;
 	private boolean vibrate;
 
+	private Handler httpHandler = new Handler() {  
+        public void handleMessage (Message msg) {//此方法在ui线程运行   
+            switch(msg.what) {  
+            case 0: 
+            	String errString=msg.obj.toString();
+            	ShowError(errString);
+                break;   
+            case 1: 
+            	Order order=(Order)msg.obj;
+            	ToMain(order);
+                break;  
+            
+            }  
+        }  
+    };
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +102,14 @@ public class CaptureActivity extends Activity implements Callback {
 		vibrate = true;
 	}
 
+	/**
+  	 * 显示错误信息
+  	 * @param strMess
+  	 */
+  	public void ShowError(String strMess) {
+		Toast toast = Toast.makeText(CaptureActivity.this, strMess, Toast.LENGTH_SHORT); 
+        toast.show();
+	}
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -145,6 +180,47 @@ public class CaptureActivity extends Activity implements Callback {
 		 playBeepSoundAndVibrate();
 		txtResult.setText(obj.getBarcodeFormat().toString() + ":"
 				+ obj.getText());
+		String codeString=obj.getText();
+		RequestOrder(obj.getText());
+	}
+	
+	private void RequestOrder(final String codeString){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Declare declare=(Declare)CaptureActivity.this.getApplicationContext();
+				String urlString=MenuUtils.initUrl+"QR/"+codeString;
+				try {
+					String jsonString=HttpDownloader.GetOrderForm(urlString, declare.udidString);
+					Order order=JsonUtils.ParseJsonToOrder(jsonString);
+					httpHandler.obtainMessage(1,order).sendToTarget();
+				} catch (ClientProtocolException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+				}
+			}
+		}).start();
+		
+	}
+	
+	private void ToMain(Order order){
+		Declare declare=(Declare)CaptureActivity.this.getApplicationContext();
+		declare.curOrder=order;
+		declare.restaurantId=order.getRestaurant().getId();
+		Intent intent=new Intent(CaptureActivity.this, Main.class);
+	    startActivity(intent);
+	    this.finish();
 	}
 
 	private void initBeepSound() {

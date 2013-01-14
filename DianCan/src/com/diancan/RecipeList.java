@@ -5,19 +5,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import com.Utils.CustomViewBinder;
 import com.Utils.DisplayUtil;
 import com.Utils.JsonUtils;
 import com.Utils.MenuUtils;
 import com.custom.ImageDownloader;
-import com.custom.ListImgDownloader;
-import com.custom.Workspace;
+import com.custom.MyViewGroup;
+import com.custom.RecipeLayout;
 import com.declare.Declare;
 import com.download.HttpDownloader;
-import com.mode.CategoryObj;
-import com.mode.SelectedMenuObj;
 import com.model.Category;
 import com.model.Order;
 import com.model.OrderItem;
@@ -25,30 +21,32 @@ import com.model.Recipe;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class RecipeList extends Activity {
+	RecipeLayout mRecipeLayout;
 	ListView categoryList;
+	MyViewGroup mRecipeGroup;
 	Declare declare;	
 	List<Category> m_arr;
 	List<OrderItem> mOrderItemarr;
 	ArrayList<HashMap<String, Object>> hashlist;
 	RecipeListAdapter simpleAdapter;
 	int sWidth,sHeight,cIndex,rIndex;
-	LinearLayout groupLayout;
 	ImageDownloader imgDownloader;
+	
 	
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
@@ -74,17 +72,15 @@ public class RecipeList extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.recipelist);
-		categoryList=(ListView)findViewById(R.id.CategoryList);
-		groupLayout=(LinearLayout)findViewById(R.id.group_root);
-		imgDownloader=new ImageDownloader();
+		mRecipeLayout=new RecipeLayout(this);
+		setContentView(mRecipeLayout);
 		declare=(Declare)getApplicationContext();
 		cIndex=-1;
-		
 		sWidth = DisplayUtil.DPWIDTH;
 		sHeight=DisplayUtil.DPHEIGHT-63;
+		hashlist=new ArrayList<HashMap<String,Object>>();
 		
-		hashlist=new ArrayList<HashMap<String,Object>>();	
+		InitElement();
 		RequestAllTypes();
 	}
 	
@@ -106,6 +102,19 @@ public class RecipeList extends Activity {
 	        }
 	    }, 100);
 	}
+	
+	private void InitElement(){
+		imgDownloader=new ImageDownloader();
+		categoryList=new ListView(this);
+	    categoryList.setDivider(new ColorDrawable(Color.parseColor("#FFCCCCCC")));
+	    categoryList.setDividerHeight(DisplayUtil.dip2px(20));
+	    categoryList.setSelector(this.getResources().getDrawable(R.drawable.co));
+	    categoryList.setCacheColorHint(Color.parseColor("#00000000"));
+	    mRecipeLayout.addView(categoryList);
+	    
+	}
+	
+	
 	
 	/**
   	 * 显示错误信息
@@ -191,7 +200,6 @@ public class RecipeList extends Activity {
 					httpHandler.obtainMessage(2).sendToTarget();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					String strmsg=e.getMessage();
 					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 				}
 				
@@ -271,11 +279,11 @@ public class RecipeList extends Activity {
 		categoryList.postDelayed(new Runnable() {
 	        @Override
 	        public void run() {	
-	        	HashMap<String, Object> map=hashlist.get(1);
+	        	HashMap<String, Object> map=hashlist.get(0);
         		String nameString=map.get("name").toString();
         		simpleAdapter.setSelectedName(nameString);
         		simpleAdapter.notifyDataSetChanged();
-        		cIndex=1;
+        		cIndex=0;
         		DisplayRecipeList(cIndex);
 	        }
 	    }, 100);
@@ -326,22 +334,6 @@ public class RecipeList extends Activity {
 				return;
 			}
 		}
-//		if(categoryObj.getSelectedMenuObjs().size()==0)
-//		{
-//			try {
-//				List<Recipe> recipes = MenuUtils
-//						.getRecipesByCategory(categoryObj.getId());
-//				Iterator<Recipe> iterator;
-//				for(iterator=recipes.iterator();iterator.hasNext();)
-//				{
-//					categoryObj.getSelectedMenuObjs().add(new SelectedMenuObj(iterator.next()));
-//				}
-//			} catch (Exception e) {
-//				// TODO: handle exception
-//				System.out.println(e.getMessage());
-//				return;
-//			}
-//		}
 		mOrderItemarr=declare.getMenuListDataObj().getRecipeMap().get(category.getId());
 		if(mOrderItemarr==null||mOrderItemarr.size()==0)
 		{
@@ -350,15 +342,18 @@ public class RecipeList extends Activity {
 		if(declare.curOrder!=null)
 		{
 			//同步数据
-//			declare.SyncMenuListByCategory(categoryObj);
 			declare.getMenuListDataObj().SyncMenuListByCategory(category, declare.curOrder);
 		}
-		groupLayout.removeAllViews();
-		Workspace groupWorkspace=new Workspace(this, sWidth-80, sHeight,mOrderItemarr,imgDownloader,cIndex);
-		groupLayout.addView(groupWorkspace);
-
+		int left=0;
+		if(mRecipeGroup!=null)
+		{
+			left=mRecipeGroup.getmLeft();
+			mRecipeLayout.removeView(mRecipeGroup);
+		}
+		mRecipeGroup=null;
+		mRecipeGroup=new MyViewGroup(this, sWidth, sHeight,left,cIndex,mOrderItemarr, imgDownloader);
+	    mRecipeLayout.addView(mRecipeGroup);
 	}
-	
 	
 	
 	public class RecipeListAdapter extends SimpleAdapter{

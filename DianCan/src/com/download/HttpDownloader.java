@@ -241,18 +241,11 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable 
 	 */
-	public static String RequestFinally(String rootUrl,String idString,String udid) throws Throwable
+	public static String RequestFinally(String urlString,String udid) throws Throwable
 	{
-		JSONObject object = new JSONObject();
-		object.put("status", 12);
 		
-		StringEntity entity = new StringEntity(object.toString(), "UTF-8");
-		entity.setContentType("application/json;charset=UTF-8");
-		entity.setContentEncoding("UTF-8");
-		
-		HttpPut put=new HttpPut(rootUrl+"orders/"+idString);
+		HttpPut put=new HttpPut(urlString);
 		put.addHeader("X-device",udid);
-		put.setEntity(entity);
 		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response=client.execute(put);
 		HttpEntity responseEntity = response.getEntity();

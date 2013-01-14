@@ -72,6 +72,13 @@
 		<item name="android:paddingRight">4.0dip</item>
 		<item name="android:paddingBottom">1.0dip</item>
 	</style>
+	<style name="RecipeTopBar">
+		<item name="android:background">@drawable/recipe_bar_top</item>
+		<item name="android:paddingLeft">3.0dip</item>
+		<item name="android:paddingTop">3.0dip</item>
+		<item name="android:paddingRight">3.0dip</item>
+		<item name="android:paddingBottom">3.0dip</item>
+	</style>
     <style name="AnimationActivity" parent="@android:style/Animation.Activity" mce_bogus="1">    
 		<item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>          
 		<item name="android:activityOpenExitAnimation">@anim/push_left_out</item>          

@@ -109,6 +109,12 @@ public class MyTable extends Activity {
     		TableListAdapter listAdapter=new TableListAdapter(this, itemlist, tagList,mOrderItems);
     		orderListView.setAdapter(listAdapter);
     		sumTextView.setText(sumString+declare.totalPrice);
+    		if(declare.curOrder.getStatus()>=3){
+    			overButton.setEnabled(false);
+    		}
+    		else{
+    			overButton.setEnabled(true);
+    		}
     	}
     	else{
     		UpdateElement();	
@@ -213,6 +219,12 @@ public class MyTable extends Activity {
     		listAdapter.setOrderItemList(mOrderItems);
     		listAdapter.notifyDataSetChanged();
     		sumTextView.setText(sumString+declare.totalPrice);
+    		if(declare.curOrder.getStatus()>=3){
+    			overButton.setEnabled(false);
+    		}
+    		else{
+    			overButton.setEnabled(true);
+    		}
     	}
     	else {
     		overButton.setVisibility(View.GONE);
@@ -276,22 +288,23 @@ public class MyTable extends Activity {
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
+			mProgressBar.setVisibility(View.VISIBLE);
 			try {
-				String jsString = HttpDownloader.RequestFinally(MenuUtils.initUrl, declare.curOrder.getId().toString(),
-						declare.udidString);
-				Order order=JsonUtils.ParseJsonToOrder(jsString);
+				String urlString=MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders/"+declare.curOrder.getId()+"/tocheck";
+				String jsString = HttpDownloader.RequestFinally(urlString,declare.udidString);
+				httpHandler.obtainMessage(1,jsString).sendToTarget();
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
-				ShowError(e.getMessage());
+				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				ShowError(e.getMessage());
+				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-				ShowError(e.getMessage());
+				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 			} catch (Throwable e) {
 				// TODO Auto-generated catch block
-				ShowError(e.getMessage());
+				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
 			}
 		}    	
     }
@@ -492,7 +505,7 @@ public class MyTable extends Activity {
 		        OrderItem orderItem=TableListAdapter.this.orderItemList.get(position);
 	            int mCount=Integer.parseInt(map.get("count").toString());
 	            
-	            if(map.get("status").toString().equals("1"))
+	            if(map.get("status")!=null&&map.get("status").toString().equals("1"))
 	            {
 	            	imgadd.setVisibility(View.INVISIBLE);
 	            	imgdelete.setVisibility(View.INVISIBLE);

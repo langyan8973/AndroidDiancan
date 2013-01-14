@@ -14,6 +14,7 @@ import com.diancan.Main;
 import com.diancan.MenuBook;
 import com.diancan.MenuGroup;
 import com.diancan.R;
+import com.diancan.RecipeList;
 import com.download.HttpDownloader;
 import com.mode.SelectedMenuObj;
 import com.model.OrderItem;
@@ -44,6 +45,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;  
 import android.widget.ImageView;  
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Scroller;  
 import android.widget.TextView;
 import android.widget.Toast;  
@@ -73,63 +75,82 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     Button txtView;
     int sendId,sendCount;  
     boolean ispop=false;
+    boolean isRight=false;
+    boolean lrAction=false;
+    int mLeft;
   
-    public MyViewGroup(Context context,int width,int height,List<OrderItem> orderItems,
-    		ImageDownloader imgDownloader,int cindex) {  
+    public MyViewGroup(Context context,int width,int height,int left,int cindex,List<OrderItem> orderItems,
+    		ImageDownloader imgDownloader) {  
         super(context);  
+        // TODO Auto-generated constructor stub  
         mContext = context; 
-        cIndex=cindex;
-        selectedOrderItems=orderItems;
         mImageDownloader=imgDownloader;
+        selectedOrderItems=orderItems;
+        cIndex=cindex;
         sWidth=DisplayUtil.dip2px(width);
         sHeight=DisplayUtil.dip2px(height);
+        mLeft=left;
         itemTopHeight=DisplayUtil.dip2px(73);
         itemBotmHeight=DisplayUtil.dip2px(63);
-        // TODO Auto-generated constructor stub  
-        mScroller = new Scroller(context); 
-        detector = new GestureDetector(this); 
-        
-      txtView=new Button(context);
-      LayoutParams lp=new LayoutParams(LayoutParams.FILL_PARENT,itemTopHeight);
-      txtView.setLayoutParams(lp);
-      txtView.setText("更多");
-      txtView.setOnClickListener(new MoreClick());  
-      
-        ViewConfiguration configuration = ViewConfiguration.get(context);  
+        mScroller = new Scroller(mContext); 
+        detector = new GestureDetector(this);
+        ViewConfiguration configuration = ViewConfiguration.get(mContext);  
         // 获得可以认为是滚动的距离  
-        mTouchSlop = configuration.getScaledTouchSlop();  
-//        if(selectedOrderItems.size()>10)
-//        {
-//        	startIndex=0;
-//        	mLength=10;
-//        	AddRecipes(startIndex, mLength);
-//        	addView(txtView);
-//        	count=getChildCount();
-//        }
-//        else {
-//        	startIndex=0;
-//        	mLength=selectedOrderItems.size();
-//			AddRecipes(startIndex, mLength);
-//			count=getChildCount();
-//		}
-        startIndex=0;
+        mTouchSlop = configuration.getScaledTouchSlop(); 
+    	startIndex=0;
         mLength=selectedOrderItems.size();
+        
+//	    txtView=new Button(context);
+//	    LayoutParams lp=new LayoutParams(LayoutParams.FILL_PARENT,itemTopHeight);
+//	    txtView.setLayoutParams(lp);
+//	    txtView.setText("更多");
+//	    txtView.setOnClickListener(new MoreClick());  
         AddRecipes(startIndex, mLength);
         count=getChildCount();       
-        
         MAXMOVE=(count*itemTopHeight)-sHeight;
     }  
-  
-    /***
+
+
+	public int getcIndex() {
+		return cIndex;
+	}
+
+
+	public void setcIndex(int cIndex) {
+		this.cIndex = cIndex;
+	}
+
+
+	public List<OrderItem> getSelectedOrderItems() {
+		return selectedOrderItems;
+	}
+
+
+	public void setSelectedOrderItems(List<OrderItem> selectedOrderItems) {
+		this.selectedOrderItems = selectedOrderItems;
+	}
+	
+
+	public int getmLeft() {
+		return mLeft;
+	}
+
+	public void setmLeft(int mLeft) {
+		this.mLeft = mLeft;
+	}
+
+	/***
      * 增加菜谱列表项
      * @param startIndex
      * @param length
      */
-    public void AddRecipes(int startIndex,int length)
+    public void AddRecipes(int startindex,int length)
     {
-    	for (int i = startIndex; i < startIndex+length; i++) {  
+    	for (int i = startindex; i < startindex+length; i++) {  
         	LayoutInflater inflater = (LayoutInflater)getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE);
         	View view = inflater.inflate(R.layout.menulistitem, null);
+        	LayoutParams vLayoutParams=new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
+        	view.setLayoutParams(vLayoutParams);
         	addView(view);
 
         	TextView titleView=(TextView)view.findViewById(R.id.title);
@@ -139,7 +160,6 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
         	ImageView img=(ImageView)view.findViewById(R.id.img);
         	mImageDownloader.download(MenuUtils.imageUrl+selectedOrderItems.get(i).getRecipe().getImage(), img);
         	ImageView littleImg=(ImageView)view.findViewById(R.id.littleImg);
-//        	mImageDownloader.download(MenuUtils.imageUrl+selectedOrderItems.get(i).getRecipe().getImage(), littleImg);
         	TextView countView=(TextView)view.findViewById(R.id.count);
         	ImageView duihaoView=(ImageView)view.findViewById(R.id.duihao);
         	int count=selectedOrderItems.get(i).getCount();
@@ -163,8 +183,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
         	jianImg.setOnClickListener(new jianOnclick(countView, duihaoView, selectedOrderItems.get(i)));
         	//点击图片跳转
         	img.setOnClickListener(new ImgOnclick(i));
-        	
         }  
+    	
     }
     
     @Override  
@@ -212,7 +232,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     public boolean onTouchEvent(MotionEvent ev) {  
   
         // final int action = ev.getAction();
-        final float y = ev.getY();  
+        final float y = ev.getY(); 
+        final float x = ev.getX();
         switch (ev.getAction())  
         {  
         case MotionEvent.ACTION_DOWN:  
@@ -228,8 +249,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
                 // 随手指 拖动的代码  
                 int deltaY = 0;  
                 deltaY = (int) (mLastMotionY - y);  
+                
                 mLastMotionY = y;  
-//                Log.d("move", "" + move);  
                 if (deltaY < 0) {  
                     // 下移  
                     // 判断上移 是否滑过头  
@@ -304,14 +325,29 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
             float velocityY) {  
          //随手指 快速拨动的代码  
         Log.d("onFling", "onFling");  
-        if (up_excess_move == 0 && down_excess_move == 0) {  
-  
-            int slow = -(int) velocityY * 3 / 4; 
-            mScroller.fling(0, move, 0, slow, 0, 0, 0, MAXMOVE);  
-            move = mScroller.getFinalY();  
-            computeScroll();  
-        }  
-        return false;  
+        boolean isLR=false;
+        if(Math.abs(velocityX)>Math.abs(velocityY)){
+        	if(velocityX>=0){
+            	StartToRight();
+            	postInvalidate();
+            }else{
+            	StartToLeft();
+            	postInvalidate();
+            }
+        	isLR=true;
+        }
+        else{
+        	if (up_excess_move == 0 && down_excess_move == 0) {  
+        		  
+                int slow = -(int) velocityY ; //*3/4;
+                mScroller.fling(0, move, 0, slow, 0, 0, 0, MAXMOVE);  
+                move = mScroller.getFinalY();  
+                computeScroll();  
+            }
+        	isLR=false;
+        }
+          
+        return isLR;  
     }  
   
     public boolean onDown(MotionEvent e) {  
@@ -359,6 +395,18 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
         } 
         System.out.println("onlayout====end===========");
     }  
+    
+    public void StartToRight(){
+    	this.clearAnimation();
+    	Animation animation=new GroupMoveAnimation(200, 0, 200, this, sWidth, sHeight);
+        this.startAnimation(animation);
+    }
+    
+    public void StartToLeft(){
+    	this.clearAnimation();
+    	Animation animation=new GroupMoveAnimation(200, 200, 0, this, sWidth, sHeight);
+        this.startAnimation(animation);
+    }
    
     public void StartAnimation(int clicknum,int times)
     {
@@ -550,15 +598,12 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
   	{
   		Declare  declare = (Declare)mContext.getApplicationContext();
   		declare.AddItemToOrder(orderItem);
-//        declare.curDeskObj.getSelectedProduct().AddMenu(menu);
-//        declare.curDeskObj.getSelectedProduct().setbState(false);
   	}
   	//从订单中删除
   	public void deleteFromOrderForm(OrderItem orderItem)
   	{
   		Declare  declare = (Declare)mContext.getApplicationContext();
   		declare.RemoveItemFromOrder(orderItem);
-//  		declare.curDeskObj.getSelectedProduct().DeleteMenu(menu);	
   			
   	}
   	//从订单中减菜  指个数
@@ -566,7 +611,6 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
   	{
   		Declare  declare = (Declare)mContext.getApplicationContext();
   		declare.SubtractionItemCount(orderItem);
-//  		declare.curDeskObj.getSelectedProduct().RemoveMenu(menu);
   	}
   	public void SendSetCountMessage()
     {
@@ -588,28 +632,22 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
-			removeView(txtView);
-			startIndex=startIndex+mLength;
-			if(selectedOrderItems.size()>startIndex+10)
-			{
-				mLength=10;
-				AddRecipes(startIndex, mLength);
-	        	addView(txtView);
-	        	count=getChildCount();
-			}
-			else {
-				mLength=selectedOrderItems.size()-startIndex;
-				AddRecipes(startIndex, mLength);
-				count=getChildCount();
-			}
-			MAXMOVE=count*itemTopHeight-sHeight;
-			curview=-1;
-			
-//			Button btnView=new Button(getContext());
-//			LayoutParams lp=new LayoutParams(LayoutParams.FILL_PARENT,itemTopHeight);
-//			btnView.setLayoutParams(lp);
-//			btnView.setText("new");
-//			addView(btnView);
+//			removeView(txtView);
+//			startIndex=startIndex+mLength;
+//			if(selectedOrderItems.size()>startIndex+10)
+//			{
+//				mLength=10;
+//				AddRecipes(startIndex, mLength);
+//	        	addView(txtView);
+//	        	count=getChildCount();
+//			}
+//			else {
+//				mLength=selectedOrderItems.size()-startIndex;
+//				AddRecipes(startIndex, mLength);
+//				count=getChildCount();
+//			}
+//			MAXMOVE=count*itemTopHeight-sHeight;
+//			curview=-1;
 		}
   		
   	}
@@ -761,9 +799,9 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
 			img.setAlpha(255);
 			int x1=0;
 			int y1=0;
-			int x2=DisplayUtil.dip2px(123);
+			int x2=DisplayUtil.dip2px(183);
 			int y2=-DisplayUtil.dip2px(33);
-			int x3=DisplayUtil.dip2px(147);
+			int x3=DisplayUtil.dip2px(223);
 			int y3=DisplayUtil.dip2px(7);
 			
 			ListPopImgAnimation tAnimation=new ListPopImgAnimation(400, x1,y1,x2,y2,x3,y3);
@@ -778,7 +816,6 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
 					// TODO Auto-generated method stub
 					img.clearAnimation();
 					img.setImageBitmap(null);
-//					img.setAlpha(0);
 					//加减菜请求
 					sendId=mOrderItem.getRecipe().getId();
 					sendCount=1;
@@ -851,7 +888,6 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
 			}
 			else {						
 				mOrderItem.setCount(rCount);
-//				menuObj.setTotalPrice(rCount*menuObj.getPrice());
 				Subtraction(mOrderItem);
 				SendSetCountMessage();
 			}

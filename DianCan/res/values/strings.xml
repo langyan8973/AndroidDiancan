@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, main!</string>
-    <string name="app_name">DianCan</string>
+    <string name="app_name">淘吃客</string>
     <string name="db_folder">/sdcard/ChiHuoPro</string>
     <string name="db_file">/sdcard/ChiHuoPro/menus.db</string>
     <string name="img_folder">/sdcard/ChiHuoPro/MenuImg</string>
-    <string name="url_service">192.168.1.106:8080/ChihuoPlatform/rest/</string>
-    <string name="image_service">192.168.1.106:8080/MenuImages/</string>
+    <string name="url_service">192.168.1.107:8080/ChihuoPlatform/rest/</string>
+    <string name="image_service">192.168.1.107:8080/MenuImages/</string>
     <!-- 开始点菜按钮文字 -->
     <string name="btn_start">选餐桌</string>
     <!-- 搜索按钮文字 -->

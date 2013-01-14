@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 
 import com.Utils.DisplayUtil;
@@ -22,6 +23,7 @@ import com.model.Recipe;
 
 import android.R.string;
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
@@ -62,7 +64,7 @@ public class InitPage extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.initpage);
 		
-		//屏幕尺寸容器
+		//屏幕尺寸容器测试
   		DisplayMetrics dm;
   		dm = new DisplayMetrics();
   		this.getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -96,6 +98,12 @@ public class InitPage extends Activity {
         	RegisterUdid(deviceString);
         }
         declare.udidString=deviceString;
+     // 设置通知样式
+      	BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
+      	builder.statusBarDrawable = R.drawable.notification_icon;
+      	builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+      	builder.notificationDefaults = Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE;  // 设置为铃声与震动都要
+      	JPushInterface.setPushNotificationBuilder(1, builder);
         //判断机型
         printDeviceInf();
         int wifi=getWifiRssi();//获取wifi信号强度

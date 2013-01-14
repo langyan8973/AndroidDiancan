@@ -38,6 +38,7 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -58,6 +59,8 @@ public class Main extends TabActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE); 
+        //输入法弹出时整个页面上移以免压盖输入框
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(R.layout.main);
         //获取应用全局变量   
         final Declare declare=(Declare)getApplicationContext();       
@@ -237,7 +240,10 @@ public class Main extends TabActivity {
 //    	
 //    	declare.curDeskObj=null;
     	declare.history=null;
-//    	declare.menuListDataObj=null;
+    	declare.menuListDataObj.categories.clear();
+    	declare.menuListDataObj.recipeMap.clear();
+    	declare.hashTypes.clear();
+    	declare.restaurantId=0;
 
     	unregisterReceiver(receiver);
 		super.onDestroy();

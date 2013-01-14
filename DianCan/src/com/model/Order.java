@@ -23,6 +23,7 @@ public class Order implements java.io.Serializable {
 	private Date enttime;
 	private Integer status;
 	private String code;
+	private Restaurant restaurant;
 	private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
 	public Order() {
@@ -113,6 +114,14 @@ public class Order implements java.io.Serializable {
 
 	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
+	}
+
+	public Restaurant getRestaurant() {
+		return restaurant;
+	}
+
+	public void setRestaurant(Restaurant restaurant) {
+		this.restaurant = restaurant;
 	}
 	
 }

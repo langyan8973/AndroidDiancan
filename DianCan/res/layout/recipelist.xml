@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal"
-    android:background="#FFCCCCCC">  
+    android:background="#FFCCCCCC">
 	<LinearLayout android:layout_width="80dip"
 	    android:layout_height="fill_parent"
+	    android:layout_alignParentLeft="true"
 	    >
 	    <ListView android:id="@+id/CategoryList"
 	        android:layout_width="fill_parent"
@@ -17,13 +17,9 @@
 	           
 	    </ListView>
 	</LinearLayout>
-	<LinearLayout android:layout_width="5dip"
-	    android:layout_height="fill_parent">
-	    
-	</LinearLayout>
 	<LinearLayout android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_weight="1"
+	    android:layout_alignParentLeft="true"
 	    android:id="@+id/group_root">
 	   <!-- <ListView android:id="@+id/RecipeList"
 	       android:layout_width="fill_parent"
@@ -34,4 +30,4 @@
 	       
 	   </ListView>  -->
 	</LinearLayout>
-</LinearLayout>
+</FrameLayout>
