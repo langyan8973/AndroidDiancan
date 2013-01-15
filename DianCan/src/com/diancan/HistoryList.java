@@ -48,28 +48,28 @@ public class HistoryList extends ListActivity {
 		sWidth = dm.widthPixels;
 		sHeight=dm.heightPixels;
 		declare=(Declare)getApplicationContext();
-		selectedProducts=declare.getHistory().getHisSelectedProducts();
-		if(selectedProducts.size()>0)
-		{
-			CreateList();
-		}
+//		selectedProducts=declare.getHistory().getHisSelectedProducts();
+//		if(selectedProducts.size()>0)
+//		{
+//			CreateList();
+//		}
 	}
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		if(selectedProducts.size()>0)
-		{
-			if(hisAdapter==null)
-			{
-				CreateList();
-			}
-			else {
-				UpdateHashList();
-				hisAdapter.setmItemList(hashList);
-				hisAdapter.notifyDataSetChanged();
-			}
-		}
+//		if(selectedProducts.size()>0)
+//		{
+//			if(hisAdapter==null)
+//			{
+//				CreateList();
+//			}
+//			else {
+//				UpdateHashList();
+//				hisAdapter.setmItemList(hashList);
+//				hisAdapter.notifyDataSetChanged();
+//			}
+//		}
 	}
 	public void CreateList()
 	{

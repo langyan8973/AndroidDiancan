@@ -1,34 +1,18 @@
 package com.declare;
 
-import java.io.File;
-import java.net.ResponseCache;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import cn.jpush.android.api.JPushInterface;
-
-import com.Utils.FileUtils;
-import com.download.MyResponseCache2;
-import com.mode.CategoryObj;
-import com.mode.DeskObj;
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.MKEvent;
+import com.baidu.mapapi.MKGeneralListener;
 import com.mode.History;
 import com.mode.MenuListDataObj;
-import com.mode.SelectedMenuObj;
-import com.mode.SelectedProduct;
-import com.model.AllDomain;
-import com.model.Category;
-import com.model.Desk;
 import com.model.Order;
 import com.model.OrderItem;
-
-import android.R.integer;
 import android.app.Application;
-import android.os.Build;
-import android.os.Build.VERSION;
-import android.os.StrictMode;
+import android.util.Log;
+import android.widget.Toast;
 
 public class Declare extends Application {
 	public String udidString;
@@ -36,6 +20,11 @@ public class Declare extends Application {
 	public HashMap<String, String> hashTypes;
 	public History history;
 	public int restaurantId;
+	//百度地图相关
+	public String BMapKey="79D53C4E2FE1E8F907D3087A68958DFDB8CE1E6C";
+	public BMapManager mBMapMan;
+	static Declare mDemoApp;
+	boolean m_bKeyRight=true;
 	
 	//2012.5.28
 	public Order curOrder;
@@ -155,5 +144,25 @@ public class Declare extends Application {
 		totalCount-=1;
 		totalPrice-=orderItem.getRecipe().getPrice();
 		System.out.println("Delete2");
+	}
+	
+	public static class MyGeneralListener implements MKGeneralListener {
+		@Override
+		public void onGetNetworkState(int iError) {
+			Log.d("MyGeneralListener", "onGetNetworkState error is "+ iError);
+			Toast.makeText(Declare.mDemoApp.getApplicationContext(), "onGetNetworkState error is "+ iError,
+					Toast.LENGTH_LONG).show();
+		}
+
+		@Override
+		public void onGetPermissionState(int iError) {
+			Log.d("MyGeneralListener", "onGetPermissionState error is "+ iError);
+			if (iError ==  MKEvent.ERROR_PERMISSION_DENIED) {
+				Toast.makeText(Declare.mDemoApp.getApplicationContext(), 
+						"onGetPermissionState error is "+ iError,
+						Toast.LENGTH_LONG).show();
+				Declare.mDemoApp.m_bKeyRight = false;
+			}
+		}
 	}
 }

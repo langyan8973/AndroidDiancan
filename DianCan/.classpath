@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="libs/gson-1.6.jar"/>
 	<classpathentry kind="lib" path="libs/jpush-sdk-release1.3.3.jar"/>
 	<classpathentry kind="lib" path="libs/core.jar"/>
+	<classpathentry kind="lib" path="libs/baidumapapi.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

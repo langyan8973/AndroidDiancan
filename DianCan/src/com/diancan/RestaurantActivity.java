@@ -34,6 +34,7 @@ import android.widget.ListView;
 public class RestaurantActivity extends Activity {
 	ListView mListView;
 	Button cameraButton;
+	Button mapButton;
 	List<Restaurant> mRestaurants;
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
@@ -64,6 +65,8 @@ public class RestaurantActivity extends Activity {
 		mListView.setOnItemClickListener(new ListItemClick());
 		cameraButton=(Button)findViewById(R.id.bt_camera);
 		cameraButton.setOnClickListener(new cameraClick());
+		mapButton=(Button)findViewById(R.id.bt_map);
+		mapButton.setOnClickListener(new mapClick());
 		RequestRestaurants();
 	}
 	
@@ -130,6 +133,18 @@ public class RestaurantActivity extends Activity {
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
 			Intent intent=new Intent(RestaurantActivity.this, CaptureActivity.class);
+		    startActivity(intent);
+		}
+  		
+  	}
+  	
+  	class mapClick implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			Intent intent=new Intent(RestaurantActivity.this, MapViewActivity.class);
+			
 		    startActivity(intent);
 		}
   		

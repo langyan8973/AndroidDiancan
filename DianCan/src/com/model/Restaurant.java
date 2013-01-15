@@ -12,6 +12,8 @@ public class Restaurant implements java.io.Serializable {
 	String address;
 	String telephone;
 	int status;
+	float x;
+	float y;
 	
 	public Restaurant(){
 		
@@ -56,5 +58,23 @@ public class Restaurant implements java.io.Serializable {
 	public void setStatus(int status) {
 		this.status = status;
 	}
+
+	public float getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
+	}
+	
+	
 	
 }

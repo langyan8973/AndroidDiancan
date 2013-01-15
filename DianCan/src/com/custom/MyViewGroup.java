@@ -90,8 +90,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
         sWidth=DisplayUtil.dip2px(width);
         sHeight=DisplayUtil.dip2px(height);
         mLeft=left;
-        itemTopHeight=DisplayUtil.dip2px(73);
-        itemBotmHeight=DisplayUtil.dip2px(63);
+        itemTopHeight=DisplayUtil.dip2px(76);
+        itemBotmHeight=DisplayUtil.dip2px(66);
         mScroller = new Scroller(mContext); 
         detector = new GestureDetector(this);
         ViewConfiguration configuration = ViewConfiguration.get(mContext);  

@@ -2,17 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="80dip"
     android:layout_height="40dip"
-    android:orientation="vertical" 
-    android:gravity="center"
-    android:background="@drawable/cat_list_item_bg">
+    style="@style/Widget.Layout.CategoryListItem"
+    >
     <TextView android:id="@+id/category_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@drawable/listitem_txtcolor"/>
+        style="@style/Widget.TextView.CategoryTitle"
+        />
     <TextView android:id="@+id/category_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        style="@style/Widget.TextView.Gone"
+        />
 
 </LinearLayout>

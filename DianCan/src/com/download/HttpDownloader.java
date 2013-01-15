@@ -133,6 +133,7 @@ public class HttpDownloader {
 		  HttpPost httppost = new HttpPost(strurl); 
 		  List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1); 
 		   nameValuePairs.add(new BasicNameValuePair("udid", id+""));
+		   nameValuePairs.add(new BasicNameValuePair("ptype", "1"));
 		   httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs)); 
 
 		   HttpResponse response; 

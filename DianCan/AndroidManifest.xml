@@ -4,7 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8"></uses-sdk>
 	<!-- 请注意包名不要是com.example.jpushdemo，以免冲突 -->
     <permission
         android:name="com.diancan.permission.JPUSH_MESSAGE"
@@ -31,6 +31,11 @@
     <uses-feature android:name="android.hardware.camera" />
 	<uses-feature android:name="android.hardware.camera.autofocus" />
 	<uses-permission android:name="android.permission.FLASHLIGHT"/>
+	
+	<supports-screens android:largeScreens="true"
+	    android:normalScreens="false" android:smallScreens="true"
+	    android:resizeable="true" android:anyDensity="true"/>
+	
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" 
@@ -51,6 +56,7 @@
             android:label="@string/app_name" android:screenOrientation="portrait">
         </activity>
         <activity android:name=".RestaurantActivity" />
+        <activity android:name=".MapViewActivity" />
         <activity android:name=".CaptureActivity"
 			android:screenOrientation="landscape" 
 			android:configChanges="orientation|keyboardHidden"
