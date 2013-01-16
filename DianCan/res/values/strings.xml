@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, main!</string>
     <string name="app_name">淘吃客</string>
-    <string name="db_folder">/sdcard/ChiHuoPro</string>
-    <string name="db_file">/sdcard/ChiHuoPro/menus.db</string>
-    <string name="img_folder">/sdcard/ChiHuoPro/MenuImg</string>
-    <string name="url_service">192.168.1.107:8080/ChihuoPlatform/rest/</string>
-    <string name="image_service">192.168.1.107:8080/MenuImages/</string>
+    <string name="url_service">192.168.1.109:8080/ChihuoPlatform/rest/</string>
+    <string name="image_service">192.168.1.109:8080/MenuImages/</string>
     <!-- 开始点菜按钮文字 -->
     <string name="btn_start">选餐桌</string>
-    <!-- 搜索按钮文字 -->
-    <string name="btn_search">搜索</string>
-    <!-- 提示选择餐桌 -->
-    <string name="table_select_info">请选餐桌</string>
-    <!-- 错误提示框标题 -->
-    <string name="title_errdialog">错误</string>
-    <!-- 普通提示框标题 -->
-    <string name="title_alertdialog">提示</string>
-    <!-- 弹出框确定按钮显示文字 -->
-    <string name="okstr_dialog">确定</string>
-    <!-- 弹出框取消按钮显示文字 -->
-    <string name="cancelstr_dialog">取消</string>
-    <!-- 下载进度提示框标题 -->
-    <string name="title_downdialog">下载</string>
-    <!-- 下载进度提示框提示信息 -->
-    <string name="infostr_downdialog">正在下载数据请稍候.....</string>
-    <!-- 下载失败提示信息 -->
-    <string name="infostr_downerr">数据下载失败！</string>
-    <!-- 数据更新完成提示信息 -->
-    <string name="toaststr_updateok">数据更新完成！</string>
     <!-- Tab1标题 -->
     <string name="title_Tab1">菜单</string>
     <!-- Tab2标题 -->
@@ -37,22 +13,10 @@
     <string name="title_Tab3">我的服务</string>
     <!-- Tab4标题 -->
     <string name="title_Tab4">历史订单</string>
-    <!-- 菜单类别选择提示 -->
-    <string name="title_menuSpinner">请选择种类</string>
-    <!-- listview分页加载页脚进度提示信息 -->
-    <string name="infostr_listviewfooter">加载中...</string>
-    <!-- 数据更新完成提示刷新 -->
-    <string name="infostr_refresh">数据更新完成，要刷新列表吗？</string>
     <!-- 消费总计信息 -->
     <string name="infostr_sum">合计：</string>
-    <!-- 提交按钮文字 -->
-    <string name="btnstr_commit">提交</string>
     <!-- 结账按钮文字 -->
     <string name="btnstr_over">结账</string>
-    <!-- contextmenu标题 -->
-    <string name="title_contextmenu">操作</string>
-    <!-- delete菜单项文字 -->
-    <string name="menustr_delete">删除</string>
     <!-- 歷史訂單應用按鈕文字 -->   
     <string name="btnstr_use">应用到餐桌</string>
     <!-- 歷史訂單列表标题 -->
@@ -61,4 +25,7 @@
     <string name="btnstr_updatenow">现在更新</string>
     <!-- 不更新按钮文字 -->
     <string name="btnstr_updatewait">以后再说</string>
+    <!-- 图片描述 -->
+    <string name="image_discription">图片</string>
+    <string name="ClickTitle">点</string>
 </resources>

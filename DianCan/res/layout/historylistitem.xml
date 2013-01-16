@@ -8,7 +8,7 @@
          android:layout_alignParentLeft="true"
          android:layout_centerVertical="true"
          android:textColor="#FF090909"
-         android:textSize="20dip"/>
+         android:textSize="20sp"/>
     
      <TextView android:id="@+id/txtSum" 
          android:layout_width="wrap_content"
@@ -16,5 +16,5 @@
          android:layout_alignParentRight="true"
          android:layout_centerVertical="true"
          android:textColor="#FF090909"
-         android:textSize="15dip"/>
+         android:textSize="15sp"/>
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.mode;
 
 import com.Utils.MenuUtils;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.webkit.ValueCallback;
 import android.widget.Scroller;
 
+@SuppressLint("ViewConstructor")
 public class PageWidget extends View {
 
 	private static final String TAG = "hmg";
@@ -67,9 +69,6 @@ public class PageWidget extends View {
 	Scroller mScroller;
 	public boolean isAnimation;	
 	public boolean toRight;
-//	Animation mCurrentAnimation = null;
-//	Transformation mTransformation = new Transformation();
-	
 	public PageWidget(Context context,int width,int height) {
 		super(context);
 		// TODO Auto-generated constructor stub

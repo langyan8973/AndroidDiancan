@@ -20,12 +20,12 @@
           	android:layout_width="wrap_content"
           	android:layout_height="wrap_content" 
           	android:textColor="#FF090909"
-          	android:textSize="16dp" />
+          	android:textSize="16sp" />
 	    <TextView android:id="@+id/mprice"
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content" 
 	    	android:textColor="#FFAAAAAA" 
-	    	android:textSize="15dp" />
+	    	android:textSize="15sp" />
     </LinearLayout>
     <LinearLayout 
         android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
 	          android:layout_width="40dip"
 	          android:layout_height="30dip"
 	          android:textColor="#FFFF0000"
-	          android:textSize="20dip"
+	          android:textSize="20sp"
 	          android:gravity="center"/> 
 		
 	    <ImageView android:id="@+id/imgadd" 

@@ -5,7 +5,6 @@
     android:background="#FFCCCCCC">
 	<LinearLayout android:layout_width="80dip"
 	    android:layout_height="fill_parent"
-	    android:layout_alignParentLeft="true"
 	    >
 	    <ListView android:id="@+id/CategoryList"
 	        android:layout_width="fill_parent"
@@ -19,7 +18,6 @@
 	</LinearLayout>
 	<LinearLayout android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_alignParentLeft="true"
 	    android:id="@+id/group_root">
 	   <!-- <ListView android:id="@+id/RecipeList"
 	       android:layout_width="fill_parent"

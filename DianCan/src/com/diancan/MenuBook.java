@@ -215,7 +215,7 @@ public class MenuBook extends Activity {
 	public void DisplayRecipeList(int position)
 	{
 		Category category=m_arr.get(position);
-		if(!declare.getMenuListDataObj().getRecipeMap().containsKey(category.getId()))
+		if(declare.getMenuListDataObj().getRecipeMap().indexOfKey(category.getId())<0)
 		{
 			try {
 				List<OrderItem> orderItems=new ArrayList<OrderItem>();

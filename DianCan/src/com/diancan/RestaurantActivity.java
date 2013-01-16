@@ -11,6 +11,7 @@ import com.custom.ImageDownloader;
 import com.declare.Declare;
 import com.model.Restaurant;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +37,7 @@ public class RestaurantActivity extends Activity {
 	Button cameraButton;
 	Button mapButton;
 	List<Restaurant> mRestaurants;
+	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.R.integer;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -48,6 +49,7 @@ public class MapViewActivity extends MapActivity {
 	int iZoom = 0;
 	int selectId=0;
 	List<Restaurant> mRestaurants;
+	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  

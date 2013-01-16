@@ -20,6 +20,7 @@ import com.mode.SelectedMenuObj;
 import com.model.OrderItem;
 
 import android.R.integer;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Context;  
@@ -29,6 +30,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
+import android.util.AttributeSet;
 import android.util.Log;  
 import android.view.GestureDetector;  
 import android.view.LayoutInflater;
@@ -50,6 +52,7 @@ import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;  
   
+@SuppressLint("ViewConstructor")
 public class MyViewGroup extends ViewGroup implements OnGestureListener{  
   
     private float mLastMotionY;// 最后点击的点  
@@ -78,6 +81,7 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     boolean isRight=false;
     boolean lrAction=false;
     int mLeft;
+    
   
     public MyViewGroup(Context context,int width,int height,int left,int cindex,List<OrderItem> orderItems,
     		ImageDownloader imgDownloader) {  

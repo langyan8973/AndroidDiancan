@@ -19,6 +19,7 @@ import com.download.HttpDownloader;
 import com.model.Order;
 import com.model.OrderItem;
 import com.model.Recipe;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.BroadcastReceiver;
@@ -60,6 +61,7 @@ public class MyTable extends Activity {
 	private List<HashMap<String, Object>> itemlist = new ArrayList<HashMap<String, Object>>();  
 	private List<HashMap<String, Object>> tagList = new ArrayList<HashMap<String, Object>>();
 	
+	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  
@@ -336,22 +338,6 @@ public class MyTable extends Activity {
 	}
     
     
-    public void ToTableList()
-    {
-    	TableGroup parent = (TableGroup) getParent();
-	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.table_continer);
-		contain.removeAllViews();
-		Intent in = new Intent(getParent(), TableListPage.class);
-		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		LocalActivityManager manager = parent.getLocalActivityManager();
-		Window window = manager.startActivity("TableListPage", in);
-		View view=window.getDecorView();		
-		contain.addView(view);
-		LayoutParams params=(LayoutParams) view.getLayoutParams();
-        params.width=LayoutParams.FILL_PARENT;
-        params.height=LayoutParams.FILL_PARENT;
-        view.setLayoutParams(params);
-    }
     
 	public OrderItem GetItemById(int id,Order order)
 	{

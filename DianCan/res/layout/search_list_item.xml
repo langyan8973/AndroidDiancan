@@ -7,18 +7,18 @@
           	android:layout_width="wrap_content"
           	android:layout_height="wrap_content" 
           	android:textColor="#FF090909"
-          	android:textSize="20dip" />
+          	android:textSize="20sp" />
     <TextView android:id="@+id/menuCindex"
     	android:layout_width="wrap_content" 
     	android:layout_height="wrap_content" 
     	android:textColor="#FFAAAAAA" 
-    	android:textSize="15dip"
+    	android:textSize="15sp"
     	android:visibility="invisible" /> 
     <TextView android:id="@+id/menuRindex"
     	android:layout_width="wrap_content" 
     	android:layout_height="wrap_content" 
     	android:textColor="#FFAAAAAA" 
-    	android:textSize="15dip" 
+    	android:textSize="15sp" 
     	android:visibility="invisible"/>    
 
 </LinearLayout>

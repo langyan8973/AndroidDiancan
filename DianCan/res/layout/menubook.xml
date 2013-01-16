@@ -21,7 +21,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:background="@drawable/dianblack"
-            android:text="点"
+            android:text="@string/ClickTitle"
             android:textColor="#FFFFFFFF"
             android:id="@+id/BtnDian"/>
     </RelativeLayout>

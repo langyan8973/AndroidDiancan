@@ -112,7 +112,6 @@ public final class ViewfinderView extends View {
       if (currentPossible.isEmpty()) {
         lastPossibleResultPoints = null;
       } else {
-        possibleResultPoints = new HashSet<ResultPoint>(5);
         lastPossibleResultPoints = currentPossible;
         paint.setAlpha(OPAQUE);
         paint.setColor(resultPointColor);

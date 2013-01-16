@@ -1,91 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-	android:orientation="vertical" android:layout_width="fill_parent" 
-	android:layout_height="wrap_content"
-	android:background="#FFCCCCCC">   
-<RelativeLayout android:orientation="vertical" 
-    android:layout_width="fill_parent" 
-	android:layout_height="wrap_content">
-	<LinearLayout android:layout_width="320dip"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    style="@style/RecipeTopBar"
-	    android:id="@+id/toplayout">
-	    <ImageView android:id="@+id/img" 
-		    android:layout_width="64dip"
-		    android:layout_height="64dip"
-		    android:scaleType="fitXY"
-		    android:layout_margin="3dip"/> 
-       <LinearLayout android:orientation="vertical" 
-            android:layout_width="fill_parent"  
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFCCCCCC"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/toplayout"
+        style="@style/RecipeTopBar"
+        android:layout_width="320dip"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:layout_margin="3dip"
+            android:scaleType="fitXY" />
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"> 
-            <TextView android:id="@+id/title" 
-            	android:layout_width="120dip"
-            	android:layout_height="wrap_content" 
-            	android:textColor="#FF090909"
-            	android:textSize="16sp" />
-            <TextView android:id="@+id/price"
-            	android:layout_width="wrap_content" 
-            	android:layout_height="wrap_content" 
-            	android:textColor="#FFAA0000" 
-            	android:textSize="15sp" />
-        </LinearLayout> 
-        <TextView android:id="@+id/index"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="120dip"
+                android:layout_height="wrap_content"
+                android:textColor="#FF090909"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFAA0000"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/index"
             android:layout_width="11dip"
             android:layout_height="20dip"
             android:textColor="#FFFF0000"
-            android:visibility="invisible"/>
-        <ImageView android:id="@+id/duihao"
-	            android:layout_width="20dip"
-	            android:layout_height="20dip"
-	            android:layout_margin="3dip"
-	            android:src="@drawable/duihao"
-	            android:visibility="invisible"
-	    />
-	    <!-- <com.custom.RecipeListView android:id="@+id/RecipeView"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/duihao"
+            android:layout_width="20dip"
+            android:layout_height="20dip"
+            android:layout_margin="3dip"
+            android:src="@drawable/duihao"
+            android:visibility="invisible" />
+        <!--
+             <com.custom.RecipeListView android:id="@+id/RecipeView"
 	        android:layout_width="fill_parent"
-	        android:layout_height="70dip" /> -->
-	</LinearLayout>
-	<RelativeLayout android:layout_width="fill_parent"
-	    android:layout_height="63dip"
-	    android:background="@drawable/recipebottom"
-	    android:layout_alignParentRight="true"
-	    android:layout_alignParentLeft="true"
-	    android:layout_below="@+id/toplayout">
-	    <LinearLayout android:layout_width="wrap_content"
-	        android:layout_height="fill_parent"
-	        android:layout_centerVertical="true"
-	        android:layout_alignParentRight="true"
-	        android:orientation="horizontal"
-	        android:paddingTop="12dip"
-	        android:paddingBottom="0dip"
-	        android:paddingRight="20dip">
-	        <ImageView android:id="@+id/jianhao"
-	            android:layout_width="33dip"
-	            android:layout_height="33dip"
-	            android:src="@drawable/jianhaodrawable"
-	            />
-	        <TextView android:id="@+id/count"
-	            android:layout_width="67dip"
-	            android:layout_height="33dip"
-	            android:textColor="#FFFF0000"
-	            android:gravity="center"
-	            android:textSize="18sp"/>
-	        <ImageView android:id="@+id/jiahao"
-	            android:layout_width="33dip"
-	            android:layout_height="33dip"
-	            android:src="@drawable/jiahaodrawable"
-	            />
-	        
-	    </LinearLayout>
-	</RelativeLayout>
-	<ImageView android:id="@+id/littleImg"
-	    android:layout_width="1px"
-	    android:layout_height="1px"
-	    android:layout_alignParentLeft="true"
-	    android:layout_centerVertical="true"
-	    android:scaleType="fitXY"
-	    android:visibility="invisible"/>
-</RelativeLayout> 
+	        android:layout_height="70dip" />
+        -->
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/littleImg"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        android:scaleType="fitXY"
+        android:visibility="invisible" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="63dip"
+        android:paddingLeft="153dip"
+        android:paddingTop="20dip"
+        android:background="@drawable/recipebottom" >
+
+        <ImageView
+            android:id="@+id/jianhao"
+            android:layout_width="33dip"
+            android:layout_height="33dip"
+            android:src="@drawable/jianhaodrawable" />
+
+        <TextView
+            android:id="@+id/count"
+            android:layout_width="67dip"
+            android:layout_height="33dip"
+            android:layout_toRightOf="@+id/jianhao"
+            android:gravity="center"
+            android:textColor="#FFFF0000"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/jiahao"
+            android:layout_width="33dip"
+            android:layout_height="33dip"
+            android:layout_toRightOf="@+id/count"
+            android:src="@drawable/jiahaodrawable" />
+    </RelativeLayout>
+
 </LinearLayout>

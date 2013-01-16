@@ -12,13 +12,14 @@ import com.model.OrderItem;
 import com.model.Recipe;
 
 import android.R.integer;
+import android.util.SparseArray;
 
 public class MenuListDataObj {
 	
 	public MenuListDataObj()
 	{
 		categories=new ArrayList<Category>();
-		recipeMap=new HashMap<Integer, List<OrderItem>>();
+		recipeMap=new SparseArray<List<OrderItem>>();
 	}
 	
 	public List<Category> categories;		
@@ -29,11 +30,11 @@ public class MenuListDataObj {
 		this.categories = categories;
 	}
 	
-	public HashMap<Integer, List<OrderItem>> recipeMap;			
-	public HashMap<Integer, List<OrderItem>> getRecipeMap() {
+	public SparseArray<List<OrderItem>> recipeMap;			
+	public SparseArray<List<OrderItem>> getRecipeMap() {
 		return recipeMap;
 	}
-	public void setRecipeMap(HashMap<Integer, List<OrderItem>> recipeMap) {
+	public void setRecipeMap(SparseArray<List<OrderItem>> recipeMap) {
 		this.recipeMap = recipeMap;
 	}
 	
@@ -41,11 +42,9 @@ public class MenuListDataObj {
 	{
 		int cid=orderItem.getRecipe().getCid();
 		int id=orderItem.getRecipe().getId();
-		Iterator<Integer> iterator;
-		Set<Integer> kSet=recipeMap.keySet();
-		for(iterator=kSet.iterator();iterator.hasNext();)
-		{
-			int categoryId=iterator.next();
+		int count=recipeMap.size();
+		for(int i=0;i<count;i++){
+			int categoryId=recipeMap.keyAt(i);
 			if(categoryId==cid)
 			{
 				List<OrderItem> items=recipeMap.get(cid);
@@ -143,7 +142,7 @@ public class MenuListDataObj {
 	
 	public void SyncMenuListByCategory(Category category,Order order)
 	{
-		List<OrderItem> cOrderItems=recipeMap.get(category.getId());
+		List<OrderItem> cOrderItems=recipeMap.get(category.getId().intValue());
 		List<OrderItem> orderItems=order.getOrderItems();
 		Iterator<OrderItem> iterator;
 		for(iterator=orderItems.iterator();iterator.hasNext();)
@@ -169,11 +168,9 @@ public class MenuListDataObj {
 
 	public void RestoreCategoryMenuList()
 	{
-		Set<Integer> keySet=recipeMap.keySet();
-		Iterator<Integer> iterator;
-		for(iterator=keySet.iterator();iterator.hasNext();)
-		{
-			int key=iterator.next();
+		int count=recipeMap.size();
+		for(int i=0;i<count;i++){
+			int key=recipeMap.keyAt(i);
 			List<OrderItem> orderItems=recipeMap.get(key);
 			Iterator<OrderItem> iterator2;
 			for(iterator2=orderItems.iterator();iterator2.hasNext();)

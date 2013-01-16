@@ -18,6 +18,7 @@ import com.model.Category;
 import com.model.Order;
 import com.model.OrderItem;
 import com.model.Recipe;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -48,6 +50,7 @@ public class RecipeList extends Activity {
 	ImageDownloader imgDownloader;
 	
 	
+	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  
@@ -173,15 +176,16 @@ public class RecipeList extends Activity {
 						httpHandler.obtainMessage(0,strnull).sendToTarget();
 						return;
 					}
-					HashMap<Integer, List<OrderItem>> recipeHashMap=declare.getMenuListDataObj().getRecipeMap();
+					SparseArray<List<OrderItem>> recipeHashMap=declare.getMenuListDataObj().getRecipeMap();
 					
 					Iterator<Recipe> iterator;
 					for(iterator=recipes.iterator();iterator.hasNext();)
 					{
 						Recipe recipe=iterator.next();
-						if(recipeHashMap.containsKey(recipe.getCid()))
+						int cid=recipe.getCid().intValue();
+						if(recipeHashMap.indexOfKey(cid)>=0)
 						{
-							List<OrderItem> orderItems=recipeHashMap.get(recipe.getCid());
+							List<OrderItem> orderItems=recipeHashMap.get(cid);
 							OrderItem oItem=new OrderItem();
 							oItem.setRecipe(recipe);
 							oItem.setCount(0);
@@ -189,7 +193,7 @@ public class RecipeList extends Activity {
 						}
 						else {
 							List<OrderItem> orderItems=new ArrayList<OrderItem>();
-							recipeHashMap.put(recipe.getCid(), orderItems);
+							recipeHashMap.put(cid, orderItems);
 							OrderItem oItem=new OrderItem();
 							oItem.setRecipe(recipe);
 							oItem.setCount(0);
@@ -312,8 +316,8 @@ public class RecipeList extends Activity {
 	public void DisplayRecipeList(int position)
 	{
 		Category category=m_arr.get(position);
-		HashMap<Integer, List<OrderItem>> recipeMap=declare.getMenuListDataObj().getRecipeMap();
-		if(!recipeMap.containsKey(category.getId()))
+		SparseArray<List<OrderItem>> recipeMap=declare.getMenuListDataObj().getRecipeMap();
+		if(recipeMap.indexOfKey(category.getId())<0)
 		{
 			try {
 				List<Recipe> recipes = MenuUtils

@@ -19,6 +19,7 @@ import com.google.zxing.Result;
 import com.model.Order;
 
 import android.R.integer;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -36,6 +37,7 @@ import android.view.SurfaceView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@SuppressLint("HandlerLeak")
 public class CaptureActivity extends Activity implements Callback {
 
 	private CaptureActivityHandler handler;

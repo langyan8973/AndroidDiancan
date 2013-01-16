@@ -15,7 +15,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:textColor="#FFFFFFFF"
-            android:textSize="10dip"
+            android:textSize="10sp"
             android:background="@drawable/txtborder"
             android:gravity="center"
             android:visibility="invisible"/>

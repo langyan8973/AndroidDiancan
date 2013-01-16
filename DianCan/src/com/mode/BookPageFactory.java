@@ -52,6 +52,10 @@ public class BookPageFactory {
 
 	private Paint mPaint;
 	Context thisContext;
+	//为了提升效率尽量不要在ondraw里面new所以提到这里
+	Rect sRect;
+	Rect tRect;
+	Paint pPaint;
 	public BookPageFactory(int w, int h,Context context) {
 		// TODO Auto-generated constructor stub
 		mWidth = w;
@@ -64,6 +68,10 @@ public class BookPageFactory {
 		mVisibleHeight = mHeight - marginHeight * 2;
 		mLineCount = (int) (mVisibleHeight / m_fontSize); 
 		thisContext=context;
+		
+		sRect=new Rect();
+		tRect=new Rect();
+		pPaint=new Paint();
 	}
 
 	public void openbook(String strFilePath) throws IOException {
@@ -295,9 +303,9 @@ public class BookPageFactory {
 	public void onDraw(Canvas c) {
 		OrderItem orderItem=m_OrderItems.get(m_curPage);
 		Bitmap bmpBitmap=HttpDownloader.getStream(MenuUtils.imageUrl+orderItem.getRecipe().getImage());
-		Rect sRect=new Rect(0, 0, bmpBitmap.getWidth(), bmpBitmap.getHeight());
-		Rect tRect=new Rect(0, 0, mWidth, mHeight-100);
 		c.drawBitmap(m_book_bg, 0, 0, null);
+		sRect.set(0, 0, bmpBitmap.getWidth(), bmpBitmap.getHeight());
+		tRect.set(0, 0, mWidth, mHeight-100);
 		c.drawBitmap(bmpBitmap, sRect, tRect, null);
 		MenuUtils.Recycled(bmpBitmap);
 		mPaint.setTextSize(24);
@@ -306,7 +314,6 @@ public class BookPageFactory {
 		int y=mHeight-70;
 		c.drawText(orderItem.getRecipe().getName(), (int)x, y, mPaint);
 		
-		Paint pPaint=new Paint();
 		pPaint.setColor(Color.RED);
 		pPaint.setTextSize(24);
 		x=5;
@@ -323,11 +330,6 @@ public class BookPageFactory {
 			Bitmap yidianBmp=MenuUtils.readBitMap(thisContext, R.drawable.yidian, 2);
 			c.drawBitmap(yidianBmp, 50, 0, mPaint);
 			MenuUtils.Recycled(yidianBmp);
-//			Paint  p= new Paint(Paint.ANTI_ALIAS_FLAG);
-//			p.setTextAlign(Align.LEFT);
-//			p.setTextSize(24);
-//			p.setColor(Color.RED);
-//			c.drawText(menuinfo.getCount()+"份", mWidth-70, mHeight-70, p);
 		}
 		String strdeString="";
 		if(orderItem.getRecipe().getDescription()!=null)

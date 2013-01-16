@@ -22,6 +22,7 @@ import com.model.OrderItem;
 import com.model.Recipe;
 
 import android.R.string;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -40,6 +42,7 @@ import android.widget.Toast;
 public class InitPage extends Activity {
 
 	
+	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  
@@ -80,7 +83,7 @@ public class InitPage extends Activity {
         //初始化必要的全局变量
         declare.menuListDataObj=new MenuListDataObj();
         
-        FileUtils.cacheDir  = new File("/sdcard/ChiHuoPro/MenuImg/");
+        FileUtils.cacheDir  = new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/MenuImg/");
         if (!FileUtils.cacheDir.exists()) {
 			FileUtils.cacheDir.mkdirs();
 		}

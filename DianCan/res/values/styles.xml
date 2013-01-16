@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="Widget" parent="@*android:style/Widget"/>
+    <style name="Widget" parent="@android:style/Widget"/>
 	<style name="Widget.AbsListView" parent="@style/Widget">
 		<item name="android:scrollbars">vertical</item>
 		<item name="android:fadingEdge">vertical</item>
@@ -17,7 +17,7 @@
 		<item name="loadingBackground">@drawable/image_loading_large</item>
 		<item name="progressStyle">?android:progressBarStyleLargeInverse</item>
 	</style>
-	<style name="Widget.Button" parent="@*android:style/Widget.Button">
+	<style name="Widget.Button" parent="@android:style/Widget.Button">
 		<item name="android:textAppearance">?android:textAppearanceSmall</item>
 		<item name="android:background">@drawable/btn_default</item>
 	</style>
@@ -36,7 +36,7 @@
 		<item name="android:background">@drawable/btn_tag_left</item>
 		<item name="android:button">@null</item>
 	</style>
-	<style name="Widget.EditText" parent="@*android:style/Widget.EditText">
+	<style name="Widget.EditText" parent="@android:style/Widget.EditText">
 		<item name="android:textAppearance">?android:textAppearanceMedium</item>
 		<item name="android:background">@drawable/edit_text</item>
 	</style>
@@ -71,7 +71,7 @@
 		<item name="android:divider">@drawable/dotted_line</item>
 		<item name="android:footerDividersEnabled">false</item>
 	</style>
-	<style name="Widget.TextView.SpinnerItem" parent="@*android:style/Widget.TextView.SpinnerItem">
+	<style name="Widget.TextView.SpinnerItem" parent="@android:style/Widget.TextView.SpinnerItem">
 		<item name="android:textAppearance">?android:textAppearanceMedium</item>
 		<item name="android:gravity">center</item>
 	</style>

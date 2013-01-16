@@ -5,6 +5,6 @@
     android:orientation="vertical" >
     <TextView android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="手机点餐系统"/>
+        />
 
 </LinearLayout>

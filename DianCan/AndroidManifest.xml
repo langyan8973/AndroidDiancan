@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.diancan"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8"></uses-sdk>
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" tools:ignore="OldTargetApi"></uses-sdk>
 	<!-- 请注意包名不要是com.example.jpushdemo，以免冲突 -->
     <permission
         android:name="com.diancan.permission.JPUSH_MESSAGE"
@@ -41,7 +41,7 @@
         android:label="@string/app_name" 
         android:name="com.declare.Declare"
         android:theme="@style/ApplicationTheme"
-        >
+        android:allowBackup="true">
         <activity
             android:name=".InitPage"
             android:label="@string/app_name" android:screenOrientation="portrait">
@@ -66,7 +66,7 @@
         <activity android:name=".HistoryGroup" />
         <activity android:name=".HistoryList" />
         <activity android:name=".HistoryPage" />
-        <activity android:name=".MyService">
+        <activity android:name=".MyService" tools:ignore="ExportedActivity">
             <intent-filter>
                 <action android:name="jpush.testAction" />
                 <category android:name="jpush.testCategory" />
@@ -76,14 +76,12 @@
         <activity android:name=".TableCodePage" />        
         <activity android:name=".MyTable" />
         <activity android:name=".RecipeList" />
-        <activity android:name=".RecipeFlipPage" />
-        <activity android:name=".TableListPage" />
         <activity android:name=".MenuBook" />
 		<!-- Required SDK核心功能-->
         <activity
             android:name="cn.jpush.android.ui.PushActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="orientation|keyboardHidden" >
+            android:configChanges="orientation|keyboardHidden" tools:ignore="ExportedActivity">
             <intent-filter>
                 <action android:name="cn.jpush.android.ui.PushActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -133,7 +131,7 @@
         <!-- User defined.  For test only  用户自定义的广播接收器-->
         <receiver
             android:name=".JPReceiver"
-            android:enabled="true">
+            android:enabled="true" tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.REGISTRATION" /> <!--Required  用户注册SDK的权限-->
                 <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" /><!--Required  用户接收SDK消息的权限-->

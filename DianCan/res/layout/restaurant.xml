@@ -37,13 +37,10 @@
 		    android:layout_centerVertical="true" 
 		    style="@style/Widget.Button.Title"/>
 	</RelativeLayout>
-	<RelativeLayout android:layout_width="fill_parent" 
-	    android:layout_height="fill_parent">
-		<ListView android:id="@+id/rList" 
+	<ListView android:id="@+id/rList" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" 
 		    android:headerDividersEnabled="false"
 		    style="@style/Widget.ListView"
 		    />
-	</RelativeLayout>
 </LinearLayout>
