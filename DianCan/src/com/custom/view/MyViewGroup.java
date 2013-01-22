@@ -1,4 +1,4 @@
-package com.custom;
+package com.custom.view;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;  
@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 import com.Utils.DisplayUtil;
 import com.Utils.MenuUtils;
+import com.custom.animation.GroupMoveAnimation;
+import com.custom.animation.ListPopImgAnimation;
 import com.declare.Declare;
 import com.diancan.Main;
 import com.diancan.MenuBook;
@@ -16,7 +18,7 @@ import com.diancan.MenuGroup;
 import com.diancan.R;
 import com.diancan.RecipeList;
 import com.download.HttpDownloader;
-import com.mode.SelectedMenuObj;
+import com.download.ImageDownloader;
 import com.model.OrderItem;
 
 import android.R.integer;
@@ -38,6 +40,7 @@ import android.view.MotionEvent;
 import android.view.View;  
 import android.view.ViewConfiguration;  
 import android.view.ViewGroup;  
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.GestureDetector.OnGestureListener;  
 import android.view.animation.Animation;
@@ -48,6 +51,7 @@ import android.widget.Button;
 import android.widget.ImageView;  
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Scroller;  
 import android.widget.TextView;
 import android.widget.Toast;  
@@ -68,7 +72,7 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     private int mTouchSlop;  
     private int mTouchState = TOUCH_STATE_REST;  
     private int curview=-1;
-    private int sWidth,sHeight, itemTopHeight,itemBotmHeight;
+    private int sWidth,sHeight;
     private int count,cIndex,rIndex;
     private long clicktime=0;  
     Context mContext; 
@@ -81,6 +85,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     boolean isRight=false;
     boolean lrAction=false;
     int mLeft;
+    public int itemTopHeight;
+    public int itemBotmHeight;
     
   
     public MyViewGroup(Context context,int width,int height,int left,int cindex,List<OrderItem> orderItems,
@@ -104,11 +110,6 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     	startIndex=0;
         mLength=selectedOrderItems.size();
         
-//	    txtView=new Button(context);
-//	    LayoutParams lp=new LayoutParams(LayoutParams.FILL_PARENT,itemTopHeight);
-//	    txtView.setLayoutParams(lp);
-//	    txtView.setText("更多");
-//	    txtView.setOnClickListener(new MoreClick());  
         AddRecipes(startIndex, mLength);
         count=getChildCount();       
         MAXMOVE=(count*itemTopHeight)-sHeight;
@@ -152,11 +153,11 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     {
     	for (int i = startindex; i < startindex+length; i++) {  
         	LayoutInflater inflater = (LayoutInflater)getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE);
-        	View view = inflater.inflate(R.layout.menulistitem, null);
-        	LayoutParams vLayoutParams=new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
-        	view.setLayoutParams(vLayoutParams);
+        	RecipeView view = (RecipeView)inflater.inflate(R.layout.menulistitem, null);
         	addView(view);
-
+        	view.setmTopHeight(itemTopHeight);
+        	view.setmBotHeight(itemBotmHeight);
+        	view.setmWidth(sWidth);
         	TextView titleView=(TextView)view.findViewById(R.id.title);
         	titleView.setText(selectedOrderItems.get(i).getRecipe().getName());
         	TextView priceView=(TextView)view.findViewById(R.id.price);
@@ -265,8 +266,8 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
                             scrollBy(0, move_this);  
                         } else if (move == 0) {// 如果已经是最顶端 继续往下拉  
 //                            Log.d("down_excess_move", "" + down_excess_move);  
-//                            down_excess_move = down_excess_move - deltaY / 2;// 记录下多往下拉的值  
-//                            scrollBy(0, deltaY / 2);  
+                            down_excess_move = down_excess_move - deltaY / 2;// 记录下多往下拉的值  
+                            scrollBy(0, deltaY / 2);  
                         }  
                     } else if (up_excess_move > 0)// 之前有上移过头  
                     {                     
@@ -286,10 +287,10 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
                             move = move + move_this;  
                             scrollBy(0, move_this);  
                         } else if (MAXMOVE - move == 0) {  
-//                            if (up_excess_move <= 100) {  
-//                                up_excess_move = up_excess_move + deltaY / 2;  
-//                                scrollBy(0, deltaY / 2);  
-//                            }  
+                            if (up_excess_move <= 100) {  
+                                up_excess_move = up_excess_move + deltaY / 2;  
+                                scrollBy(0, deltaY / 2);  
+                            }  
                         }  
                     } else if (down_excess_move > 0) {  
                         if (down_excess_move >= deltaY) {  
@@ -419,28 +420,16 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     	{
     		int count = getChildCount();
     		//被点击的view下面所有view向下移动
-        	for(int i=clicknum+1;i<count;i++)
+        	for(int i=clicknum;i<count;i++)
         	{
-        		Animation sAnimation=new TranslateAnimation(0, 0, 0,itemBotmHeight);
-        		sAnimation.setDuration(DURATION);
-        		sAnimation.setStartOffset(times);
-        		final View view=getChildAt(i);
-        		sAnimation.setAnimationListener(new AnimationListener() {
-    				
-    				@Override
-    				public void onAnimationStart(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationRepeat(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationEnd(Animation animation) {
-    					// TODO Auto-generated method stub
-    					view.clearAnimation();
-    					view.layout(0, view.getTop()+itemBotmHeight, view.getRight(), view.getTop()+itemBotmHeight+itemTopHeight);
-    				}
-    			});
-        		view.startAnimation(sAnimation);
+        		final RecipeView view=(RecipeView)getChildAt(i);
+        		view.setmTop(view.getTop());
+        		if(i==clicknum){
+        			view.StartExpandAnimation();
+        		}
+        		else{
+        			view.StartDownAnimation();
+        		}
         	}
         	curview=clicknum;
         	MAXMOVE=(count*itemTopHeight)-sHeight+itemBotmHeight;
@@ -449,28 +438,16 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     	else if(clicknum==curview)
     	{
     		//被关闭项下面所有项向上移动
-        	for(int i=curview+1;i<count;i++)
+        	for(int i=curview;i<count;i++)
         	{
-        		Animation sAnimation=new TranslateAnimation(0, 0, 0, -itemBotmHeight);
-        		sAnimation.setDuration(DURATION);
-        		sAnimation.setStartOffset(times);
-        		final View view=getChildAt(i);
-        		sAnimation.setAnimationListener(new AnimationListener() {
-    				
-        			@Override
-    				public void onAnimationStart(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationRepeat(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationEnd(Animation animation) {
-    					// TODO Auto-generated method stub
-    					view.clearAnimation();
-    					view.layout(0, view.getTop()-itemBotmHeight, view.getRight(), view.getTop()+itemTopHeight-itemBotmHeight);
-    				}
-    			});
-        		view.startAnimation(sAnimation);
+        		final RecipeView view=(RecipeView)getChildAt(i);
+        		view.setmTop(view.getTop());
+        		if(i==curview){
+        			view.StartContractAnimation();
+        		}
+        		else{
+        			view.StartUpAnimation();
+        		}
         	}
         	curview=-1;
         	//如果滚动条在最底部，需要缩小空间并依然使滚动条在最底部
@@ -488,28 +465,19 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     	//如果点击的项在展开项的前面，让点击项的下一项至展开项向下移动
     	else if(clicknum<curview)
     	{
-        	for(int i=clicknum+1;i<=curview;i++)
+        	for(int i=clicknum;i<=curview;i++)
         	{
-        		Animation sAnimation=new TranslateAnimation(0, 0, 0, itemBotmHeight);
-        		sAnimation.setDuration(DURATION);
-        		sAnimation.setStartOffset(times);
-        		final View view=getChildAt(i);
-        		sAnimation.setAnimationListener(new AnimationListener() {
-    				
-        			@Override
-    				public void onAnimationStart(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationRepeat(Animation animation) {}
-    				
-    				@Override
-    				public void onAnimationEnd(Animation animation) {
-    					// TODO Auto-generated method stub
-    					view.clearAnimation();
-    					view.layout(0, view.getTop()+itemBotmHeight, view.getRight(), view.getTop()+itemBotmHeight+itemTopHeight);
-    				}
-    			});
-        		view.startAnimation(sAnimation);
+        		final RecipeView view=(RecipeView)getChildAt(i);
+        		view.setmTop(view.getTop());
+        		if(i==clicknum){
+        			view.StartExpandAnimation();
+        		}
+        		else if(i==curview){
+        			view.StartDownAndContractAnimation();
+        		}
+        		else{
+        			view.StartDownAnimation();
+        		}
         	}
         	curview=clicknum;
         	MAXMOVE=(count*itemTopHeight)-sHeight+itemBotmHeight;
@@ -517,51 +485,19 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     	//如果点击的项在展开项的后面，让点击项至展开项的下一项向上移动
     	else if(clicknum>curview)
     	{
-        	for(int i=curview+1;i<=clicknum;i++)
+        	for(int i=curview;i<=clicknum;i++)
         	{
-        		Animation sAnimation=new TranslateAnimation(0, 0, 0, -itemBotmHeight);
-        		sAnimation.setDuration(DURATION);
-        		sAnimation.setStartOffset(times);
-        		final View view=getChildAt(i);
-        		//单独判断点击项确保展开
-        		if(i==clicknum)
-        		{
-        			sAnimation.setAnimationListener(new AnimationListener() {
-        				
-            			@Override
-        				public void onAnimationStart(Animation animation) {}
-        				
-        				@Override
-        				public void onAnimationRepeat(Animation animation) {}
-        				
-        				@Override
-        				public void onAnimationEnd(Animation animation) {
-        					// TODO Auto-generated method stub
-        					view.clearAnimation();
-        					view.layout(0, view.getTop()-itemBotmHeight, view.getRight(), view.getTop()+itemTopHeight);
-        		    		
-        				}
-        			});
+        		final RecipeView view=(RecipeView)getChildAt(i);
+        		view.setmTop(view.getTop());
+        		if(i==curview){
+        			view.StartContractAnimation();
         		}
-        		else {
-        			sAnimation.setAnimationListener(new AnimationListener() {
-        				
-            			@Override
-        				public void onAnimationStart(Animation animation) {}
-        				
-        				@Override
-        				public void onAnimationRepeat(Animation animation) {}
-        				
-        				@Override
-        				public void onAnimationEnd(Animation animation) {
-        					// TODO Auto-generated method stub
-        					view.clearAnimation();
-        					view.layout(0, view.getTop()-itemBotmHeight, view.getRight(), view.getTop()+itemTopHeight-itemBotmHeight);
-        				}
-        			});
-				}
-        		
-        		view.startAnimation(sAnimation);
+        		else if(i==clicknum){
+        			view.StartUpAndExpandAnimation();
+        		}
+        		else{
+        			view.StartUpAnimation();
+        		}
         	}
         	curview=clicknum;
         	MAXMOVE=(count*itemTopHeight)-sHeight+itemBotmHeight;
@@ -673,12 +609,7 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
 				return;
 			}
 			clicktime=cld.getTimeInMillis();
-			int height=v.getHeight();
-			if(index!=curview)
-			{
-				v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getTop()+itemBotmHeight+itemTopHeight);
-			}
-			
+			int height=v.getHeight();			
 			int[] location = new int[2];
     		v.getLocationInWindow(location);
     		int y = location[1]-DisplayUtil.dip2px(25);
@@ -687,11 +618,10 @@ public class MyViewGroup extends ViewGroup implements OnGestureListener{
     		if((sHeight-y)<movedis)
     		{
     			int count = getChildCount();
-    			//如果当前展开的是最后一项则关闭最后一项操作（依据是每一项展开的最大高度是200）
+    			//如果当前展开的是最后一项则关闭最后一项操作（）
         		if(curview==count-1&&MAXMOVE-move<movedis)
         		{
         			View view=getChildAt(index);
-        			view.layout(0, view.getTop(), view.getRight(), view.getTop()+itemTopHeight);
         			mScroller.startScroll(0, getScrollY(), 0, -itemBotmHeight, DURATION);
         			postInvalidate();
         			MAXMOVE=count*itemTopHeight-sHeight;

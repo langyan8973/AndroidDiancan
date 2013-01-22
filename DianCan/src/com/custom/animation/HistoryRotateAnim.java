@@ -1,4 +1,4 @@
-package com.custom;
+package com.custom.animation;
 
 import android.R.bool;
 import android.graphics.Camera;

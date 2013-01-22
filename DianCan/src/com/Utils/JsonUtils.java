@@ -1,36 +1,17 @@
 package com.Utils;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.mode.DeskObj;
-import com.mode.History;
+import com.model.History;
 import com.model.Order;
 import com.model.OrderItem;
 
 public class JsonUtils {
-//	public static String ConvertDeskObjToJson(DeskObj deskObj)
-//	{
-//		Gson sGson=new Gson();
-//		String deskString=sGson.toJson(deskObj);
-//		return deskString;
-//	}
-//	public static DeskObj ParseJsonToDeskObj(String jsonStr)
-//	{
-//		Type objType=new TypeToken<DeskObj>() {
-//		}.getType();
-//		Gson sGson=new Gson();
-//		DeskObj deskObj=sGson.fromJson(jsonStr, objType);
-//		return deskObj;
-//	}
 	public static String ConvertHistoryToJson(History history)
 	{
 		Gson sGson=new Gson();

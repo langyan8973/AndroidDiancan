@@ -56,6 +56,23 @@ public class MenuUtils {
 		List<Restaurant> restaurants=sGson.fromJson(jsonString, objType);
 		return restaurants;
 	}
+	/**
+	 * 获取周边餐厅
+	 * @param udid
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static List<Restaurant> getAround(String udid,double x,double y,double distance){
+		String urlString=initUrl+"restaurants/around?x="+x+"&y="+y+"&distance="+distance;
+		String jsonString=HttpDownloader.getString(urlString,udid);
+		Type objType=new TypeToken<List<Restaurant>>() {
+		}.getType();
+		Gson sGson=new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		List<Restaurant> restaurants=sGson.fromJson(jsonString, objType);
+		return restaurants;
+	}
 
 	// 获取所有种类
 	public static List<Category> getAllCategory(int rid,String udid) {
@@ -255,77 +272,8 @@ public class MenuUtils {
 		MenuDataHelper.updaterecipe(recipe);
 	}
 
-	public static void InsertCategoryObj(Category category) {
-		String filename = FileUtils._imgPathFile.getPath() + "/"
-				+ category.getImage();
-		File imgfile = new File(filename);
-		if (imgfile.exists()) {
-			imgfile.delete();
-		}
-		if (!imgfile.exists()) {
-			Bitmap bmp  = HttpDownloader.getStream(initUrl
-					+ "categories/" + category.getId());
 
-			try {
-				FileOutputStream out = new FileOutputStream(filename);
-				bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 
-		// recipe.setImffage(filename);
-		MenuDataHelper.InsertCategory(category);
-	}
-
-	public static void UpdateCategoryObj(Category category) {
-		Cursor cursor = MenuDataHelper.QueryCategorysById(category.getId());
-		String filename = "";
-		if (cursor.moveToNext()) {
-			String imgString = cursor.getString(cursor.getColumnIndex("image"));
-			filename = FileUtils._imgPathFile.getPath() + "/" + imgString;
-			File imgfile = new File(filename);
-			if (imgfile.exists()) {
-				imgfile.delete();
-			}
-		}
-		cursor.close();
-		filename = FileUtils._imgPathFile.getPath() + "/" + category.getImage();
-		File imgfile = new File(filename);
-		if (imgfile.exists()) {
-			imgfile.delete();
-		}
-		if (!imgfile.exists()) {
-			Bitmap bmp = HttpDownloader.getStream(initUrl
-					+ "categories/" + category.getId());
-
-			try {
-				FileOutputStream out = new FileOutputStream(filename);
-				bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		MenuDataHelper.updatecategory(category);
-	}
-
-	public static void DeleteCategoryObj(int id) {
-		Cursor cursor = MenuDataHelper.QueryCategorysById(id);
-		String filename = "";
-		if (cursor.moveToNext()) {
-			String imgString = cursor.getString(cursor.getColumnIndex("image"));
-			filename = FileUtils._imgPathFile.getPath() + "/" + imgString;
-			File imgfile = new File(filename);
-			if (imgfile.exists()) {
-				imgfile.delete();
-			}
-		}
-		cursor.close();
-		MenuDataHelper.deletefromcategory(id + "");
-	}
 
 	/**
 	   * 以最省内存的方式读取本地资源的图片

@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.Utils.MenuUtils;
-import com.custom.ImageDownloader;
 import com.declare.Declare;
+import com.download.ImageDownloader;
+import com.google.zxing.common.StringUtils;
 import com.model.Restaurant;
 
 import android.annotation.SuppressLint;
@@ -112,7 +113,14 @@ public class RestaurantActivity extends Activity {
 			map.put("id", restaurant.getId());
 			map.put("address", restaurant.getAddress());
 			map.put("telephone", restaurant.getTelephone());
-			map.put("img", MenuUtils.imageUrl+"2e751fc2-62be-4bec-9196-e338010ce05c.png");
+			String imgString=restaurant.getImage();
+			if(imgString==null||imgString=="")
+			{
+				map.put("img", MenuUtils.imageUrl+"2e751fc2-62be-4bec-9196-e338010ce05c.png");
+			}
+			else {
+				map.put("img", MenuUtils.imageUrl+imgString);
+			}
 			hashiList.add(map);
 		}
 		

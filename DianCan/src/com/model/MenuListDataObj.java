@@ -1,4 +1,4 @@
-package com.mode;
+package com.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.model.Category;
-import com.model.Order;
-import com.model.OrderItem;
-import com.model.Recipe;
 
 import android.R.integer;
 import android.util.SparseArray;
@@ -65,27 +61,6 @@ public class MenuListDataObj {
 	}
 	
 	
-//	public void ChangeMenuListByObj(SelectedMenuObj menu)
-//	{
-//		String cidString=menu.getCid();
-//		for(CategoryObj categoryObj:categoryObjs)
-//		{
-//			if(cidString.equals(categoryObj.getId()+""))
-//			{
-//				List<SelectedMenuObj> cList=categoryObj.getSelectedMenuObjs();
-//				Iterator<SelectedMenuObj> iterator;
-//				for (iterator = cList.iterator(); iterator.hasNext();) {
-//					SelectedMenuObj menuinfo =iterator.next();
-//					if(menuinfo.getId().equals(menu.getId()))
-//					{
-//						menuinfo.setCount(menu.getCount());
-//						menuinfo.setTotalPrice(menu.getTotalPrice());
-//						break;
-//					}
-//				}
-//			}
-//		}		
-//	}
 	
 	public void ChangeRecipeMapByOrder(Order order)
 	{
@@ -112,33 +87,6 @@ public class MenuListDataObj {
 		}
 	}
 	
-//	public void ChangeMenuListByOrder(Order order)
-//	{
-//		Set<OrderItem> orderitems=order.getOrderItems();
-//		Iterator<OrderItem> iterator;
-//		for(iterator=orderitems.iterator();iterator.hasNext();)
-//		{
-//			OrderItem oItem=iterator.next();
-//			String cidString=oItem.getRecipe().getCid().toString();
-//			for(CategoryObj categoryObj:categoryObjs)
-//			{
-//				if(cidString.equals(categoryObj.getId()+""))
-//				{
-//					List<SelectedMenuObj> cList=categoryObj.getSelectedMenuObjs();
-//					Iterator<SelectedMenuObj> iterator1;
-//					for (iterator1 = cList.iterator(); iterator1.hasNext();) {
-//						SelectedMenuObj menuinfo =iterator1.next();
-//						if(menuinfo.getId().equals(oItem.getRecipe().getId().toString()))
-//						{
-//							menuinfo.setCount(oItem.getCount());
-//							menuinfo.setTotalPrice(oItem.getCount()*oItem.getRecipe().getPrice());
-//							break;
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
 	
 	public void SyncMenuListByCategory(Category category,Order order)
 	{

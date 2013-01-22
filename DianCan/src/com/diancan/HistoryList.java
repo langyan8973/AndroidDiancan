@@ -6,9 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.custom.HistoryRotateAnim;
+import com.custom.animation.HistoryRotateAnim;
 import com.declare.Declare;
-import com.mode.SelectedProduct;
 
 import android.R.integer;
 import android.app.Activity;
@@ -32,7 +31,6 @@ import android.widget.SimpleAdapter;
 public class HistoryList extends ListActivity {
 	Declare declare;
 	ArrayList<HashMap<String, Object>> hashList;
-	List<SelectedProduct> selectedProducts;
 	HistoryListAdapter hisAdapter;
 	int sWidth;
 	int sHeight;
@@ -81,20 +79,6 @@ public class HistoryList extends ListActivity {
 	}
 	public void UpdateHashList()
 	{
-		if(hashList==null)
-		{
-			hashList=new ArrayList<HashMap<String,Object>>();
-		}
-		hashList.clear();
-		Iterator<SelectedProduct> iterator;
-		for(iterator=selectedProducts.iterator();iterator.hasNext();)
-		{
-			HashMap<String, Object> map=new HashMap<String, Object>();
-			SelectedProduct selectedProduct=iterator.next();
-			map.put("date", selectedProduct.getStrdate());
-			map.put("sum", selectedProduct.getSum()+"");
-			hashList.add(map);
-		}
 	}
 	class HistoryListAdapter extends SimpleAdapter implements ListAdapter{
 		private ArrayList<HashMap<String, Object>> mItemList;

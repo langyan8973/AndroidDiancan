@@ -15,11 +15,10 @@ import com.Utils.FileUtils;
 import com.declare.Declare;
 import com.download.HttpDownloader;
 import com.model.Desk;
+import com.model.History;
+import com.model.MenuListDataObj;
 import com.model.OrderItem;
 import com.model.Recipe;
-import com.mode.DeskObj;
-import com.mode.History;
-import com.mode.MenuListDataObj;
 
 import android.R.integer;
 import android.app.TabActivity;
@@ -228,17 +227,6 @@ public class Main extends TabActivity {
 		// TODO Auto-generated method stub
   		Declare declare=(Declare)getApplicationContext();
  		
-//  		String deskstr=JsonUtils.ConvertDeskObjToJson(declare.curDeskObj);
-//  		String hisStr=JsonUtils.ConvertHistoryToJson(declare.getHistory());
-//    	try {
-//			FileUtils.SaveDingDan(this, deskstr);
-//			FileUtils.SaveHistory(this, hisStr);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    	
-//    	declare.curDeskObj=null;
     	declare.history=null;
     	declare.menuListDataObj.categories.clear();
     	declare.menuListDataObj.recipeMap.clear();

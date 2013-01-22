@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="HandlerLeak" severity="ignore">
+        <ignore path="src/com/diancan/CaptureActivity.java" />
+        <ignore path="src/com/diancan/InitPage.java" />
+        <ignore path="src/com/diancan/MapViewActivity.java" />
+        <ignore path="src/com/diancan/MyTable.java" />
+    </issue>
+</lint>

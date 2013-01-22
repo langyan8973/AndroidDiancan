@@ -45,12 +45,12 @@ import com.Utils.MenuUtils;
 import com.declare.Declare;
 import com.diancan.RecipeList.RecipeListAdapter;
 import com.download.HttpDownloader;
-import com.mode.ServiceMess;
 import com.model.AllDomain;
 import com.model.Category;
 import com.model.Desk;
 import com.model.OrderItem;
 import com.model.Recipe;
+import com.model.ServiceMess;
 
 public class MyService extends Activity {
 	ListView serviceList;

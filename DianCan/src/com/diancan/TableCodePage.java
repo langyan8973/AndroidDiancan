@@ -1,28 +1,21 @@
 package com.diancan;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-
 import com.Utils.JsonUtils;
 import com.Utils.MenuUtils;
 import com.declare.Declare;
 import com.download.HttpDownloader;
 import com.model.Order;
-
 import android.app.Activity;
 import android.app.LocalActivityManager;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,7 +49,7 @@ public class TableCodePage extends Activity {
         timer.schedule(new TimerTask() {
         @Override
         	public void run() { //弹出软键盘的代码
-        		InputMethodManager imm = (InputMethodManager)getSystemService(TableCodePage.this.INPUT_METHOD_SERVICE);
+        		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         		imm.showSoftInput(inpuText, InputMethodManager.RESULT_SHOWN);
         	}
         }, 100);

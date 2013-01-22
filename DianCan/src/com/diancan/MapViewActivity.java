@@ -93,10 +93,13 @@ public class MapViewActivity extends MapActivity {
 					GeoPoint pt = new GeoPoint((int)(location.getLatitude()*1e6),
 							(int)(location.getLongitude()*1e6));
 					mapView.getController().animateTo(pt);
+					double y=location.getLatitude();
+					double x=location.getLongitude();
+					RequestRestaurants(x,y,1000);
 				}
 			}
 		};
-		RequestRestaurants();
+		
 	}
 
 	@Override
@@ -143,13 +146,13 @@ public class MapViewActivity extends MapActivity {
 	/**
 	 * 请求餐厅数据
 	 */
-	private void RequestRestaurants(){
+	private void RequestRestaurants(final double x,final double y,final double distance){
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					mRestaurants=MenuUtils.getAllRestaurants(declare.udidString);
+					mRestaurants=MenuUtils.getAround(declare.udidString,x,y,distance);
 					if(mRestaurants==null||mRestaurants.size()==0){
 						httpHandler.obtainMessage(0,"没有餐厅！").sendToTarget();
 						return;

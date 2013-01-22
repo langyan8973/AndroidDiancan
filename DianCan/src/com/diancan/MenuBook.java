@@ -17,14 +17,12 @@ import com.Utils.CustomViewBinder;
 import com.Utils.DisplayUtil;
 import com.Utils.MenuUtils;
 import com.custom.CategoryListAdapter;
-import com.custom.ImageDownloader;
-import com.custom.PopImgAnimation;
+import com.custom.animation.PopImgAnimation;
+import com.custom.view.BookPageFactory;
+import com.custom.view.PageWidget;
 import com.declare.Declare;
 import com.download.HttpDownloader;
-import com.mode.BookPageFactory;
-import com.mode.CategoryObj;
-import com.mode.PageWidget;
-import com.mode.SelectedMenuObj;
+import com.download.ImageDownloader;
 import com.model.Category;
 import com.model.OrderItem;
 import com.model.Recipe;
@@ -290,8 +288,6 @@ public class MenuBook extends Activity {
 	public void AddToOrderForm(OrderItem orderItem)
 	{
 		declare.AddItemToOrder(orderItem);
-//        declare.curDeskObj.getSelectedProduct().AddMenu(menu);
-//        declare.curDeskObj.getSelectedProduct().setbState(false);
 	}
 	
 	public void PostToServer()

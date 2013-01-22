@@ -1,4 +1,4 @@
-package com.mode;
+package com.custom.view;
 
 import com.Utils.MenuUtils;
 import android.annotation.SuppressLint;

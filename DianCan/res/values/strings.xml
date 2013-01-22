@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">淘吃客</string>
-    <string name="url_service">192.168.1.109:8080/ChihuoPlatform/rest/</string>
-    <string name="image_service">192.168.1.109:8080/MenuImages/</string>
+    <string name="url_service">192.168.1.106:8080/ChihuoPlatform/rest/</string>
+    <string name="image_service">192.168.1.106:8080/MenuImages/</string>
     <!-- 开始点菜按钮文字 -->
     <string name="btn_start">选餐桌</string>
     <!-- Tab1标题 -->

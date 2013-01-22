@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.custom;
+package com.download;
 
-import com.download.HttpDownloader;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;

@@ -1,8 +1,6 @@
-package com.custom;
+package com.custom.view;
 
 import java.util.List;
-
-import com.mode.SelectedMenuObj;
 
 import android.content.Context;
 import android.graphics.Color;

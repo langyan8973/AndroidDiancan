@@ -1,4 +1,6 @@
-package com.custom;
+package com.custom.animation;
+
+import com.custom.view.MyViewGroup;
 
 import android.view.View;
 import android.view.animation.Animation;

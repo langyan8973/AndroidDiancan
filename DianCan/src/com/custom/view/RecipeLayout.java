@@ -1,4 +1,4 @@
-package com.custom;
+package com.custom.view;
 
 import com.Utils.DisplayUtil;
 
