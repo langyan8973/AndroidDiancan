@@ -6,13 +6,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.download.ImageDownloader;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.ImageDownloader;
+import com.diancan.model.Restaurant;
 import com.google.zxing.common.StringUtils;
-import com.model.Restaurant;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +37,6 @@ public class RestaurantActivity extends Activity {
 	Button cameraButton;
 	Button mapButton;
 	List<Restaurant> mRestaurants;
-	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  
@@ -84,7 +82,7 @@ public class RestaurantActivity extends Activity {
 				// TODO Auto-generated method stub
 				
 				try {
-					Declare declare=(Declare)RestaurantActivity.this.getApplicationContext();
+					AppDiancan declare=(AppDiancan)RestaurantActivity.this.getApplicationContext();
 					mRestaurants=MenuUtils.getAllRestaurants(declare.udidString);
 					if(mRestaurants==null||mRestaurants.size()==0){
 						httpHandler.obtainMessage(0,"没有餐厅！").sendToTarget();
@@ -175,7 +173,7 @@ public class RestaurantActivity extends Activity {
 			HashMap<String, Object> map=(HashMap<String, Object>)listAdapter.getItem(arg2);
 			String idString=map.get("id").toString();
 			int id=Integer.parseInt(idString);
-			Declare declare=(Declare)RestaurantActivity.this.getApplicationContext();
+			AppDiancan declare=(AppDiancan)RestaurantActivity.this.getApplicationContext();
 			declare.restaurantId=id;
 			Intent intent=new Intent(RestaurantActivity.this, Main.class);
 		    startActivity(intent);

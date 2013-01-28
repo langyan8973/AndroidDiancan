@@ -6,20 +6,19 @@ import java.util.Vector;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
-import com.Utils.JsonUtils;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
+import com.diancan.Utils.JsonUtils;
+import com.diancan.Utils.MenuUtils;
 import com.diancan.camera.CameraManager;
 import com.diancan.decoding.CaptureActivityHandler;
 import com.diancan.decoding.InactivityTimer;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpDownloader;
+import com.diancan.model.Order;
 import com.diancan.view.ViewfinderView;
-import com.download.HttpDownloader;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.model.Order;
 
 import android.R.integer;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -37,7 +36,6 @@ import android.view.SurfaceView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-@SuppressLint("HandlerLeak")
 public class CaptureActivity extends Activity implements Callback {
 
 	private CaptureActivityHandler handler;
@@ -192,7 +190,7 @@ public class CaptureActivity extends Activity implements Callback {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				Declare declare=(Declare)CaptureActivity.this.getApplicationContext();
+				AppDiancan declare=(AppDiancan)CaptureActivity.this.getApplicationContext();
 				String urlString=MenuUtils.initUrl+"QR/"+codeString;
 				try {
 					String jsonString=HttpDownloader.GetOrderForm(urlString, declare.udidString);
@@ -217,7 +215,7 @@ public class CaptureActivity extends Activity implements Callback {
 	}
 	
 	private void ToMain(Order order){
-		Declare declare=(Declare)CaptureActivity.this.getApplicationContext();
+		AppDiancan declare=(AppDiancan)CaptureActivity.this.getApplicationContext();
 		declare.curOrder=order;
 		declare.restaurantId=order.getRestaurant().getId();
 		Intent intent=new Intent(CaptureActivity.this, Main.class);

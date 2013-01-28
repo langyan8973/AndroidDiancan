@@ -8,17 +8,17 @@ import java.util.Iterator;
 import java.util.List;
 
 
-import com.Utils.DisplayUtil;
-import com.Utils.JsonUtils;
-import com.Utils.MenuUtils;
-import com.Utils.FileUtils;
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.model.Desk;
-import com.model.History;
-import com.model.MenuListDataObj;
-import com.model.OrderItem;
-import com.model.Recipe;
+import com.diancan.Utils.DisplayUtil;
+import com.diancan.Utils.FileUtils;
+import com.diancan.Utils.JsonUtils;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpDownloader;
+import com.diancan.model.Desk;
+import com.diancan.model.History;
+import com.diancan.model.MenuListDataObj;
+import com.diancan.model.OrderItem;
+import com.diancan.model.Recipe;
 
 import android.R.integer;
 import android.app.TabActivity;
@@ -62,7 +62,7 @@ public class Main extends TabActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(R.layout.main);
         //获取应用全局变量   
-        final Declare declare=(Declare)getApplicationContext();       
+        final AppDiancan appDiancan=(AppDiancan)getApplicationContext();       
         rsResources=getResources();
 
         m_tabHost = getTabHost();  
@@ -74,55 +74,57 @@ public class Main extends TabActivity {
         addMyTableTab();
         addMyServiceTab();
         addHistoryTab();
+        
         m_tabHost.setCurrentTab(0);
         m_tabWidget = (TabWidget)findViewById(android.R.id.tabs);
         m_tabWidget.setStripEnabled(false);
-      //注册一个广播接收器，启动餐桌抖动动画  
-      receiver = new BroadcastReceiver() {
-    	@Override
-        public void onReceive(Context ctx, Intent intent) {
-    		if (intent.getAction().equals("animation")) {
- 
-   			   View v=m_tabHost.getTabWidget().getChildAt(1);
-   			   TextView txtcount=(TextView)v.findViewById(R.id.txtcount);
-   			   txtcount.setVisibility(View.VISIBLE);
-   			   txtcount.setText(declare.getTotalCount()+"");
-    		}
-    		else if(intent.getAction().equals("selectedtable"))
-    		{
-    			View v=m_tabHost.getTabWidget().getChildAt(1);
-    			String strNo=(String)intent.getSerializableExtra("tablename");
-    			if(!strNo.equals(""))
-    			{
-    				((TextView) v.findViewById(R.id.tab_item_textview)).setText(strNo);
-    			}
-    			else {
-    				((TextView) v.findViewById(R.id.tab_item_textview)).setText(rsResources.getString(R.string.title_Tab2));
-				}
-    		}
-    		else if(intent.getAction().equals("setcount"))
-    		{
-    			View v=m_tabHost.getTabWidget().getChildAt(1);
-    			TextView txtcount=(TextView)v.findViewById(R.id.txtcount);
-    			if(declare.curOrder==null||declare.getTotalCount()==0)
-    			{
-    				txtcount.setVisibility(View.INVISIBLE);
-    			}
-    			else {
-					txtcount.setVisibility(View.VISIBLE);
-					txtcount.setText(declare.getTotalCount()+"");
-				}
-    		}
-    	}
-    };
-    IntentFilter filter = new IntentFilter();
-    filter.addAction("animation");
-    filter.addAction("selectedtable");
-    filter.addAction("setcount");
-    filter.addCategory(Intent.CATEGORY_DEFAULT);
-    registerReceiver(receiver, filter);
+        //注册一个广播接收器，启动餐桌抖动动画  
+        receiver = new BroadcastReceiver() {
+	    	@Override
+	        public void onReceive(Context ctx, Intent intent) {
+	    		if (intent.getAction().equals("animation")) {
+	 
+	   			   View v=m_tabHost.getTabWidget().getChildAt(1);
+	   			   TextView txtcount=(TextView)v.findViewById(R.id.txtcount);
+	   			   txtcount.setVisibility(View.VISIBLE);
+	   			   txtcount.setText(appDiancan.getTotalCount()+"");
+	    		}
+	    		else if(intent.getAction().equals("selectedtable"))
+	    		{
+	    			View v=m_tabHost.getTabWidget().getChildAt(1);
+	    			String strNo=(String)intent.getSerializableExtra("tablename");
+	    			if(!strNo.equals(""))
+	    			{
+	    				((TextView) v.findViewById(R.id.tab_item_textview)).setText(strNo);
+	    			}
+	    			else {
+	    				((TextView) v.findViewById(R.id.tab_item_textview)).setText(rsResources.getString(R.string.title_Tab2));
+					}
+	    		}
+	    		else if(intent.getAction().equals("setcount"))
+	    		{
+	    			View v=m_tabHost.getTabWidget().getChildAt(1);
+	    			TextView txtcount=(TextView)v.findViewById(R.id.txtcount);
+	    			if(appDiancan.curOrder==null||appDiancan.getTotalCount()==0)
+	    			{
+	    				txtcount.setVisibility(View.INVISIBLE);
+	    			}
+	    			else {
+						txtcount.setVisibility(View.VISIBLE);
+						txtcount.setText(appDiancan.getTotalCount()+"");
+					}
+	    		}
+	    	}
+	    };
+	    IntentFilter filter = new IntentFilter();
+	    filter.addAction("animation");
+	    filter.addAction("selectedtable");
+	    filter.addAction("setcount");
+	    filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(receiver, filter);
     
     }
+    
     /***
      * 创建标签的view
      * @param imageResourceSelector
@@ -179,7 +181,7 @@ public class Main extends TabActivity {
         Intent intent = new Intent();  
         intent.setClass(Main.this, TableGroup.class);  
         String tabnameString="";
-        Declare declare=(Declare)getApplicationContext();  
+        AppDiancan declare=(AppDiancan)getApplicationContext();  
         int count=0;
         if(declare.curOrder!=null)
         {
@@ -225,7 +227,7 @@ public class Main extends TabActivity {
   	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-  		Declare declare=(Declare)getApplicationContext();
+  		AppDiancan declare=(AppDiancan)getApplicationContext();
  		
     	declare.history=null;
     	declare.menuListDataObj.categories.clear();

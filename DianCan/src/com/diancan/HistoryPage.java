@@ -8,12 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.Utils.CustomViewBinder;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.diancan.MyTable.OverBtnOnclick;
 import com.diancan.MyTable.TableListAdapter;
-import com.model.Category;
+import com.diancan.Utils.CustomViewBinder;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.model.Category;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -60,7 +59,7 @@ public class HistoryPage extends Activity {
 		
 		useButton=(Button)findViewById(R.id.usebtn);
 		
-		Declare declare=(Declare)getApplicationContext();
+		AppDiancan declare=(AppDiancan)getApplicationContext();
 		Intent intent =getIntent();
 		int index=Integer.parseInt((String)intent.getSerializableExtra("index"));
 

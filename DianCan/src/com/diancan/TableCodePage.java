@@ -2,11 +2,12 @@ package com.diancan;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import com.Utils.JsonUtils;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.model.Order;
+import com.diancan.Utils.JsonUtils;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpDownloader;
+import com.diancan.model.Order;
+
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Context;
@@ -22,10 +23,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class TableCodePage extends Activity {
+public class TableCodePage extends Activity implements OnClickListener {
 	EditText inpuText;
 	Button okBtn;
-	Declare declare;
+	AppDiancan declare;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -33,8 +34,8 @@ public class TableCodePage extends Activity {
 		setContentView(R.layout.tablecodepage);
 		inpuText=(EditText)findViewById(R.id.inputCode);
 		okBtn=(Button)findViewById(R.id.btnyes);
-		okBtn.setOnClickListener(new BtnyesClick());
-		declare=(Declare)getApplicationContext();
+		okBtn.setOnClickListener(this);
+		declare=(AppDiancan)getApplicationContext();
 		PopInputMethod();
 	}
 	
@@ -62,7 +63,7 @@ public class TableCodePage extends Activity {
 	public void RequestTable(String codeString)
 	{
 		try {
-			String resultString = HttpDownloader.getString(MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders?code="+codeString,
+			String resultString = HttpDownloader.GetOrderByCode(MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders/code/"+codeString,
 					declare.udidString);
 			System.out.println("resultString:"+resultString);
 			final Order order=JsonUtils.ParseJsonToOrder(resultString);
@@ -99,10 +100,6 @@ public class TableCodePage extends Activity {
 		LocalActivityManager manager = parent.getLocalActivityManager();
 	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.table_continer);
 	    
-	    Activity activity=manager.getCurrentActivity();
-		Window w1=activity.getWindow();
-		View v1=w1.getDecorView();
-	    
 		contain.removeAllViews();
 		Intent in = new Intent(getParent(), MyTable.class);
 		Window window = manager.startActivity("MyTable", in);
@@ -115,16 +112,11 @@ public class TableCodePage extends Activity {
         view.setLayoutParams(params);
 	}
 	
-	/***
-	 * 确定按钮点击
-	 * @author liuyan
-	 *
-	 */
-	class BtnyesClick implements OnClickListener{
 
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v.getId()==R.id.btnyes){
 			//隐藏软键盘
 			InputMethodManager imm = (InputMethodManager)getSystemService(TableCodePage.this.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(inpuText.getWindowToken(), 0);
@@ -137,6 +129,5 @@ public class TableCodePage extends Activity {
 			}
 			RequestTable(codeString);
 		}
-		
 	}
 }

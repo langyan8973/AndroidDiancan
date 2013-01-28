@@ -1,6 +1,6 @@
 package com.diancan;
 
-import com.declare.Declare;
+import com.diancan.diancanapp.AppDiancan;
 
 import android.app.ActivityGroup;
 import android.app.LocalActivityManager;
@@ -16,7 +16,7 @@ public class TableGroup extends ActivityGroup {
 	public LinearLayout rootLayout;
 	public LocalActivityManager activityManager;
 	
-	Declare declare;
+	AppDiancan declare;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -26,9 +26,9 @@ public class TableGroup extends ActivityGroup {
 		rootLayout.removeAllViews();
 		
 		activityManager = getLocalActivityManager();
-		declare=(Declare)getApplicationContext();
+		declare=(AppDiancan)getApplicationContext();
 		
-		if(declare.curOrder!=null)
+		if(declare.curOrder!=null&&declare.curOrder.getRestaurant().getId()==declare.restaurantId)
 		{
 			Intent intent=new Intent(TableGroup .this,MyTable.class);
 	        Window subActivity=getLocalActivityManager().startActivity("MyTable",intent);

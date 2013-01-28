@@ -4,10 +4,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.Utils.FileUtils;
-import com.model.Category;
-import com.model.Desk;
-import com.model.Recipe;
+import com.diancan.Utils.FileUtils;
+import com.diancan.model.Category;
+import com.diancan.model.Desk;
+import com.diancan.model.Recipe;
 public class MenuDataHelper {
 	
 	public static SQLiteDatabase _menusdb;

@@ -9,20 +9,21 @@ import java.util.List;
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 
-import com.Utils.DisplayUtil;
-import com.Utils.FileUtils;
-import com.Utils.JsonUtils;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.model.History;
-import com.model.MenuListDataObj;
-import com.model.Order;
-import com.model.OrderItem;
-import com.model.Recipe;
+import com.diancan.Utils.DisplayUtil;
+import com.diancan.Utils.FileUtils;
+import com.diancan.Utils.JsonUtils;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpDownloader;
+import com.diancan.http.HttpHandler;
+import com.diancan.model.History;
+import com.diancan.model.MenuListDataObj;
+import com.diancan.model.Order;
+import com.diancan.model.OrderItem;
+import com.diancan.model.Recipe;
 
 import android.R.string;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.Intent;
@@ -39,34 +40,17 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
-public class InitPage extends Activity {
+public class InitPage extends Activity implements HttpCallback {
 
 	
-	@SuppressLint("HandlerLeak")
-	private Handler httpHandler = new Handler() {  
-        public void handleMessage (Message msg) {//此方法在ui线程运行   
-            switch(msg.what) {  
-            case 0: 
-            	String errString=msg.obj.toString();
-            	ShowError(errString);
-                break;   
-            case 1: 
-                break;  
-            case 2:
-            	break;
-            case 3:
-            	ToMain();
-            	break;
-            }  
-        }  
-    };
+	private HttpHandler httpHandler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.initpage);
-		
+		httpHandler=new HttpHandler(this);
 		//屏幕尺寸容器测试
   		DisplayMetrics dm;
   		dm = new DisplayMetrics();
@@ -81,7 +65,7 @@ public class InitPage extends Activity {
   		System.out.println("dp高度："+DisplayUtil.DPHEIGHT);
   		
   	    //获取应用全局变量   
-        final Declare declare=(Declare)getApplicationContext();       
+        final AppDiancan declare=(AppDiancan)getApplicationContext();       
         //初始化必要的全局变量
         declare.menuListDataObj=new MenuListDataObj();
         
@@ -90,7 +74,6 @@ public class InitPage extends Activity {
 			FileUtils.cacheDir.mkdirs();
 		}
         MenuUtils.initUrl="http://"+getResources().getString(R.string.url_service);
-        MenuUtils.updateUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.imageUrl="http://"+getResources().getString(R.string.image_service);
         HttpDownloader.enableHttpResponseCache();
         
@@ -103,7 +86,7 @@ public class InitPage extends Activity {
         	RegisterUdid(deviceString);
         }
         declare.udidString=deviceString;
-     // 设置通知样式
+        // 设置通知样式
       	BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
       	builder.statusBarDrawable = R.drawable.notification_icon;
       	builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
@@ -118,6 +101,21 @@ public class InitPage extends Activity {
         }
         Sleep();
 	}
+	
+	@Override
+	public void RequestComplete(Message msg) {
+		// TODO Auto-generated method stub
+		if(msg.what==HttpHandler.START_MAIN){
+			ToMain();
+		}
+	}
+
+	@Override
+	public void RequestError(String errString) {
+		// TODO Auto-generated method stub
+		ShowError(errString);
+	}
+	
 	
 	private void RegisterUdid(final String udid){
 		new Thread(new Runnable() {
@@ -144,11 +142,11 @@ public class InitPage extends Activity {
 				// TODO Auto-generated method stub
 				
 				try {
-					Thread.sleep(1000);
-					httpHandler.obtainMessage(3).sendToTarget();
+					Thread.sleep(2000);
+					httpHandler.obtainMessage(HttpHandler.START_MAIN).sendToTarget();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
 				}
 				
 			}
@@ -225,5 +223,5 @@ public class InitPage extends Activity {
   	    int wifi=mWifiInfo.getRssi();//获取wifi信号强度
   	    return wifi;
   	}
-	
+
 }

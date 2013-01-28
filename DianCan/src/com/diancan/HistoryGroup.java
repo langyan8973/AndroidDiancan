@@ -1,6 +1,6 @@
 package com.diancan;
 
-import com.custom.animation.HistoryRotateAnim;
+import com.diancan.custom.animation.HistoryRotateAnim;
 
 import android.app.Activity;
 import android.app.ActivityGroup;

@@ -1,85 +1,59 @@
 package com.diancan;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import com.Utils.DisplayUtil;
-import com.Utils.JsonUtils;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.download.ImageDownloader;
-import com.model.Order;
-import com.model.OrderItem;
-import com.model.Recipe;
-import android.annotation.SuppressLint;
+import com.diancan.Helper.RecipeListHttpHelper;
+import com.diancan.Utils.DisplayUtil;
+import com.diancan.Utils.JsonUtils;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpHandler;
+import com.diancan.http.ImageDownloader;
+import com.diancan.model.Order;
+import com.diancan.model.OrderItem;
+import com.diancan.model.Recipe;
 import android.app.Activity;
-import android.app.LocalActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MyTable extends Activity {
+public class MyTable extends Activity implements HttpCallback,OnClickListener{
 	ListView orderListView;
-	HashMap<String, List<OrderItem>> hashOrderItems;
 	Button overButton;
 	Button flashButton;
 	ProgressBar mProgressBar;
 	TextView sumTextView;
 	String sumString;	
 	int sendId,sendCount;
-	Declare declare;
+	OrderItem changedItem;
+	AppDiancan declare;
 	NotifiReceiver receiver;
+	RecipeListHttpHelper recipeListHttpHelper;
+	HashMap<String, List<OrderItem>> hashOrderItems;
 	
 	private List<OrderItem> mOrderItems=new ArrayList<OrderItem>();
 	private List<HashMap<String, Object>> itemlist = new ArrayList<HashMap<String, Object>>();  
 	private List<HashMap<String, Object>> tagList = new ArrayList<HashMap<String, Object>>();
 	
-	@SuppressLint("HandlerLeak")
-	private Handler httpHandler = new Handler() {  
-        public void handleMessage (Message msg) {//此方法在ui线程运行   
-            switch(msg.what) {  
-            case 0: 
-            	String errString=msg.obj.toString();
-            	ShowError(errString);
-                break;   
-            case 1: 
-            	String jsString=msg.obj.toString();
-            	ParseOrder(jsString);
-                break; 
-            case 2:
-            	String jsString2=msg.obj.toString();
-//            	ParseItems(jsString2);
-            	break;
-            }  
-        }  
-    }; 
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +68,13 @@ public class MyTable extends Activity {
 		mProgressBar=(ProgressBar)findViewById(R.id.httppro);
 		overButton=(Button)findViewById(R.id.overBtn);
 		overButton.setText(getResources().getString(R.string.btnstr_over));
-		overButton.setOnClickListener(new OverBtnOnclick());
+		overButton.setOnClickListener(this);
 		flashButton=(Button)findViewById(R.id.BtnFlash);
-		flashButton.setOnClickListener(new FlashOnClick());
-		declare=(Declare)getApplicationContext();
+		flashButton.setOnClickListener(this);
+		declare=(AppDiancan)getApplicationContext();
 		receiver = new NotifiReceiver();
+		
+		recipeListHttpHelper=new RecipeListHttpHelper(this, declare);
     }
     @Override
 	protected void onResume() {
@@ -127,8 +103,6 @@ public class MyTable extends Activity {
 	    IntentFilter filter = new IntentFilter();
 	    filter.addAction("diancan");
 	    filter.addCategory(Intent.CATEGORY_DEFAULT);
-//        filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
-//        filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
 	    registerReceiver(receiver, filter);
 	}
     
@@ -138,6 +112,47 @@ public class MyTable extends Activity {
 		super.onPause();
 		unregisterReceiver(receiver);
 	}
+    
+    @Override
+	public void RequestComplete(Message msg) {
+		// TODO Auto-generated method stub
+    	switch(msg.what) {  
+        case HttpHandler.REFRESH_ORDER: 
+        	String jsString=msg.obj.toString();
+        	ParseOrderRefresh(jsString);
+            break;
+        case HttpHandler.POST_RECIPE_COUNT:
+        	String jsonString=msg.obj.toString();
+        	ParseOrder(jsonString);
+        	break;
+        case HttpHandler.CHECK_ORDER:
+        	String json=msg.obj.toString();
+        	ParseOrderRefresh(json);
+        	break;
+        }  
+	}
+	@Override
+	public void RequestError(String errString) {
+		// TODO Auto-generated method stub
+		ShowError(errString);
+	}
+	
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.overBtn:
+			mProgressBar.setVisibility(View.VISIBLE);
+			recipeListHttpHelper.CheckOrder();
+			break;
+		case R.id.BtnFlash:
+			FlashOrder();
+			break;
+		default:
+			break;
+		}
+	}
+    
 	/**
      * 显示错误信息
      * @param strMess
@@ -156,7 +171,6 @@ public class MyTable extends Activity {
     	hashOrderItems.clear();
     	declare.totalCount=0;
     	declare.totalPrice=0;
-    	Order order=declare.curOrder;
     	Iterator<OrderItem> iterator;
     	for(iterator=declare.curOrder.getOrderItems().iterator();iterator.hasNext();)
     	{
@@ -235,92 +249,25 @@ public class MyTable extends Activity {
 	}
 	public void FlashOrder(){
 		mProgressBar.setVisibility(View.VISIBLE);
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+declare.restaurantId+"/orders/" +declare.curOrder.getId(),
-							declare.udidString);
-					httpHandler.obtainMessage(1,jsonString).sendToTarget();
-				} catch (Throwable e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-				}
-				
-			}
-		}).start();
+		recipeListHttpHelper.RefreshOrder();
 	}
     
     public void PostToServer()
     {
     	mProgressBar.setVisibility(View.VISIBLE);
-    	//加减菜
-		final JSONObject object = new JSONObject();
-		try {
-			object.put("rid", sendId);
-			object.put("count", sendCount);
-		} catch (JSONException e) {
-		}	
-		
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, declare.curOrder.getId(),
-							declare.restaurantId, object,declare.udidString);
-					httpHandler.obtainMessage(1,resultString).sendToTarget();
-				} catch (Throwable e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-				}
-				
-			}
-		}).start();
-		
+    	recipeListHttpHelper.Diancai(sendId, sendCount);
     }
-
-    public class OverBtnOnclick implements View.OnClickListener{
-
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			mProgressBar.setVisibility(View.VISIBLE);
-			try {
-				String urlString=MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders/"+declare.curOrder.getId()+"/tocheck";
-				String jsString = HttpDownloader.RequestFinally(urlString,declare.udidString);
-				httpHandler.obtainMessage(1,jsString).sendToTarget();
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-			} catch (Throwable e) {
-				// TODO Auto-generated catch block
-				httpHandler.obtainMessage(0,e.getMessage()).sendToTarget();
-			}
-		}    	
+    private void ParseOrderRefresh(String jsString){
+    	mProgressBar.setVisibility(View.INVISIBLE);
+    	if(jsString.equals(""))
+    	{
+    		ShowError("操作失败！");
+    	}
+    	final Order order=JsonUtils.ParseJsonToOrder(jsString);
+		declare.curOrder=order;
+		UpdateElement();
+		SendSetCountMessage();
     }
-    
-    class FlashOnClick implements OnClickListener{
-
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			FlashOrder();
-		}
-    	
-    }
-    
     private void ParseOrder(String jsString) {
     	mProgressBar.setVisibility(View.INVISIBLE);
     	if(jsString.equals(""))
@@ -330,14 +277,21 @@ public class MyTable extends Activity {
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
 		declare.curOrder=order;
 		UpdateElement();
+		SendSetCountMessage();
 		new Thread(){
 			public void run(){
-				declare.getMenuListDataObj().ChangeRecipeMapByOrder(order);
+				declare.getMenuListDataObj().ChangeRecipeMapByItem(changedItem, order);
 			}
 		}.start();
 	}
     
-    
+    public void SendSetCountMessage()
+    {
+    	Intent in = new Intent();
+        in.setAction("setcount");
+        in.addCategory(Intent.CATEGORY_DEFAULT);
+        MyTable.this.sendBroadcast(in);
+    }
     
 	public OrderItem GetItemById(int id,Order order)
 	{
@@ -367,30 +321,6 @@ public class MyTable extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
 			String action = intent.getAction();
-//    		if (Constants.ACTION_SHOW_NOTIFICATION.equals(action)) {
-//                String notificationId = intent
-//                        .getStringExtra(Constants.NOTIFICATION_ID);
-//                String notificationApiKey = intent
-//                        .getStringExtra(Constants.NOTIFICATION_API_KEY);
-//                String notificationTitle = intent
-//                        .getStringExtra(Constants.NOTIFICATION_TITLE);
-//                String notificationMessage = intent
-//                        .getStringExtra(Constants.NOTIFICATION_MESSAGE);
-//                String notificationUri = intent
-//                        .getStringExtra(Constants.NOTIFICATION_URI);
-//
-//                if(notificationTitle.equals("11")&&notificationMessage.equals(mOrder.getId().toString()))
-//                {
-//                	String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "orders/" +mOrder.getId() ,null);
-//        			final Order order=JsonUtils.ParseJsonToOrder(jsonString);
-//        			mOrder=order;
-////        			dicWidgets.clear();
-////        			hashOrderItems.clear();
-////        	    	rootLayout.removeAllViews();
-////        			InitHashOrderItems();
-////        			CreateElements();
-//                }
-//    		}
 			if(action.equals("diancan")){
 				String idString=intent.getSerializableExtra("message").toString();
 				int id=Integer.parseInt(idString);
@@ -473,8 +403,6 @@ public class MyTable extends Activity {
 			}
 			else{
 				localView = mInflater.inflate(R.layout.select_list_item, null);
-				final ListView listView=(ListView)parent;
-				final int index=position;
 				HashMap<String, Object> map=mItemList.get(position);
 		        ImageView imgrecipe=(ImageView)localView.findViewById(R.id.imgctrl);
 		        String strUrl=map.get("img").toString();
@@ -487,9 +415,6 @@ public class MyTable extends Activity {
 		        tvCount.setText(map.get("count").toString());
 				ImageView imgdelete=(ImageView)localView.findViewById(R.id.imgdelete);
 				ImageView imgadd=(ImageView)localView.findViewById(R.id.imgadd);
-		        
-		        OrderItem orderItem=TableListAdapter.this.orderItemList.get(position);
-	            int mCount=Integer.parseInt(map.get("count").toString());
 	            
 	            if(map.get("status")!=null&&map.get("status").toString().equals("1"))
 	            {
@@ -511,9 +436,7 @@ public class MyTable extends Activity {
 						// TODO Auto-generated method stub
 			             int position = Integer.parseInt(v.getTag().toString());
 			             OrderItem oItem=TableListAdapter.this.orderItemList.get(position);
-			             Map<String, Object> map=TableListAdapter.this.mItemList.get(position);
-			             int count=Integer.parseInt(map.get("count").toString());
-			             
+			             changedItem=oItem;
 			             sendId=oItem.getRecipe().getId();
 			             sendCount=-1;
 			             
@@ -530,95 +453,14 @@ public class MyTable extends Activity {
 						OrderItem oItem=TableListAdapter.this.orderItemList.get(position);
 						sendId=oItem.getRecipe().getId();
 			            sendCount=1;
-						
-				         PostToServer();
+						changedItem=oItem;
+				        PostToServer();
 					}
 				});
 			}
 			
 	        
-//	        localView.setOnTouchListener(new View.OnTouchListener() {
-//        		float sx,sy,ex,ey;
-//        		boolean action;
-//				@Override
-//				public boolean onTouch(View v, MotionEvent event) {
-//					// TODO Auto-generated method stub
-//					if(event.getAction()==MotionEvent.ACTION_DOWN)
-//					{
-//						sx=event.getX();
-//						sy=event.getY();
-//						action=true;
-//					}
-//					else if(event.getAction()==MotionEvent.ACTION_MOVE)
-//					{
-//						ex=event.getX();
-//						ey=event.getY();
-//						if((ex-sx)>120&&action)
-//						{
-//							action=false;
-//							final OrderItem orderItem=TableListAdapter.this.orderItemList.get(index);
-//							Animation animation=AnimationUtils.loadAnimation(MyTable.this, R.anim.delete_anim);
-//				            animation.setAnimationListener(new AnimationListener() {
-//								
-//								@Override
-//								public void onAnimationStart(Animation animation) {}
-//								
-//								@Override
-//								public void onAnimationRepeat(Animation animation) {}
-//								
-//								@Override
-//								public void onAnimationEnd(Animation animation) {
-//									// TODO Auto-generated method stub
-//									sendId=orderItem.getRecipe().getId();
-//									sendCount=-orderItem.getCount();
-//						 			
-//									delete(orderItem);
-//									SendSetCountMessage();
-//									PostToServer();
-//								}
-//							});
-//				            localView.startAnimation(animation);
-//						}
-//						
-//					}
-//					return true;
-//				}
-//				public void delete(OrderItem orderItem)
-//				{
-//					declare.RemoveItemFromOrder(orderItem);	
-//					orderItem.setCount(0);
-//		            String cNameString=orderItem.getRecipe().getCname().toString();
-//		            TableListAdapter.this.orderItemList.remove(index);
-//		            TableListAdapter.this.mItemList.remove(index);
-//		            TableListAdapter.this.notifyDataSetChanged();
-//		            declare.getMenuListDataObj().ChangeRecipeMapByObj(orderItem);
-//		            MenuUtils.bUpdating=true;
-//		            sumTextView.setText(sumString+declare.getTotalPrice());
-//		            if(TableListAdapter.this.mItemList.size()<=0)
-//		            {
-//		            	try {
-//		            		ClassListViewWidget clWidget=dicWidgets.get(cNameString);
-//		            		rootLayout.removeView(clWidget);
-//		            		dicWidgets.remove(cNameString);
-//						} catch (Exception e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//		            }
-//		            else {
-//		            	setListViewHeight(listView);
-//					} 
-//				}
-//			});
-	        
 			return localView;
 		}
 	}
-    public void SendSetCountMessage()
-    {
-    	Intent in = new Intent();
-        in.setAction("setcount");
-        in.addCategory(Intent.CATEGORY_DEFAULT);
-        MyTable.this.sendBroadcast(in);
-    }
 }

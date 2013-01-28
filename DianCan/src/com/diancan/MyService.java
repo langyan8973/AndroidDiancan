@@ -39,18 +39,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.SqlLiteDB.MenuDataHelper;
-import com.Utils.CustomViewBinder;
-import com.Utils.FileUtils;
-import com.Utils.MenuUtils;
-import com.declare.Declare;
-import com.diancan.RecipeList.RecipeListAdapter;
-import com.download.HttpDownloader;
-import com.model.AllDomain;
-import com.model.Category;
-import com.model.Desk;
-import com.model.OrderItem;
-import com.model.Recipe;
-import com.model.ServiceMess;
+import com.diancan.Utils.CustomViewBinder;
+import com.diancan.Utils.FileUtils;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpDownloader;
+import com.diancan.model.AllDomain;
+import com.diancan.model.Category;
+import com.diancan.model.Desk;
+import com.diancan.model.OrderItem;
+import com.diancan.model.Recipe;
+import com.diancan.model.ServiceMess;
 
 public class MyService extends Activity {
 	ListView serviceList;
@@ -59,7 +58,7 @@ public class MyService extends Activity {
 	ArrayList<HashMap<String, String>> hashlist;
 	ArrayList<HashMap<String, Object>> messHashMaps=new ArrayList<HashMap<String,Object>>();
 	boolean isNew=false;
-	Declare declare;
+	AppDiancan declare;
 	MessageListAdapter messageListAdapter;
 	NotifiReceiver receiver;
 	@Override
@@ -68,7 +67,7 @@ public class MyService extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.myservice);
-		declare=(Declare)getApplicationContext();
+		declare=(AppDiancan)getApplicationContext();
 		serviceList=(ListView)findViewById(R.id.ServiceList);
 		serviceList.setOnItemClickListener(new listitemClick());
 		

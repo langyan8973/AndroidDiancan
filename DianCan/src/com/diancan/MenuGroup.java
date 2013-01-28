@@ -1,8 +1,9 @@
 package com.diancan;
 
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.model.AllDomain;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpDownloader;
+import com.diancan.model.AllDomain;
+
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.app.LocalActivityManager;
@@ -26,13 +27,13 @@ public class MenuGroup extends ActivityGroup {
 	public LinearLayout rootLayout;
 	public LocalActivityManager activityManager;
 	AllDomain infos;
-	Declare declare;
+	AppDiancan declare;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menugroup);
-		declare=(Declare)getApplicationContext();
+		declare=(AppDiancan)getApplicationContext();
 		rootLayout=(LinearLayout)findViewById(R.id.group_Layout);
 		rootLayout.removeAllViews();
 		activityManager = getLocalActivityManager();
@@ -64,6 +65,7 @@ public class MenuGroup extends ActivityGroup {
         Window subActivity=getLocalActivityManager().startActivity("RecipeList",intent);
         View view=subActivity.getDecorView();
         rootLayout.addView(view);  
+        
         LayoutParams params=(LayoutParams) view.getLayoutParams();
         params.width=LayoutParams.FILL_PARENT;
         params.height=LayoutParams.FILL_PARENT;
@@ -85,7 +87,7 @@ public class MenuGroup extends ActivityGroup {
 	    		{
 	    			return super.dispatchKeyEvent(event);
 	    		}
-	    		else if(strid.equals("MenuBook")||strid.equals("SearchList"))
+	    		else if(strid.equals("MenuBook"))
 	    		{
 	    			ToRecipeList();
 	    			return true;

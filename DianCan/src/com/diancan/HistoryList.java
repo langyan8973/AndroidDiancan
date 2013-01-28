@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.custom.animation.HistoryRotateAnim;
-import com.declare.Declare;
+import com.diancan.custom.animation.HistoryRotateAnim;
+import com.diancan.diancanapp.AppDiancan;
 
 import android.R.integer;
 import android.app.Activity;
@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class HistoryList extends ListActivity {
-	Declare declare;
+	AppDiancan declare;
 	ArrayList<HashMap<String, Object>> hashList;
 	HistoryListAdapter hisAdapter;
 	int sWidth;
@@ -45,7 +45,7 @@ public class HistoryList extends ListActivity {
 		this.getWindowManager().getDefaultDisplay().getMetrics(dm);
 		sWidth = dm.widthPixels;
 		sHeight=dm.heightPixels;
-		declare=(Declare)getApplicationContext();
+		declare=(AppDiancan)getApplicationContext();
 //		selectedProducts=declare.getHistory().getHisSelectedProducts();
 //		if(selectedProducts.size()>0)
 //		{

@@ -13,19 +13,23 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.Utils.CustomViewBinder;
-import com.Utils.DisplayUtil;
-import com.Utils.MenuUtils;
-import com.custom.CategoryListAdapter;
-import com.custom.animation.PopImgAnimation;
-import com.custom.view.BookPageFactory;
-import com.custom.view.PageWidget;
-import com.declare.Declare;
-import com.download.HttpDownloader;
-import com.download.ImageDownloader;
-import com.model.Category;
-import com.model.OrderItem;
-import com.model.Recipe;
+import com.diancan.Helper.OrderHelper;
+import com.diancan.Helper.RecipeListHttpHelper;
+import com.diancan.Utils.CustomViewBinder;
+import com.diancan.Utils.DisplayUtil;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.custom.adapter.CategoryListAdapter;
+import com.diancan.custom.animation.PopImgAnimation;
+import com.diancan.custom.view.BookPageFactory;
+import com.diancan.custom.view.PageWidget;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpDownloader;
+import com.diancan.http.ImageDownloader;
+import com.diancan.model.Category;
+import com.diancan.model.OrderItem;
+import com.diancan.model.Recipe;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,6 +41,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -63,8 +68,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class MenuBook extends Activity {
-	
+public class MenuBook extends Activity implements HttpCallback,OnClickListener,OnItemClickListener,OnTouchListener {
+	RecipeListHttpHelper recipeListHttpHelper;
+	OrderHelper orderHelper;
 	private PageWidget mPageWidget;
 	Bitmap mCurPageBitmap, mNextPageBitmap;
 	Canvas mCurPageCanvas, mNextPageCanvas;
@@ -77,7 +83,7 @@ public class MenuBook extends Activity {
 	List<Category> m_arr;
 	ArrayList<HashMap<String, Object>> hashlist;
 	CategoryListAdapter simpleAdapter;
-	Declare declare;
+	AppDiancan declare;
 	ImageView littleImageView;
 	BroadcastReceiver receiver;
 	Animation popAnimation;
@@ -120,12 +126,14 @@ public class MenuBook extends Activity {
 		categoryLayout.setVisibility(View.GONE);
 		categoryList=(ListView)categoryLayout.findViewById(R.id.ListCategory);	
 		mButton=(Button)findViewById(R.id.BtnDian);
-		mButton.setOnClickListener(new BtnClick());
+		mButton.setOnClickListener(this);
 		mCatBtn=(TextView)findViewById(R.id.BtnCategory);
-		mCatBtn.setOnClickListener(new CategoryBtnClick());		
+		mCatBtn.setOnClickListener(this);		
 		littleImageView=(ImageView)findViewById(R.id.imglittle);
 		
-		declare=(Declare)getApplicationContext();
+		declare=(AppDiancan)getApplicationContext();
+		recipeListHttpHelper=new RecipeListHttpHelper(this, declare);
+		orderHelper=new OrderHelper(declare);
 		m_arr=declare.getMenuListDataObj().getCategories();
 		hashlist=new ArrayList<HashMap<String,Object>>();
 		
@@ -141,7 +149,7 @@ public class MenuBook extends Activity {
 		pagefactory.setM_curPage(rIndex);
 		InitCategoryList();
 		
-		mPageWidget.setOnTouchListener(new WidgetTouchListener());		
+		mPageWidget.setOnTouchListener(this);		
 	}	
 	
 	@Override
@@ -170,6 +178,116 @@ public class MenuBook extends Activity {
 			mNextPageBitmap.recycle();
 		}
 	}
+	
+	@Override
+	public void RequestComplete(Message msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void RequestError(String errString) {
+		// TODO Auto-generated method stub
+		//自定义的错误，在界面上显示
+		Toast toast = Toast.makeText(MenuBook.this, errString, Toast.LENGTH_SHORT); 
+        toast.show();
+	} 
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		// TODO Auto-generated method stub
+		HashMap<String, Object> map=hashlist.get(arg2);
+		simpleAdapter.setSelectedName(map.get("name").toString());
+		cIndex=arg2;
+		rIndex=0;
+		pagefactory.setM_curPage(rIndex);
+		mCatBtn.setText(map.get("name").toString());
+		DisplayRecipeList(cIndex);
+		
+		HideList();
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.BtnCategory:
+			if(categoryLayout.getVisibility()==View.GONE)
+			{
+				ExpandList();
+			}
+			else {
+				HideList();
+			}
+			break;
+		case R.id.BtnDian:
+			if(categoryLayout.getVisibility()!=View.GONE)
+			{
+				HideList();
+			}
+			if(declare.curOrder==null)
+			{
+				Toast toast = Toast.makeText(MenuBook.this, "请选择餐桌", Toast.LENGTH_SHORT); 
+	            toast.show(); 
+	            return;
+			}
+			PopImgAnimation animation=new PopImgAnimation(500,sWidth,sHeight);
+			animation.setAnimationListener(new PopImgAnimationListener(pagefactory.GetCurMenu()));
+			littleImageView.startAnimation(animation);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		// TODO Auto-generated method stub
+		boolean ret=false;
+		if (v == mPageWidget) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				if(categoryLayout.getVisibility()!=View.GONE)
+				{
+					HideList();
+				}
+				isInit=false;
+				mPageWidget.abortAnimation();
+				mPageWidget.calcCornerXY(event.getX(), event.getY());
+				pagefactory.onDraw(mCurPageCanvas);
+				if (mPageWidget.toRight) {
+					try {
+						pagefactory.prePage();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}						
+					if(pagefactory.isfirstPage())return false;
+					
+					pagefactory.onDraw(mNextPageCanvas);
+					OrderItem orderItem=pagefactory.GetCurMenu();
+					imgDownloader.download(MenuUtils.imageUrl+orderItem.getRecipe().getImage(), littleImageView);
+				} else {
+					try {
+						pagefactory.nextPage();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					if(pagefactory.islastPage())return false;
+					
+					pagefactory.onDraw(mNextPageCanvas);
+					OrderItem orderItem=pagefactory.GetCurMenu();
+					imgDownloader.download(MenuUtils.imageUrl+orderItem.getRecipe().getImage(), littleImageView);
+				}
+				mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
+				
+			}                
+			ret = mPageWidget.doTouchEvent(event);					
+			return ret;
+		}
+		return false;
+	}
+
 
 	public void InitCategoryList()
 	{
@@ -187,7 +305,7 @@ public class MenuBook extends Activity {
 		simpleAdapter.setSelectedName("");
 		categoryList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		categoryList.setAdapter(simpleAdapter);
-		categoryList.setOnItemClickListener(new ListItemClick());	 
+		categoryList.setOnItemClickListener(this);	 
 		
 	}
 	
@@ -234,22 +352,6 @@ public class MenuBook extends Activity {
 				return;
 			}
 		}
-//		if(categoryObj.getSelectedMenuObjs().size()==0)
-//		{
-//			try {
-//				List<Recipe> recipes = MenuUtils
-//						.getRecipesByCategory(categoryObj.getId());
-//				Iterator<Recipe> iterator;
-//				for(iterator=recipes.iterator();iterator.hasNext();)
-//				{
-//					categoryObj.getSelectedMenuObjs().add(new SelectedMenuObj(iterator.next()));
-//				}
-//			} catch (Exception e) {
-//				// TODO: handle exception
-//				System.out.println(e.getMessage());
-//				return;
-//			}
-//		}
 		
 		pagefactory.m_OrderItems=declare.getMenuListDataObj().getRecipeMap().get(category.getId());
 		if(pagefactory.m_OrderItems==null||pagefactory.m_OrderItems.size()==0)
@@ -277,155 +379,16 @@ public class MenuBook extends Activity {
 		else {
 			orderItem.setCount(0);
 		}	
-//		menuObj.setTotalPrice(menuObj.getCount()*menuObj.getPrice());
 		
 		pagefactory.onDraw(mCurPageCanvas);
 		pagefactory.onDraw(mNextPageCanvas);
 		mPageWidget.postInvalidate();
 	}
 	
-	//加入订单
-	public void AddToOrderForm(OrderItem orderItem)
-	{
-		declare.AddItemToOrder(orderItem);
-	}
-	
 	public void PostToServer()
     {
-		new Thread(){
-            public void run(){
-            	//加减菜
-        		JSONObject object = new JSONObject();
-        		try {
-        			object.put("rid", sendId);
-        			object.put("count", sendCount);
-        			Declare d=(Declare)MenuBook.this.getApplicationContext();
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, d.curOrder.getId(),
-        					d.restaurantId, object,d.udidString);
-        			System.out.println("resultString:"+resultString);
-        		} catch (ClientProtocolException e) {
-        		} catch (JSONException e) {
-        		} catch (IOException e) {
-        		} catch (Throwable e) {
-        			e.printStackTrace();
-        			//自定义的错误，在界面上显示
-        			Toast toast = Toast.makeText(MenuBook.this, e.getMessage(), Toast.LENGTH_SHORT); 
-                    toast.show();
-        		}
-            }
-        }.start();
+		recipeListHttpHelper.Diancai(sendId, sendCount);
     }
-	
-	class ListItemClick implements OnItemClickListener{
-
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
-			// TODO Auto-generated method stub
-			HashMap<String, Object> map=hashlist.get(arg2);
-			simpleAdapter.setSelectedName(map.get("name").toString());
-			cIndex=arg2;
-			rIndex=0;
-			pagefactory.setM_curPage(rIndex);
-			mCatBtn.setText(map.get("name").toString());
-			DisplayRecipeList(cIndex);
-			
-			HideList();
-		}		
-	}
-	
-	class WidgetTouchListener implements OnTouchListener{
-
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			// TODO Auto-generated method stub
-			boolean ret=false;
-			if (v == mPageWidget) {
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					if(categoryLayout.getVisibility()!=View.GONE)
-					{
-						HideList();
-					}
-					isInit=false;
-					mPageWidget.abortAnimation();
-					mPageWidget.calcCornerXY(event.getX(), event.getY());
-					pagefactory.onDraw(mCurPageCanvas);
-					if (mPageWidget.toRight) {
-						try {
-							pagefactory.prePage();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}						
-						if(pagefactory.isfirstPage())return false;
-						
-						pagefactory.onDraw(mNextPageCanvas);
-						OrderItem orderItem=pagefactory.GetCurMenu();
-						imgDownloader.download(MenuUtils.imageUrl+orderItem.getRecipe().getImage(), littleImageView);
-					} else {
-						try {
-							pagefactory.nextPage();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						if(pagefactory.islastPage())return false;
-						
-						pagefactory.onDraw(mNextPageCanvas);
-						OrderItem orderItem=pagefactory.GetCurMenu();
-						imgDownloader.download(MenuUtils.imageUrl+orderItem.getRecipe().getImage(), littleImageView);
-					}
-					mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
-					
-				}                
-				ret = mPageWidget.doTouchEvent(event);					
-				return ret;
-			}
-			return false;
-		}
-		
-	}
-	
-	
-	class CategoryBtnClick implements OnClickListener{
-
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			if(categoryLayout.getVisibility()==View.GONE)
-			{
-				ExpandList();
-			}
-			else {
-				HideList();
-			}
-		}
-		
-	}
-	
-	class BtnClick implements OnClickListener{
-
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			if(categoryLayout.getVisibility()!=View.GONE)
-			{
-				HideList();
-			}
-			if(declare.curOrder==null)
-			{
-				Toast toast = Toast.makeText(MenuBook.this, "请选择餐桌", Toast.LENGTH_SHORT); 
-	            toast.show(); 
-	            return;
-			}
-			PopImgAnimation animation=new PopImgAnimation(500,sWidth,sHeight);
-			animation.setAnimationListener(new PopImgAnimationListener(pagefactory.GetCurMenu()));
-			littleImageView.startAnimation(animation);
-			
-		}
-		
-	}
-	
 	
 	class PopImgAnimationListener implements AnimationListener{
 		private OrderItem mOrderItem;
@@ -447,7 +410,7 @@ public class MenuBook extends Activity {
             int i=mOrderItem.getCount()+1;
             setCountValue(mOrderItem,i);
             //加入订单
-            AddToOrderForm(mOrderItem);
+            orderHelper.AddToOrderForm(mOrderItem);
 			PostToServer();
 		 }  
 		 //该方法在动画重复执行的时候调用
@@ -459,6 +422,6 @@ public class MenuBook extends Activity {
 		 public void onAnimationStart(Animation animation) {
 		 }  
 		        
-	 } 
+	 }
 	
 }

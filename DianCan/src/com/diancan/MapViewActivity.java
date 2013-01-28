@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.R.integer;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -24,7 +23,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.Utils.MenuUtils;
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.GeoPoint;
 import com.baidu.mapapi.ItemizedOverlay;
@@ -34,13 +32,14 @@ import com.baidu.mapapi.MapView;
 import com.baidu.mapapi.MyLocationOverlay;
 import com.baidu.mapapi.OverlayItem;
 import com.baidu.mapapi.Projection;
-import com.declare.Declare;
 import com.diancan.RestaurantActivity.RestaurantAdapter;
-import com.model.Restaurant;
+import com.diancan.Utils.MenuUtils;
+import com.diancan.diancanapp.AppDiancan;
+import com.diancan.model.Restaurant;
 
 public class MapViewActivity extends MapActivity {
 	
-	Declare declare;
+	AppDiancan declare;
 	MapView mapView=null;
 	View mPopView = null;
 	LocationListener mLocationListener=null;
@@ -49,7 +48,6 @@ public class MapViewActivity extends MapActivity {
 	int iZoom = 0;
 	int selectId=0;
 	List<Restaurant> mRestaurants;
-	@SuppressLint("HandlerLeak")
 	private Handler httpHandler = new Handler() {  
         public void handleMessage (Message msg) {//此方法在ui线程运行   
             switch(msg.what) {  
@@ -70,11 +68,11 @@ public class MapViewActivity extends MapActivity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.mapview);
 		
-		declare=(Declare)this.getApplicationContext();
+		declare=(AppDiancan)this.getApplicationContext();
 		if(declare.mBMapMan==null)
 		{
 			declare.mBMapMan=new BMapManager(getApplicationContext());
-			declare.mBMapMan.init(declare.BMapKey, new Declare.MyGeneralListener());
+			declare.mBMapMan.init(declare.BMapKey, new AppDiancan.MyGeneralListener());
 		}
 		declare.mBMapMan.start();
 		super.initMapActivity(declare.mBMapMan);

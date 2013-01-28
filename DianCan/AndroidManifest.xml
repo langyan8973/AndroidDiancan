@@ -39,7 +39,7 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" 
-        android:name="com.declare.Declare"
+        android:name="com.diancan.diancanapp.AppDiancan"
         android:theme="@style/ApplicationTheme"
         android:allowBackup="true">
         <activity
@@ -130,7 +130,7 @@
         <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
         <!-- User defined.  For test only  用户自定义的广播接收器-->
         <receiver
-            android:name=".JPReceiver"
+            android:name="com.diancan.JPReceiver"
             android:enabled="true" tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.REGISTRATION" /> <!--Required  用户注册SDK的权限-->
