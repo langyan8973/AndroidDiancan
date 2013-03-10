@@ -28,7 +28,7 @@ public class AdapterCategoryList extends SimpleAdapter {
 	public void setSelectedName(String selectedName) {
 		this.selectedName = selectedName;
 	}
-	
+    
 	public ArrayList<HashMap<String, Object>> getmItemList() {
 		return mItemList;
 	}
@@ -53,16 +53,6 @@ public class AdapterCategoryList extends SimpleAdapter {
 		HashMap<String, Object> map=mItemList.get(position);
 
 		TextView nameView=(TextView)localView.findViewById(R.id.category_name);
-		if(!selectedName.equals("")&&selectedName.equals(map.get("name").toString()))
-		{
-			localView.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.co));
-			nameView.setTextColor(Color.WHITE);
-		}
-		else {
-			localView.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.c));
-			nameView.setTextColor(Color.BLACK);
-		}
-		
         return localView;
 	}
 

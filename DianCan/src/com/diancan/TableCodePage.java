@@ -2,10 +2,13 @@ package com.diancan;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import com.diancan.Helper.OrderHelper;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpDownloader;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 
 import android.app.Activity;
@@ -13,8 +16,10 @@ import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
@@ -26,15 +31,20 @@ import android.widget.Toast;
 public class TableCodePage extends Activity implements OnClickListener {
 	EditText inpuText;
 	Button okBtn;
+	Button cancelBtn;
 	AppDiancan declare;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		//输入法弹出时整个页面上移以免压盖输入框
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		setContentView(R.layout.tablecodepage);
 		inpuText=(EditText)findViewById(R.id.inputCode);
 		okBtn=(Button)findViewById(R.id.btnyes);
 		okBtn.setOnClickListener(this);
+		cancelBtn = (Button)findViewById(R.id.dialog_button_cancel);
+		cancelBtn.setOnClickListener(this);
 		declare=(AppDiancan)getApplicationContext();
 		PopInputMethod();
 	}
@@ -63,23 +73,20 @@ public class TableCodePage extends Activity implements OnClickListener {
 	public void RequestTable(String codeString)
 	{
 		try {
-			String resultString = HttpDownloader.GetOrderByCode(MenuUtils.initUrl+"restaurants/"+declare.restaurantId+"/orders/code/"+codeString,
+			String resultString = HttpDownloader.GetOrderByCode(MenuUtils.initUrl+"restaurants/"+declare.myRestaurant.getId()+"/orders/code/"+codeString,
 					declare.udidString);
-			System.out.println("resultString:"+resultString);
+			
 			final Order order=JsonUtils.ParseJsonToOrder(resultString);
-			declare.curOrder=order;
-			 
+			declare.myOrder=order;
+			declare.myOrderHelper = new OrderHelper(declare.myOrder);
+			declare.myOrderHelper.setCategoryDic(declare.myRestaurant.getCategoryDic());
+			
             //发广播更新餐桌tab标题
             Intent in = new Intent();
             in.setAction("selectedtable");
             in.putExtra("tablename", order.getDesk().getName());
             in.addCategory(Intent.CATEGORY_DEFAULT);
             TableCodePage.this.sendBroadcast(in);
-            new Thread(){
-				public void run(){
-					declare.getMenuListDataObj().ChangeRecipeMapByOrder(order);
-				}
-			}.start();
             
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -88,30 +95,8 @@ public class TableCodePage extends Activity implements OnClickListener {
             toast.show();
             return;
 		}
-		ToMyTable();
+		this.finish();
 	}
-	
-	/***
-	 * 跳转到订单页面
-	 */
-	public void ToMyTable()
-	{
-		TableGroup parent = (TableGroup) getParent();
-		LocalActivityManager manager = parent.getLocalActivityManager();
-	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.table_continer);
-	    
-		contain.removeAllViews();
-		Intent in = new Intent(getParent(), MyTable.class);
-		Window window = manager.startActivity("MyTable", in);
-		
-		View view=window.getDecorView();		
-		contain.addView(view);
-		LayoutParams params=(LayoutParams) view.getLayoutParams();
-        params.width=LayoutParams.FILL_PARENT;
-        params.height=LayoutParams.FILL_PARENT;
-        view.setLayoutParams(params);
-	}
-	
 
 	@Override
 	public void onClick(View v) {
@@ -128,6 +113,9 @@ public class TableCodePage extends Activity implements OnClickListener {
 				return;
 			}
 			RequestTable(codeString);
+		}
+		else if(v.getId()==R.id.dialog_button_cancel){
+			this.finish();
 		}
 	}
 }

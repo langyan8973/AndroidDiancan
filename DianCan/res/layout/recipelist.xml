@@ -1,31 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FFCCCCCC">
-	<LinearLayout android:layout_width="80dip"
+    style="@style/Widget.Layout.GrayPageVLayout"
+    >
+    <RelativeLayout
+	    android:layout_width="fill_parent" 
+	    android:layout_height="@dimen/topbar_height"
+	    style="@style/Widget.Layout.TitleBar"
+	    >
+	    <Button android:id="@+id/bt_Categories" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="@string/btncategories"
+		    style="@style/Widget.Button.Title"/>
+	    <ProgressBar android:id="@+id/httppro"
+		      android:layout_width="wrap_content" 
+		      android:layout_height="wrap_content"
+		      android:layout_toRightOf="@+id/bt_Categories"
+		      android:layout_centerVertical="true"
+		      android:layout_marginLeft="5dip"
+		      android:indeterminateDrawable="@drawable/progressbar"
+		      style="?android:attr/progressBarStyleSmall">
+		</ProgressBar>
+		<TextView 
+		    android:id="@+id/tv_title" 
+		    android:gravity="center" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:layout_centerInParent="true"
+		    android:text="@string/myappname" 
+		    style="@style/Widget.TextView.Title"
+		    />
+		<Button android:id="@+id/bt_SelectDesk" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		     android:layout_alignParentRight="true" 
+		    android:layout_centerVertical="true"
+		    android:text="@string/valueSelectDesk" 
+		    style="@style/Widget.Button.Title"/>
+		<Button android:id="@+id/bt_Refresh" 
+		    android:layout_width="30dip" 
+		    android:layout_height="30dip" 
+		     android:layout_alignParentRight="true" 
+		    android:layout_centerVertical="true"
+		    style="@style/Widget.Button.Refresh"/>
+	</RelativeLayout>
+	<com.diancan.custom.view.RecipeFrameLayout 
+	    android:id="@+id/myFrameLayout"
+	    android:layout_width="match_parent"
 	    android:layout_height="fill_parent"
 	    >
-	    <ListView android:id="@+id/CategoryList"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:dividerHeight="10dip"
-	        android:divider="#00ffffff"
-	        android:listSelector="@drawable/co"
-	        android:cacheColorHint="#00000000">
-	           
-	    </ListView>
-	</LinearLayout>
-	<LinearLayout android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:id="@+id/group_root">
-	   <!-- <ListView android:id="@+id/RecipeList"
-	       android:layout_width="fill_parent"
-	       android:layout_height="wrap_content"
-	       android:dividerHeight="5dip"
-	       android:divider="@android:color/white"
-	       android:cacheColorHint="#00000000">
-	       
-	   </ListView>  -->
-	</LinearLayout>
-</FrameLayout>
+		<ListView android:id="@+id/CategoryList"
+		        android:layout_width="@dimen/categorylist_width"
+		        android:layout_height="wrap_content"
+		        style="@style/Widget.ListView.Catetory"
+		        >
+		</ListView>
+		<LinearLayout android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:id="@+id/group_root"
+		    style="@style/Widget.Layout.RecipeHLayout"
+		    >
+		   <com.diancan.custom.view.PinnedHeaderListView android:id="@+id/RecipeList"
+		       android:layout_width="fill_parent"
+		       android:layout_height="wrap_content"
+		       android:headerDividersEnabled="false"
+		       style="@style/Widget.ListView.Recipe"
+		      >
+		   </com.diancan.custom.view.PinnedHeaderListView> 
+		</LinearLayout>
+		<ImageView 
+		       android:id="@+id/img_pop"
+		       android:layout_width="1dip"
+		       android:layout_height="1dip"
+		       android:visibility="gone"
+		       android:scaleType="fitXY"
+		       android:contentDescription=""
+		       />
+	</com.diancan.custom.view.RecipeFrameLayout>
+</LinearLayout>

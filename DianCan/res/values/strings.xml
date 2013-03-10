@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">淘吃客</string>
-    <string name="url_service">192.168.1.100:8080/ChihuoPlatform/rest/</string>
-    <string name="image_service">192.168.1.100:8080/MenuImages/</string>
+    <string name="url_service">taochike.sinaapp.com/rest/1/taochike/</string>
+    <string name="image_service">taochike-menuimages.stor.sinaapp.com/</string>
     <!-- 开始点菜按钮文字 -->
     <string name="btn_start">选餐桌</string>
     <!-- Tab1标题 -->
-    <string name="title_Tab1">菜单</string>
+    <string name="title_Tab1">首页</string>
     <!-- Tab2标题 -->
-    <string name="title_Tab2">选餐桌</string>
+    <string name="title_Tab2">订单</string>
     <!-- Tab3标题 -->
-    <string name="title_Tab3">我的服务</string>
+    <string name="title_Tab3">服务</string>
     <!-- Tab4标题 -->
-    <string name="title_Tab4">历史订单</string>
+    <string name="title_Tab4">结账</string>
     <!-- 消费总计信息 -->
     <string name="infostr_sum">合计：</string>
     <!-- 结账按钮文字 -->
@@ -28,4 +28,20 @@
     <!-- 图片描述 -->
     <string name="image_discription">图片</string>
     <string name="ClickTitle">点</string>
+    <string name="myappname">淘吃客</string>
+    <string name="MapBtnTitle">地图</string>
+    <string name="catbtntitle">扫描</string>
+    <string name="restaurantsTitle">餐厅列表</string>
+    <string name="btnback">返回</string>
+    <string name="restaurant_map_title">餐厅地图</string>
+    <string name="displaylist">列表</string>
+    <string name="captrueTitle">扫描二维码</string>
+    <string name="valueSelectDesk">开台</string>
+    <string name="btncategories">种类</string>
+    <string name="btnok">确定</string>
+    <string name="btncancel">取消</string>
+    <string name="ischeck">结账吗？</string>
+    <string name="give_me_code">请向服务员索要邀请码</string>
+    <string name="commit_order">下单</string>
+    <string name="commitstr">本次提交</string>
 </resources>

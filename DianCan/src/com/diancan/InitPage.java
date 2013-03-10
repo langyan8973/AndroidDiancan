@@ -1,6 +1,7 @@
 package com.diancan;
 
 import java.io.File;
+import java.net.ResponseCache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +10,8 @@ import java.util.List;
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 
+import com.diancan.Helper.OrderHelper;
+import com.diancan.Helper.RecipeListHttpHelper;
 import com.diancan.Utils.DisplayUtil;
 import com.diancan.Utils.FileUtils;
 import com.diancan.Utils.JsonUtils;
@@ -17,12 +20,17 @@ import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpCallback;
 import com.diancan.http.HttpDownloader;
 import com.diancan.http.HttpHandler;
+import com.diancan.http.ImageFileCache;
+import com.diancan.http.MyResponseCache2;
+import com.diancan.model.Category;
 import com.diancan.model.History;
-import com.diancan.model.MenuListDataObj;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 import com.diancan.model.Recipe;
+import com.diancan.model.Restaurant;
 
+import android.R.integer;
 import android.R.string;
 import android.app.Activity;
 import android.app.Notification;
@@ -36,6 +44,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
@@ -44,6 +54,8 @@ public class InitPage extends Activity implements HttpCallback {
 
 	
 	private HttpHandler httpHandler;
+	private RecipeListHttpHelper recipeListHttpHelper;
+	private AppDiancan appDiancan;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -51,13 +63,17 @@ public class InitPage extends Activity implements HttpCallback {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.initpage);
 		httpHandler=new HttpHandler(this);
+		
 		//屏幕尺寸容器测试
   		DisplayMetrics dm;
   		dm = new DisplayMetrics();
   		this.getWindowManager().getDefaultDisplay().getMetrics(dm);
   		DisplayUtil.SCALE=dm.density;
+  		DisplayUtil.PIXWIDTH = dm.widthPixels;
+  		float notifyBarHeight = this.getResources().getDimension(R.dimen.notifybar_height);
   		DisplayUtil.DPWIDTH=DisplayUtil.px2dip(dm.widthPixels);
-  		DisplayUtil.DPHEIGHT=DisplayUtil.px2dip(dm.heightPixels)-25;
+  		DisplayUtil.DPHEIGHT=DisplayUtil.px2dip(dm.heightPixels - notifyBarHeight);
+  		DisplayUtil.PIXHEIGHT = (int)(dm.heightPixels- notifyBarHeight) ;
   		System.out.println("pix宽度："+dm.widthPixels);
   		System.out.println("pix高度："+dm.heightPixels);
   		System.out.println("屏幕密度："+dm.density);
@@ -65,19 +81,19 @@ public class InitPage extends Activity implements HttpCallback {
   		System.out.println("dp高度："+DisplayUtil.DPHEIGHT);
   		
   	    //获取应用全局变量   
-        final AppDiancan declare=(AppDiancan)getApplicationContext();       
-        //初始化必要的全局变量
-        declare.menuListDataObj=new MenuListDataObj();
+  		appDiancan=(AppDiancan)getApplicationContext();       
+        recipeListHttpHelper = new RecipeListHttpHelper(this, appDiancan);
         
         FileUtils.cacheDir  = new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/MenuImg/");
         if (!FileUtils.cacheDir.exists()) {
 			FileUtils.cacheDir.mkdirs();
 		}
+        HttpDownloader.mImageFileCache = new ImageFileCache();
+        
         MenuUtils.initUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.imageUrl="http://"+getResources().getString(R.string.image_service);
         HttpDownloader.enableHttpResponseCache();
-        
-        SharedPreferences deviceInfo = getSharedPreferences("X-device", 0);
+        SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
         String deviceString = deviceInfo.getString("udid", "");
         if(TextUtils.isEmpty(deviceString))
         {
@@ -85,29 +101,63 @@ public class InitPage extends Activity implements HttpCallback {
         	deviceInfo.edit().putString("udid",deviceString).commit();
         	RegisterUdid(deviceString);
         }
-        declare.udidString=deviceString;
+        appDiancan.udidString=deviceString;
         // 设置通知样式
       	BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
       	builder.statusBarDrawable = R.drawable.notification_icon;
       	builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
       	builder.notificationDefaults = Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE;  // 设置为铃声与震动都要
       	JPushInterface.setPushNotificationBuilder(1, builder);
-        //判断机型
-        printDeviceInf();
-        int wifi=getWifiRssi();//获取wifi信号强度
-        if(wifi<=-70)
-        {
-        	ShowError("当前网络信号强度非常差。");
+      	
+      	int rid = deviceInfo.getInt("rid", -1);
+        String rname = deviceInfo.getString("rname", "-1");
+        int oid = deviceInfo.getInt("oid", -1);
+        int orid = deviceInfo.getInt("orid", -1);
+        
+        //如果有选中的饭店先要把饭店的菜类请求到
+        if(rid!=-1){
+        	MyRestaurant myRestaurant = new MyRestaurant();
+        	myRestaurant.setId(rid);
+        	if(!rname.equals("-1")){
+        		myRestaurant.setName(rname);
+        	}
+        	appDiancan.myRestaurant = myRestaurant;
         }
-        Sleep();
+        
+    	if(oid!=-1&&orid!=-1){
+    		RequestOrderById(oid, orid, appDiancan.udidString);
+    	}
+        else{
+        	Sleep();
+        }
+        
 	}
 	
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
-		if(msg.what==HttpHandler.START_MAIN){
+		switch (msg.what) {
+		case HttpHandler.START_MAIN:
 			ToMain();
+			break;
+		case HttpHandler.REQUEST_ORDER_BY_ID:
+			Order order = (Order)msg.obj;
+			InitOrder(order);
+			break;
+		case HttpHandler.REQUEST_ALLCATEGORY:
+			SparseArray<Category> caArray = (SparseArray<Category>)msg.obj;
+			InitCategoryDic(caArray);
+			break;
+		default:
+			ToMain();
+			break;
 		}
+//		if(msg.what==HttpHandler.START_MAIN){
+//			ToMain();
+//		}
+//		if(msg.what == httpHandler.REQUEST_ALLCATEGORY){
+//			Sleep();
+//		}
 	}
 
 	@Override
@@ -124,11 +174,12 @@ public class InitPage extends Activity implements HttpCallback {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					String resultString = HttpDownloader.RegisterUdid(udid,MenuUtils.initUrl+ "device");
+					HttpDownloader.RegisterUdid(udid,MenuUtils.initUrl+ "device");
 					
 				} catch (Throwable e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
 				}
 			}
 		}).start();
@@ -154,55 +205,77 @@ public class InitPage extends Activity implements HttpCallback {
 		th.start();
 	}
 	
+	public void RequestOrderById(final int oid,final int rid,final String udidString){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+				try {
+					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+rid+"/orders/" +oid,udidString);
+					if(resultString==null)
+					{
+						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"获取订单失败！").sendToTarget();
+						return;
+					}
+					else {
+					Order order=JsonUtils.ParseJsonToOrder(resultString);
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ORDER_BY_ID,order).sendToTarget();
+				}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
+				}
+				
+			}
+		}).start();
+	}
+	
+	public void RequestAllTypes(final int rid){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+				try {
+					List<Category> categories=MenuUtils.getAllCategory(rid,appDiancan.udidString);
+					SparseArray<Category> caArray=new SparseArray<Category>();
+					Iterator<Category> iterator;
+					for(iterator=categories.iterator();iterator.hasNext();){
+						Category category=iterator.next();
+						caArray.put(category.getId(), category);
+					}
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ALLCATEGORY,caArray).sendToTarget();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
+				}
+				
+			}
+		}).start();
+	}
+	
+	public void InitOrder(Order order){
+		appDiancan.myOrder = order;
+		appDiancan.myOrderHelper = new OrderHelper(order);
+		RequestAllTypes(order.getRestaurant().getId());
+	}
+	
+	public void InitCategoryDic(SparseArray<Category> sArray){
+		appDiancan.myOrderHelper.setCategoryDic(sArray);
+		ToMain();
+	}
   	
   	/**
   	 * 跳转
   	 */
   	public void ToMain()
   	{
-  		Intent intent=new Intent(this,RestaurantActivity.class);
+  		Intent intent=new Intent(this,Main.class);
         startActivity(intent);
         this.finish();
   	}
-  	
-  	/***
-     * 获取设备信息,判断是不是小米
-     */
-    public  void printDeviceInf(){
-    	String MANUFACTURER=android.os.Build.MANUFACTURER+"";
-    	String MODEL=android.os.Build.MODEL+"";
-    	if(MANUFACTURER.equals(MenuUtils.XIAOMI)&&MODEL.equals(MenuUtils.MIONE))
-    	{
-    		MenuUtils.ISXIAOMI=true;
-    	}
-    	else {
-    		MenuUtils.ISXIAOMI=false;
-		}
-//		StringBuilder sb = new StringBuilder();
-//		sb.append("PRODUCT ").append(android.os.Build.PRODUCT).append("\n");
-//		sb.append("BOARD ").append(android.os.Build.BOARD).append("\n");
-//		sb.append("BOOTLOADER ").append(android.os.Build.BOOTLOADER).append("\n");
-//		sb.append("BRAND ").append(android.os.Build.BRAND).append("\n");
-//		sb.append("CPU_ABI ").append(android.os.Build.CPU_ABI).append("\n");
-//		sb.append("CPU_ABI2 ").append(android.os.Build.CPU_ABI2).append("\n");
-//		sb.append("DEVICE ").append(android.os.Build.DEVICE).append("\n");
-//		sb.append("DISPLAY ").append(android.os.Build.DISPLAY).append("\n");
-//		sb.append("FINGERPRINT ").append(android.os.Build.FINGERPRINT).append("\n");
-//		sb.append("HARDWARE ").append(android.os.Build.HARDWARE).append("\n");
-//		sb.append("HOST ").append(android.os.Build.HOST).append("\n");
-//		sb.append("ID ").append(android.os.Build.ID).append("\n");
-//		sb.append("MANUFACTURER ").append(android.os.Build.MANUFACTURER).append("\n");
-//		sb.append("MODEL ").append(android.os.Build.MODEL).append("\n");
-//		sb.append("PRODUCT ").append(android.os.Build.PRODUCT).append("\n");
-//		sb.append("RADIO ").append(android.os.Build.RADIO).append("\n");
-//		sb.append("SERIAL ").append(android.os.Build.SERIAL).append("\n");
-//		sb.append("TAGS ").append(android.os.Build.TAGS).append("\n");
-//		sb.append("TIME ").append(android.os.Build.TIME).append("\n");
-//		sb.append("TYPE ").append(android.os.Build.TYPE).append("\n");
-//		sb.append("USER ").append(android.os.Build.USER).append("\n");
-//		Log.i(tag,sb.toString());
-	}
-    
     /**
   	 * 显示错误信息
   	 * @param strMess
@@ -211,17 +284,5 @@ public class InitPage extends Activity implements HttpCallback {
 		Toast toast = Toast.makeText(InitPage.this, strMess, Toast.LENGTH_SHORT); 
         toast.show();
 	}
-  	
-  	/***
-  	 * 获取wifi信息
-  	 * @return
-  	 */
-  	private int getWifiRssi()
-  	{
-  		WifiManager mWifiManager=(WifiManager) getSystemService(WIFI_SERVICE);
-  	    WifiInfo mWifiInfo=mWifiManager.getConnectionInfo();
-  	    int wifi=mWifiInfo.getRssi();//获取wifi信号强度
-  	    return wifi;
-  	}
-
+  	  	
 }

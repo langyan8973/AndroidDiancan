@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="notifybar_height">25dip</dimen>
     <dimen name="toplayout_width">320dip</dimen>
-    
+    <dimen name="categorylist_width">205dip</dimen>
+    <dimen name="recipelist_move_end">200dip</dimen>
+    <dimen name="topbar_height">45dip</dimen>
+    <dimen name="tabbar_height">55dip</dimen>
+    <dimen name="left_shadow_width">6dip</dimen>
+    <dimen name="shadow_paddingRight">320dip</dimen>
 </resources>

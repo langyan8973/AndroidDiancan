@@ -1,11 +1,11 @@
 package com.diancan;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import android.R.integer;
+import android.app.Activity;
+import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -18,8 +18,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,24 +37,28 @@ import com.baidu.mapapi.MapView;
 import com.baidu.mapapi.MyLocationOverlay;
 import com.baidu.mapapi.OverlayItem;
 import com.baidu.mapapi.Projection;
-import com.diancan.RestaurantActivity.RestaurantAdapter;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.diancanapp.AppDiancan;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Restaurant;
 
-public class MapViewActivity extends MapActivity {
+public class MapViewActivity extends MapActivity implements OnClickListener {
 	
 	AppDiancan declare;
 	MapView mapView=null;
 	View mPopView = null;
 	LocationListener mLocationListener=null;
 	MyLocationOverlay myLocationOverlay=null;
+	Button mBtnList;
+	Button mBtnBack;
 	RestaurantsOverItems overitem=null;
 	int iZoom = 0;
 	int selectId=0;
+	String selectName;
 	List<Restaurant> mRestaurants;
 	private Handler httpHandler = new Handler() {  
-        public void handleMessage (Message msg) {//此方法在ui线程运行   
+        public void handleMessage (Message msg) {
+        	//此方法在ui线程运行   
             switch(msg.what) {  
             case 0: 
             	String errString=msg.obj.toString();
@@ -67,6 +76,11 @@ public class MapViewActivity extends MapActivity {
 		super.onCreate(arg0);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.mapview);
+		
+		mBtnList=(Button)findViewById(R.id.bt_list);
+		mBtnList.setOnClickListener(this);
+		mBtnBack=(Button)findViewById(R.id.bt_back);
+		mBtnBack.setOnClickListener(this);
 		
 		declare=(AppDiancan)this.getApplicationContext();
 		if(declare.mBMapMan==null)
@@ -133,6 +147,90 @@ public class MapViewActivity extends MapActivity {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v.getId()==R.id.bt_list){
+			ToRestaurantPage();
+		}else if(v.getId()==R.id.bt_back){
+			ToMainFirstPage();
+		}
+	}
+	
+	
+	/**
+  	 * 跳回导航页
+  	 */
+  	private void ToMainFirstPage(){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_right_in);
+		Intent in = new Intent(this.getParent(), MainFirstPage.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_MAINFIRST, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+	
+	/**
+	 * 回到列表页
+	 */
+	private void ToRestaurantPage(){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Intent in = new Intent(this.getParent(), RestaurantActivity.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Window window = manager.startActivity(MenuGroup.ID_RESTAURANTACTIVITY, in);
+		
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+  	}
+	
+	private void ToRecipeListPage(){
+		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_left_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
+		Intent intent = new Intent(this.getParent(), RecipeList.class);
+//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+  	}
+	
 	/**
 	 * 显示错误信息
 	 * @param strMess
@@ -141,6 +239,8 @@ public class MapViewActivity extends MapActivity {
 		Toast toast = Toast.makeText(MapViewActivity.this, strMess, Toast.LENGTH_SHORT); 
 	    toast.show();
 	}
+	
+	
 	/**
 	 * 请求餐厅数据
 	 */
@@ -191,10 +291,13 @@ public class MapViewActivity extends MapActivity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				declare.restaurantId=selectId;
-				Intent intent=new Intent(MapViewActivity.this, Main.class);
-			    startActivity(intent);
-			    MapViewActivity.this.finish();
+				MyRestaurant myRestaurant=new MyRestaurant();
+				myRestaurant.setId(selectId);
+				declare.myRestaurant=myRestaurant;
+//				Intent intent=new Intent(MapViewActivity.this, Main.class);
+//			    startActivity(intent);
+//			    MapViewActivity.this.finish();
+				ToRecipeListPage();
 			}
 		});
 	}
@@ -202,14 +305,12 @@ public class MapViewActivity extends MapActivity {
 	class RestaurantsOverItems extends ItemizedOverlay<OverlayItem>{
 		private List<Restaurant> mRestaurants;
 		private Drawable mDrawable;
-		private Context mContext;
 		List<OverlayItem> pointsList=new ArrayList<OverlayItem>();
 		public RestaurantsOverItems(Drawable marker,Context context,List<Restaurant> restaurants) {
 			
 			super(boundCenterBottom(marker));
 			// TODO Auto-generated constructor stub
 			mDrawable=marker;
-			mContext=context;
 			mRestaurants=restaurants;
 			
 			Iterator<Restaurant> iterator;
@@ -278,6 +379,7 @@ public class MapViewActivity extends MapActivity {
 			phoneView.setText(restaurant.getTelephone());
 			String idString=pointsList.get(i).getSnippet();
 			selectId=Integer.parseInt(idString);
+			selectName = restaurant.getName();
 			return true;
 		}
 

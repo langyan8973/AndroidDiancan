@@ -1,66 +1,37 @@
 package com.diancan;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.R.bool;
-import android.R.integer;
 import android.app.Activity;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+import android.app.Dialog;
+import android.app.TabActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.SqlLiteDB.MenuDataHelper;
-import com.diancan.Utils.CustomViewBinder;
-import com.diancan.Utils.FileUtils;
-import com.diancan.Utils.MenuUtils;
+import com.diancan.Helper.OrderHelper;
+import com.diancan.Helper.RecipeListHttpHelper;
+import com.diancan.Utils.JsonUtils;
 import com.diancan.diancanapp.AppDiancan;
-import com.diancan.http.HttpDownloader;
-import com.diancan.model.AllDomain;
-import com.diancan.model.Category;
-import com.diancan.model.Desk;
-import com.diancan.model.OrderItem;
-import com.diancan.model.Recipe;
-import com.diancan.model.ServiceMess;
+import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpHandler;
+import com.diancan.model.Order;
 
-public class MyService extends Activity {
-	ListView serviceList;
-	ListView messListView;
-	ArrayList<ServiceMess> messages=new ArrayList<ServiceMess>();
-	ArrayList<HashMap<String, String>> hashlist;
-	ArrayList<HashMap<String, Object>> messHashMaps=new ArrayList<HashMap<String,Object>>();
-	boolean isNew=false;
+public class MyService extends Activity implements OnClickListener,HttpCallback {
 	AppDiancan declare;
-	MessageListAdapter messageListAdapter;
-	NotifiReceiver receiver;
+	Button mCheckButton;
+	ProgressBar mProgressBar;
+	RecipeListHttpHelper recipeListHttpHelper;
+//	NotifiReceiver receiver;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -68,212 +39,39 @@ public class MyService extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.myservice);
 		declare=(AppDiancan)getApplicationContext();
-		serviceList=(ListView)findViewById(R.id.ServiceList);
-		serviceList.setOnItemClickListener(new listitemClick());
-		
-		messListView=(ListView)findViewById(R.id.MessList);
-		InitServiceList();
-		
+		recipeListHttpHelper=new RecipeListHttpHelper(this, declare);
+		mCheckButton = (Button)findViewById(R.id.checkBtn);
+		mCheckButton.setOnClickListener(this);
+		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
+		mProgressBar.setVisibility(View.GONE);
 	}
 	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		if(declare.myOrder==null){
+			mCheckButton.setVisibility(View.GONE);
+		}
+		else{
+			mCheckButton.setVisibility(View.VISIBLE);
+		}
 		//注册一个广播接收器，启动餐桌抖动动画  
-	    receiver = new NotifiReceiver();
-	    IntentFilter filter = new IntentFilter();
+//	    receiver = new NotifiReceiver();
+//	    IntentFilter filter = new IntentFilter();
 //	    filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
 //        filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
 //        filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
-	    registerReceiver(receiver, filter);
+//	    registerReceiver(receiver, filter);
 	}
 
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		unregisterReceiver(receiver);
+//		unregisterReceiver(receiver);
 	}
 
-	private void InitServiceList() {
-		List<String> serNames=new ArrayList<String>();
-		hashlist=new ArrayList<HashMap<String,String>>();
-		serNames.add(MenuUtils.Service_1);
-		serNames.add(MenuUtils.Service_2);
-		serNames.add(MenuUtils.Service_3);
-		
-		for(String sername:serNames)
-		{		
-			HashMap<String, String> map=new HashMap<String, String>();
-			map.put("name", sername); 
-			map.put("id", sername);
-			hashlist.add(map);
-		}
-		
-		ServiceListAdapter simpleAdapter=new ServiceListAdapter(this, hashlist,
-				R.layout.categorylist_item, new String[] { "name","id" },
-				new int[] { R.id.category_name,R.id.category_id});
-		simpleAdapter.selectedName="";
-		serviceList.setAdapter(simpleAdapter);
-	}
-	private void InitMessageList() {
-		for(int i=0;i<messages.size();i++)
-		{
-			ServiceMess sem=messages.get(i);
-			HashMap<String, Object> map=new HashMap<String, Object>();
-			map.put("id", sem.getId());
-			map.put("content", sem.getsText());
-			map.put("returnmess", sem.getMessReturned());
-			String strCom="";
-			if(sem.isComplete())
-			{
-				strCom="true";
-			}
-			else {
-				strCom="false";
-			}
-			map.put("iscomplete", strCom);
-			messHashMaps.add(map);
-		}
-		messageListAdapter=new MessageListAdapter(this, messHashMaps, 
-				R.layout.messagelist_item, new String[]{"id","content","returnmess","iscomplete"}, 
-				new int[]{R.id.messid,R.id.messtext,R.id.messreturn,R.id.isover});
-		messListView.setAdapter(messageListAdapter);
-	}
-	class listitemClick implements OnItemClickListener{
-
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
-			// TODO Auto-generated method stub
-			HashMap<String, String> map=hashlist.get(arg2);
-			String nameString=map.get("name").toString();
-			isNew=true;
-			UUID uuid = UUID.randomUUID();
-			ServiceMess sMess=new ServiceMess();
-			sMess.setId(uuid.toString());
-			sMess.setsText(nameString);
-			sMess.setComplete(false);
-			sMess.setMessReturned("已发出");
-			messages.add(sMess);
-			if(messages.size()<=1)
-			{
-				InitMessageList();
-			}
-			else {
-				HashMap<String, Object> mapnew=new HashMap<String, Object>();
-				mapnew.put("id", sMess.getId());
-				mapnew.put("content", sMess.getsText());
-				mapnew.put("returnmess", sMess.getMessReturned());
-				String strCom="";
-				if(sMess.isComplete())
-				{
-					strCom="true";
-				}
-				else {
-					strCom="false";
-				}
-				mapnew.put("iscomplete", strCom);
-				messHashMaps.add(mapnew);
-				messageListAdapter.notifyDataSetChanged();
-			}
-			messListView.setSelectionFromTop(messages.size()-1, 300);
-			
-			try {
-				HttpDownloader.RequestServices(MenuUtils.initUrl, sMess.getsText(), declare.curOrder.getId().toString(),
-						declare.udidString);
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-	}
-	class ServiceListAdapter extends SimpleAdapter{
-
-		int[] ids;
-		String selectedName;
-		private ArrayList<HashMap<String, Object>> mItemList;
-		public String getSelectedName() {
-			return selectedName;
-		}
-
-		public void setSelectedName(String selectedName) {
-			this.selectedName = selectedName;
-		}
-		
-		public ArrayList<HashMap<String, Object>> getmItemList() {
-			return mItemList;
-		}
-		public void setmItemList(ArrayList<HashMap<String, Object>> hashList) {
-			this.mItemList = hashList;
-		}
-
-		public ServiceListAdapter(Context context,
-				List<? extends Map<String, ?>> data, int resource,
-				String[] from, int[] to) {
-			super(context, data, resource, from, to);
-			// TODO Auto-generated constructor stub
-			ids=to;
-			mItemList = (ArrayList<HashMap<String, Object>>) data;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			View localView = super.getView(position, convertView, parent);
-			HashMap<String, Object> map=mItemList.get(position);
-
-			TextView nameView=(TextView)localView.findViewById(R.id.category_name);
-			if(!selectedName.equals("")&&selectedName.equals(map.get("name").toString()))
-			{
-				localView.setBackgroundDrawable(MyService.this.getResources().getDrawable(R.drawable.co));
-				nameView.setTextColor(Color.WHITE);
-			}
-			else {
-				localView.setBackgroundDrawable(MyService.this.getResources().getDrawable(R.drawable.c));
-				nameView.setTextColor(Color.BLACK);
-			}
-			
-	        return localView;
-		}
-		
-	}
-	
-	class MessageListAdapter extends SimpleAdapter{
-
-		private ArrayList<HashMap<String, Object>> mItemList;
-		
-		public ArrayList<HashMap<String, Object>> getmItemList() {
-			return mItemList;
-		}
-		public void setmItemList(ArrayList<HashMap<String, Object>> hashList) {
-			this.mItemList = hashList;
-		}
-
-		public MessageListAdapter(Context context,
-				List<? extends Map<String, ?>> data, int resource,
-				String[] from, int[] to) {
-			super(context, data, resource, from, to);
-			// TODO Auto-generated constructor stub
-			mItemList = (ArrayList<HashMap<String, Object>>) data;
-		}
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			return super.getView(position, convertView, parent);
-		}
-
-		
-		
-	}
 	class NotifiReceiver extends BroadcastReceiver{
 
 		@Override
@@ -298,4 +96,105 @@ public class MyService extends Activity {
 		}
 		
 	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v.getId()==R.id.checkBtn){
+			ClickCheckBtn();
+		}
+	}
+
+	@Override
+	public void RequestComplete(Message msg) {
+		// TODO Auto-generated method stub
+		mProgressBar.setVisibility(View.GONE);
+		switch (msg.what) {
+		case HttpHandler.CHECK_ORDER:
+			String json=msg.obj.toString();
+        	ParseOrderRefresh(json);
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void RequestError(String errString) {
+		// TODO Auto-generated method stub
+		ShowError(errString);
+	}
+	
+	/**
+  	 * 显示错误信息
+  	 * @param strMess
+  	 */
+  	public void ShowError(String strMess) {
+		Toast toast = Toast.makeText(MyService.this, strMess, Toast.LENGTH_SHORT); 
+        toast.show();
+	}
+  	
+  	private void ClickCheckBtn(){
+  		if(declare.myOrder==null){
+  			return;
+  		}
+		final Dialog dialog = new Dialog(this, R.style.MyDialog);
+        //设置它的ContentView
+		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.dialog, null);
+        dialog.setContentView(layout);
+        String contentString = declare.myOrderHelper.GetCheckOrderString();       
+        TextView contentView = (TextView)layout.findViewById(R.id.contentTxt);
+        TextView titleView = (TextView)layout.findViewById(R.id.dialog_title);
+        Button okBtn = (Button)layout.findViewById(R.id.dialog_button_ok);
+        okBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();
+				mProgressBar.setVisibility(View.VISIBLE);
+				recipeListHttpHelper.CheckOrder();
+			}
+		});
+        Button cancelButton = (Button)layout.findViewById(R.id.dialog_button_cancel);
+        cancelButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();
+			}
+		});
+        titleView.setText("结账：￥"+(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())+"元");
+        contentView.setText(contentString);
+        dialog.show();
+		
+	}
+  	
+  	private void ParseOrderRefresh(String jsString){
+    	if(jsString.equals(""))
+    	{
+    		ShowError("操作失败！");
+    	}
+    	final Order order=JsonUtils.ParseJsonToOrder(jsString);
+    	declare.myOrder = order;
+		declare.myOrderHelper.SetOrderAndItemDic(order);
+		if(order.getStatus()==3 || order.getStatus()==4){
+			SendSetCountMessage();
+			TabActivity main = (TabActivity)this.getParent();
+			main.getTabHost().setCurrentTab(0);
+			return;
+		}
+		
+    }
+  	
+  	public void SendSetCountMessage()
+    {
+    	Intent in = new Intent();
+        in.setAction("setcount");
+        in.addCategory(Intent.CATEGORY_DEFAULT);
+        MyService.this.sendBroadcast(in);
+    }
 }

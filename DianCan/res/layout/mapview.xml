@@ -1,11 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-  
+  android:layout_width="fill_parent" 
+  android:layout_height="fill_parent"
+  style="@style/Widget.VLayout"
+  >
+  <RelativeLayout
+    android:layout_width="fill_parent" 
+    android:layout_height="@dimen/topbar_height"
+    style="@style/Widget.Layout.TitleBar"
+    >
+    <Button android:id="@+id/bt_back" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="@string/btnback"
+		    style="@style/Widget.Button.Title.Back"/>
+	<TextView 
+	    android:gravity="center" 
+	    android:id="@+id/tv_title" 
+	    android:layout_width="wrap_content" 
+	    android:layout_height="wrap_content" 
+	    android:layout_centerInParent="true"
+	    android:text="@string/restaurant_map_title" 
+	    style="@style/Widget.TextView.Title"
+	    />
+	<Button android:id="@+id/bt_list" 
+	    android:layout_width="wrap_content" 
+	    android:layout_height="30dip" 
+	     android:layout_alignParentRight="true" 
+	    android:layout_centerVertical="true"
+	    android:text="@string/displaylist" 
+	    style="@style/Widget.Button.Title"/>
+</RelativeLayout>
  <com.baidu.mapapi.MapView android:id="@+id/bmapView"
-	android:layout_width="fill_parent" android:layout_height="fill_parent" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent" 
 	android:clickable="true"     
 />
 

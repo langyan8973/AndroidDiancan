@@ -1,40 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    android:orientation="vertical" 
-    android:background="@color/background_color" 
     android:layout_width="fill_parent" 
-    android:layout_height="fill_parent">
-	<RelativeLayout android:background="@drawable/bkg_titlebar" 
-	    android:paddingLeft="10.0dip" 
-	    android:paddingRight="10.0dip" 
+    android:layout_height="fill_parent"
+    style="@style/Widget.Layout.DefaultPageVLayout"
+    >
+	<RelativeLayout
 	    android:layout_width="fill_parent" 
-	    android:layout_height="wrap_content">
-	    <Button android:id="@+id/bt_map" 
-		    android:padding="8.0dip" 
+	    android:layout_height="@dimen/topbar_height"
+	    style="@style/Widget.Layout.TitleBar"
+	    >
+	    <Button android:id="@+id/bt_back" 
 		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:lines="1"
-		    android:text="地图"
+		    android:layout_height="30dip" 
 		    android:layout_alignParentLeft="true"
 		    android:layout_centerVertical="true" 
-		    style="@style/Widget.Button.Title"/>
-		<TextView android:textAppearance="?android:textAppearanceMediumInverse" 
+		    android:text="@string/btnback"
+		    style="@style/Widget.Button.Title.Back"/>
+		<TextView 
 		    android:gravity="center" 
 		    android:id="@+id/tv_title" 
 		    android:layout_width="wrap_content" 
 		    android:layout_height="wrap_content" 
-		    android:text="餐厅" 
-		    android:lines="2" 
+		    android:layout_centerInParent="true"
+		    android:text="@string/restaurantsTitle" 
 		    style="@style/Widget.TextView.Title"
-		    android:layout_centerInParent="true"/>
-		<Button android:id="@+id/bt_camera" 
-		    android:padding="8.0dip" 
+		    />
+		<Button android:id="@+id/bt_map" 
 		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:lines="1"
-		    android:text="扫描"
-		    android:layout_alignParentRight="true" 
-		    android:layout_centerVertical="true" 
+		    android:layout_height="30dip" 
+		     android:layout_alignParentRight="true" 
+		    android:layout_centerVertical="true"
+		    android:text="@string/MapBtnTitle" 
 		    style="@style/Widget.Button.Title"/>
 	</RelativeLayout>
 	<ListView android:id="@+id/rList" 

@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 final class CameraConfigurationManager {
@@ -49,6 +50,16 @@ final class CameraConfigurationManager {
    * Reads, one time, values from the camera that are needed by the app.
    */
   void initFromCameraParameters(Camera camera) {
+	
+//    Point screenResolutionForCamera = new Point();
+//    screenResolutionForCamera.x = screenResolution.x;
+//    screenResolutionForCamera.y = screenResolution.y;
+//    // preview size is always something like 480*320, other 320*480
+//	if (screenResolution.x < screenResolution.y) {
+//	  screenResolutionForCamera.x = screenResolution.y;
+//	  screenResolutionForCamera.y = screenResolution.x;
+//	}
+	
     Camera.Parameters parameters = camera.getParameters();
     previewFormat = parameters.getPreviewFormat();
     previewFormatString = parameters.get("preview-format");
@@ -74,8 +85,21 @@ final class CameraConfigurationManager {
     setFlash(parameters);
     setZoom(parameters);
     //setSharpness(parameters);
+    setDisplayOrientation(camera, 90);
     camera.setParameters(parameters);
   }
+  
+  protected void setDisplayOrientation(Camera camera, int angle) {
+	  Method downPolymorphic;
+	  try {
+	   downPolymorphic = camera.getClass().getMethod(
+	     "setDisplayOrientation", new Class[] { int.class });
+	   if (downPolymorphic != null)
+	    downPolymorphic.invoke(camera, new Object[] { angle });
+	  } catch (Exception e1) {
+	  }
+  }
+  
 
   Point getCameraResolution() {
     return cameraResolution;

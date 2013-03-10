@@ -1,109 +1,153 @@
 package com.diancan;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
 import com.diancan.Utils.DisplayUtil;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
+import com.diancan.custom.animation.ListPopImgAnimation;
+import com.diancan.custom.view.PinnedHeaderListView;
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpCallback;
 import com.diancan.http.HttpHandler;
 import com.diancan.http.ImageDownloader;
+import com.diancan.model.Category;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 import com.diancan.model.Recipe;
+import com.diancan.sectionlistview.OrderSectionListAdapter;
+import com.diancan.sectionlistview.SectionListItem;
+import com.diancan.sectionlistview.SectionListAdapter.AdapterViewHolder;
+
+import android.R.integer;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.TabActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.BaseAdapter;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MyTable extends Activity implements HttpCallback,OnClickListener{
-	ListView orderListView;
-	Button overButton;
+	
+	PinnedHeaderListView orderListView;
+	Button commitButton;
 	Button flashButton;
-	ProgressBar mProgressBar;
 	TextView sumTextView;
+	ImageView mPopImageView;
+	ProgressBar mProgressBar;
 	String sumString;	
-	int sendId,sendCount;
-	OrderItem changedItem;
 	AppDiancan declare;
 	NotifiReceiver receiver;
 	RecipeListHttpHelper recipeListHttpHelper;
+	ImageDownloader imageDownloader;
+	static int TABCOUNT = 3;
+	static int TIME_MEASURE = 500;
+	private long clicktime=0;
+	int sWidth,sHeight;
+	int topbarHeight,tabbarHeight;
+	
 	HashMap<String, List<OrderItem>> hashOrderItems;
-	
-	private List<OrderItem> mOrderItems=new ArrayList<OrderItem>();
-	private List<HashMap<String, Object>> itemlist = new ArrayList<HashMap<String, Object>>();  
-	private List<HashMap<String, Object>> tagList = new ArrayList<HashMap<String, Object>>();
-	
+	private MyStandardArrayAdapter arrayAdapter;
+
+    private OrderSectionListAdapter sectionAdapter;
+
+    List<SectionListItem> exampleArray;
+    
+    public class MyStandardArrayAdapter extends ArrayAdapter<SectionListItem> {
+
+    	public List<SectionListItem> items;
+        public MyStandardArrayAdapter(Context context, int textViewResourceId,
+				List<SectionListItem> objects) {
+			super(context, textViewResourceId, objects);
+			// TODO Auto-generated constructor stub
+			this.items = objects;
+		}
+        
+    }
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mytable);
+		
+		sWidth = DisplayUtil.PIXWIDTH;
+		sHeight = DisplayUtil.PIXHEIGHT;
+		topbarHeight = (int)getResources().getDimension(R.dimen.topbar_height);
+		tabbarHeight = (int)getResources().getDimension(R.dimen.tabbar_height);
+		
 		sumString=getResources().getString(R.string.infostr_sum);
 		sumTextView=(TextView)findViewById(R.id.sumText);
-		sumTextView.setTextColor(Color.WHITE);
-		sumTextView.setTextSize(DisplayUtil.dip2px(16));
-		orderListView=(ListView)findViewById(R.id.orderList);
-		mProgressBar=(ProgressBar)findViewById(R.id.httppro);
-		overButton=(Button)findViewById(R.id.overBtn);
-		overButton.setText(getResources().getString(R.string.btnstr_over));
-		overButton.setOnClickListener(this);
+		mPopImageView = (ImageView)findViewById(R.id.img_popup);
+		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
+		
+		orderListView=(PinnedHeaderListView)findViewById(R.id.orderList);
+		commitButton=(Button)findViewById(R.id.commitBtn);
+		commitButton.setOnClickListener(this);
 		flashButton=(Button)findViewById(R.id.BtnFlash);
 		flashButton.setOnClickListener(this);
 		declare=(AppDiancan)getApplicationContext();
 		receiver = new NotifiReceiver();
-		
 		recipeListHttpHelper=new RecipeListHttpHelper(this, declare);
     }
     @Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-    	mProgressBar.setVisibility(View.INVISIBLE);
+    	super.onResume();
+	    IntentFilter filter = new IntentFilter();
+	    filter.addAction("diancan");
+	    filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(receiver, filter);
+	    mProgressBar.setVisibility(View.GONE);
+    	if(declare.myOrder==null){
+    		if(exampleArray!=null){
+    			exampleArray.clear();
+    			hashOrderItems.clear();
+    			arrayAdapter.notifyDataSetChanged();
+    			sumTextView.setText(sumString+"0.00");
+    		}
+    		return;
+    	}
+    	
     	if(hashOrderItems==null){
+    		
     		hashOrderItems=new HashMap<String, List<OrderItem>>();
     		InitHashOrderItems();
     		InitListDatasource();
-    		TableListAdapter listAdapter=new TableListAdapter(this, itemlist, tagList,mOrderItems);
-    		orderListView.setAdapter(listAdapter);
-    		sumTextView.setText(sumString+declare.totalPrice);
-    		if(declare.curOrder.getStatus()>=3){
-    			overButton.setEnabled(false);
-    		}
-    		else{
-    			overButton.setEnabled(true);
-    		}
+    		DisplayOrderList();
+    		
     	}
     	else{
     		UpdateElement();	
     	}
     	
-		super.onResume();
 		
-	    IntentFilter filter = new IntentFilter();
-	    filter.addAction("diancan");
-	    filter.addCategory(Intent.CATEGORY_DEFAULT);
-	    registerReceiver(receiver, filter);
 	}
     
     @Override
@@ -116,12 +160,13 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     @Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
+    	mProgressBar.setVisibility(View.GONE);
     	switch(msg.what) {  
         case HttpHandler.REFRESH_ORDER: 
         	String jsString=msg.obj.toString();
         	ParseOrderRefresh(jsString);
             break;
-        case HttpHandler.POST_RECIPE_COUNT:
+        case HttpHandler.POST_RECIPE_COUNT_FROMORDER:
         	String jsonString=msg.obj.toString();
         	ParseOrder(jsonString);
         	break;
@@ -129,7 +174,11 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
         	String json=msg.obj.toString();
         	ParseOrderRefresh(json);
         	break;
-        }  
+        case HttpHandler.DEPOSIT_ORDER:
+        	String jString = msg.obj.toString();
+        	ParseOrderRefresh(jString);
+        	break;
+         }  
 	}
 	@Override
 	public void RequestError(String errString) {
@@ -141,12 +190,19 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
-		case R.id.overBtn:
-			mProgressBar.setVisibility(View.VISIBLE);
-			recipeListHttpHelper.CheckOrder();
+		case R.id.commitBtn:
+			ClickCommitBtn();
 			break;
 		case R.id.BtnFlash:
 			FlashOrder();
+			break;
+		case R.id.jiahao:
+			int p = Integer.parseInt(v.getTag().toString());
+			ClickIncreaseImg(p);
+			break;
+		case R.id.jianhao:
+			int p1 = Integer.parseInt(v.getTag().toString());
+			ClickDecreaseImg(p1,v);
 			break;
 		default:
 			break;
@@ -158,7 +214,6 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
      * @param strMess
      */
     public void ShowError(String strMess) {
-		mProgressBar.setVisibility(View.INVISIBLE);
 		Toast toast = Toast.makeText(MyTable.this, strMess, Toast.LENGTH_SHORT); 
         toast.show();
 	}
@@ -169,22 +224,26 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     public void InitHashOrderItems()
     {
     	hashOrderItems.clear();
-    	declare.totalCount=0;
-    	declare.totalPrice=0;
+    	if(exampleArray==null){
+    		exampleArray = new ArrayList<SectionListItem>();
+    	}
+    	else{
+    		exampleArray.clear();
+    	}
     	Iterator<OrderItem> iterator;
-    	for(iterator=declare.curOrder.getOrderItems().iterator();iterator.hasNext();)
+    	for(iterator=declare.myOrder.getClientItems().iterator();iterator.hasNext();)
     	{
     		OrderItem orderItem=iterator.next();
-    		String cnameString=declare.hashTypes.get(orderItem.getRecipe().getCid()+"");
+    		Category category=declare.myOrderHelper.getCategoryDic().get(orderItem.getRecipe().getCid());
+    		String cnameString=category.getName();
     		if(!hashOrderItems.containsKey(cnameString))
     		{
     			List<OrderItem> orderItems=new ArrayList<OrderItem>();
     			hashOrderItems.put(cnameString, orderItems);
     		}
+    		
     		List<OrderItem> oItems=hashOrderItems.get(cnameString);
     		oItems.add(orderItem);
-    		declare.totalCount+=orderItem.getCount();
-    		declare.totalPrice+=orderItem.getCount()*orderItem.getRecipe().getPrice();
     	}
     }
     
@@ -194,56 +253,56 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     public void InitListDatasource(){
     	String strKey;
     	Set<String> meenum=hashOrderItems.keySet();
-    	itemlist.clear();
-    	tagList.clear();
-    	mOrderItems.clear();
     	Iterator iterator;
 		for (iterator = meenum.iterator(); iterator.hasNext();) {
 			strKey = (String) iterator.next();
 			List<OrderItem> orderItemList=hashOrderItems.get(strKey);
-			HashMap<String, Object> tagMap=new HashMap<String, Object>();
-			tagMap.put("tagTitle", strKey);
-			tagList.add(tagMap);
-			itemlist.add(tagMap);
-			OrderItem oItem=new OrderItem();
-			mOrderItems.add(oItem);
 			Iterator<OrderItem> iterator2;
 			for(iterator2=orderItemList.iterator();iterator2.hasNext();){
 				OrderItem orderItem=iterator2.next();
-				mOrderItems.add(orderItem);
-				HashMap<String, Object> map = new HashMap<String, Object>();
-				map.put("title", orderItem.getRecipe().getName());
-				map.put("price", "¥ "+orderItem.getRecipe().getPrice());
-				String strCount=orderItem.getCount()+"";
-				map.put("count", strCount);
-				Integer kk=orderItem.getStatus();
-				map.put("status", kk);
-				String urlString=MenuUtils.imageUrl+orderItem.getRecipe().getImage();
-				map.put("img", urlString);
-				itemlist.add(map);
+				exampleArray.add(new SectionListItem(orderItem, strKey));
 			}
+		}
+    }
+    
+    private void DisplayOrderList(){
+    	Drawable[] layers={getResources().getDrawable(R.drawable.imagewaiting)};
+    	imageDownloader = new ImageDownloader(layers);
+    	arrayAdapter = new MyStandardArrayAdapter(this,R.id.title,exampleArray);
+		sectionAdapter = new OrderSectionListAdapter(getLayoutInflater(),
+                arrayAdapter,imageDownloader);
+		sectionAdapter.setViewClickListener(this);
+		orderListView.setAdapter(sectionAdapter);
+		orderListView.setOnScrollListener(sectionAdapter);
+		orderListView.setPinnedHeaderView(getLayoutInflater().inflate(R.layout.list_section, orderListView, false));
+		
+
+		sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+		if(declare.myOrder.getPriceAll()==(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())){
+			commitButton.setEnabled(false);
+		}
+		else{
+			commitButton.setEnabled(true);
 		}
     }
 	
 	private void UpdateElement(){
 		hashOrderItems.clear();
-    	if(declare.curOrder!=null)
+    	if(declare.myOrder!=null)
     	{
     		InitHashOrderItems();
     		InitListDatasource();
-    		TableListAdapter listAdapter=(TableListAdapter)orderListView.getAdapter();
-    		listAdapter.setOrderItemList(mOrderItems);
-    		listAdapter.notifyDataSetChanged();
-    		sumTextView.setText(sumString+declare.totalPrice);
-    		if(declare.curOrder.getStatus()>=3){
-    			overButton.setEnabled(false);
+    		arrayAdapter.notifyDataSetChanged();
+    		sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+    		if(declare.myOrder.getPriceAll()==(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())){
+    			commitButton.setEnabled(false);
     		}
     		else{
-    			overButton.setEnabled(true);
+    			commitButton.setEnabled(true);
     		}
     	}
     	else {
-    		overButton.setVisibility(View.GONE);
+    		commitButton.setVisibility(View.GONE);
     		sumTextView.setText(sumString+"0.00");
 		}
 	}
@@ -252,37 +311,41 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		recipeListHttpHelper.RefreshOrder();
 	}
     
-    public void PostToServer()
+    public void PostToServer(int recipeId,int count)
     {
     	mProgressBar.setVisibility(View.VISIBLE);
-    	recipeListHttpHelper.Diancai(sendId, sendCount);
+    	recipeListHttpHelper.DiancaiFormOrder(recipeId, count);
     }
     private void ParseOrderRefresh(String jsString){
-    	mProgressBar.setVisibility(View.INVISIBLE);
     	if(jsString.equals(""))
     	{
     		ShowError("操作失败！");
     	}
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
-		declare.curOrder=order;
-		UpdateElement();
-		SendSetCountMessage();
+    	declare.myOrder = order;
+    	declare.myOrderHelper.SetOrderAndItemDic(order);
+		if(order.getStatus()==3 || order.getStatus()==4){
+			SendSetCountMessage();
+			TabActivity main = (TabActivity)this.getParent();
+			main.getTabHost().setCurrentTab(0);
+			return;
+		}
+		else{
+			UpdateElement();
+			SendSetCountMessage();
+		}
+		
     }
+    
     private void ParseOrder(String jsString) {
-    	mProgressBar.setVisibility(View.INVISIBLE);
     	if(jsString.equals(""))
     	{
     		ShowError("操作失败！");
     	}
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
-		declare.curOrder=order;
-		UpdateElement();
+    	declare.myOrder = order;
+    	declare.myOrderHelper.SetOrderAndItemDic(order);
 		SendSetCountMessage();
-		new Thread(){
-			public void run(){
-				declare.getMenuListDataObj().ChangeRecipeMapByItem(changedItem, order);
-			}
-		}.start();
 	}
     
     public void SendSetCountMessage()
@@ -298,7 +361,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		OrderItem orderItem=null;
 		
 		Iterator<OrderItem> iterator;
-		for(iterator=order.getOrderItems().iterator();iterator.hasNext();)
+		for(iterator=order.getClientItems().iterator();iterator.hasNext();)
 		{
 			OrderItem oItem=iterator.next();
 			Recipe recipe=oItem.getRecipe();
@@ -313,6 +376,161 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 	}
 	
 	/**
+	 * 根据位置获取被点击的view
+	 * @param position
+	 * @return
+	 */
+	public View GetClickItemView(int position){
+		int first = orderListView.getFirstVisiblePosition();
+		View clickView = orderListView.getChildAt(position - first);
+		return clickView;
+	}
+	
+	private void ClickIncreaseImg(int position){
+		Calendar cld = Calendar.getInstance();
+		if(cld.getTimeInMillis()-clicktime<TIME_MEASURE)
+		{
+			return;
+		}
+		clicktime=cld.getTimeInMillis();
+		
+		SectionListItem sectionListItem = exampleArray.get(position);
+		final OrderItem orderItem = (OrderItem)sectionListItem.item;
+		
+		View clickView = GetClickItemView(position);
+		final AdapterViewHolder viewHolder = (AdapterViewHolder)clickView.getTag();
+		viewHolder.imgrecipe.setDrawingCacheEnabled(true);
+		
+		Bitmap obmp = Bitmap.createBitmap(viewHolder.imgrecipe.getDrawingCache());
+		viewHolder.imgrecipe.setDrawingCacheEnabled(false);
+		mPopImageView.setImageBitmap(obmp);
+		mPopImageView.setVisibility(View.VISIBLE);
+		
+		int listHeight = sHeight - tabbarHeight - topbarHeight;
+		int tabWidth = sWidth/TABCOUNT;
+		int leftX = viewHolder.imgrecipe.getLeft();
+		int leftY = clickView.getTop() + viewHolder.imgrecipe.getBottom();
+		int centerX = (tabWidth*4/3 - leftX)/2;
+		int centerY = clickView.getTop();
+		int rightX = tabWidth*4/3;
+		int rightY = listHeight;
+		
+		int bottomNum = orderListView.getChildCount() - 1;
+		int currentNum = position - orderListView.getFirstVisiblePosition();
+		int animationDuration = 400 + (bottomNum - currentNum)*50;
+		ListPopImgAnimation tAnimation=new ListPopImgAnimation(animationDuration, leftX,leftY,centerX,centerY,rightX,rightY);
+		tAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				mPopImageView.clearAnimation();
+				mPopImageView.setVisibility(View.GONE);
+				orderItem.setCountNew(orderItem.getCountNew()+1);
+				viewHolder.tvCount.setText(orderItem.GetCount()+"");
+				viewHolder.imgdelete.setVisibility(View.VISIBLE);
+				viewHolder.tvCountDeposit.setTextColor(Color.RED);
+				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+				declare.myOrder.setPriceAll(declare.myOrder.getPriceAll()+orderItem.getRecipe().getPrice());
+				sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+				//加减菜请求
+				PostToServer(orderItem.getRecipe().getId(),1);
+			}
+		});
+		mPopImageView.startAnimation(tAnimation);
+	}
+	
+	private void ClickDecreaseImg(int position,View v){
+		Calendar cld = Calendar.getInstance();
+		if(cld.getTimeInMillis()-clicktime<TIME_MEASURE)
+		{
+			return;
+		}
+		clicktime=cld.getTimeInMillis();
+		View clickView = GetClickItemView(position);
+		AdapterViewHolder viewHolder = (AdapterViewHolder)clickView.getTag();
+		SectionListItem sectionListItem = exampleArray.get(position);
+		OrderItem orderItem = (OrderItem)sectionListItem.item;
+		if(orderItem.getCountNew()<=0){
+			return;
+		}
+		if(orderItem.getCountDeposit()==0&&orderItem.getCountNew()==1){
+			declare.myOrder.getClientItems().remove(position);
+			declare.myOrderHelper.getOrderItemDic().remove(orderItem.getRecipe().getId());
+			exampleArray.remove(position);
+			arrayAdapter.notifyDataSetChanged();
+			
+		}
+		else{
+			orderItem.setCountNew(orderItem.getCountNew()-1);
+			viewHolder.tvCount.setText(orderItem.GetCount()+"");
+			if(orderItem.getCountNew()>0){
+				viewHolder.imgdelete.setVisibility(View.VISIBLE);
+				viewHolder.tvCountDeposit.setTextColor(Color.RED);
+				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+			}
+			else{
+				viewHolder.imgdelete.setVisibility(View.GONE);
+				viewHolder.tvCountDeposit.setTextColor(Color.DKGRAY);
+				viewHolder.tvCountDeposit.setText("已下单");
+			}
+		}
+		declare.myOrder.setPriceAll(declare.myOrder.getPriceAll()-orderItem.getRecipe().getPrice());
+		if(declare.myOrder.getPriceAll()==0){
+			declare.myOrder.setPriceAll(0);
+		}
+		sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+		//加减菜请求
+		PostToServer(orderItem.getRecipe().getId(),-1);
+		
+	}
+	
+	private void ClickCommitBtn(){
+		if(declare.myOrder==null){
+			return;
+		}
+		final Dialog dialog = new Dialog(this, R.style.MyDialog);
+        //设置它的ContentView
+		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.dialog, null);
+        dialog.setContentView(layout);
+        String contentString = declare.myOrderHelper.GetCommitOrderString();       
+        TextView contentView = (TextView)layout.findViewById(R.id.contentTxt);
+        TextView titleView = (TextView)layout.findViewById(R.id.dialog_title);
+        Button okBtn = (Button)layout.findViewById(R.id.dialog_button_ok);
+        okBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();
+				mProgressBar.setVisibility(View.VISIBLE);
+				recipeListHttpHelper.DepositOrder();
+			}
+		});
+        Button cancelButton = (Button)layout.findViewById(R.id.dialog_button_cancel);
+        cancelButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();
+			}
+		});
+        titleView.setText("本次提交");
+        contentView.setText(contentString);
+        dialog.show();
+		
+	}
+	
+	
+	/**
      * 通知的接收器，只接收点菜消息
      */
     class NotifiReceiver extends BroadcastReceiver{
@@ -324,143 +542,12 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 			if(action.equals("diancan")){
 				String idString=intent.getSerializableExtra("message").toString();
 				int id=Integer.parseInt(idString);
-				if(id==declare.curOrder.getId())
+				if(id==declare.myOrder.getId())
 				{
 					FlashOrder();
 				}
 			}
 		}
 		
-	}
-    
-    public class TableListAdapter extends BaseAdapter {
-
-		int count = 0;
-		int[] idArray;
-		ImageDownloader imageDownloader;
-		LayoutInflater mInflater;
-		List<OrderItem> orderItemList;
-		Context thisContext;
-	    List<HashMap<String, Object>> mItemList;
-	    List<HashMap<String, Object>> mTagList;
-	    
-	    public TableListAdapter(Context context, List<HashMap<String, Object>> mlist,List<HashMap<String, Object>> tags,List<OrderItem> orderItems) {
-	        super();
-	        thisContext=context;
-	        mItemList = mlist;
-	        mTagList=tags;
-	        orderItemList=orderItems;
-	        mInflater = LayoutInflater.from(context);
-	        if(mlist == null){
-	            count = 0;
-	        }else{
-	            count = mlist.size();
-	        }
-	        imageDownloader=new ImageDownloader();
-	    }
-	    public int getCount() {
-	        return mItemList.size();
-	    }
-
-	    public Object getItem(int pos) {
-	        return mItemList.get(pos);
-	    }
-
-	    public long getItemId(int pos) {
-	        return pos;
-	    }
-	    
-	    @Override  
-		public boolean isEnabled(int position) {  
-		   if (mTagList.contains(mItemList.get(position))) {  
-		     return false;  
-		   }  
-		   return super.isEnabled(position);  
-		}
-	    
-
-		public List<OrderItem> getOrderItemList() {
-			return orderItemList;
-		}
-		public void setOrderItemList(List<OrderItem> orderItemList) {
-			this.orderItemList = orderItemList;
-		}
-		
-		public List<HashMap<String, Object>> getmItemList() {
-			return mItemList;
-		}
-		public void setmItemList(ArrayList<HashMap<String, Object>> hashList) {
-			this.mItemList = hashList;
-		}
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			final View localView;
-			if(mTagList.contains(mItemList.get(position))){
-				localView = mInflater.inflate(R.layout.listtagitem, null);
-				TextView titleTextView=(TextView)localView.findViewById(R.id.tagTitle);
-			    titleTextView.setText(mItemList.get(position).get("tagTitle").toString());
-			}
-			else{
-				localView = mInflater.inflate(R.layout.select_list_item, null);
-				HashMap<String, Object> map=mItemList.get(position);
-		        ImageView imgrecipe=(ImageView)localView.findViewById(R.id.imgctrl);
-		        String strUrl=map.get("img").toString();
-		        imageDownloader.download(strUrl, imgrecipe);
-		        TextView tvTitle=(TextView)localView.findViewById(R.id.mtitle);
-		        tvTitle.setText(map.get("title").toString());
-		        TextView tvPrice=(TextView)localView.findViewById(R.id.mprice);
-		        tvPrice.setText(map.get("price").toString());
-		        TextView tvCount=(TextView)localView.findViewById(R.id.mcount);
-		        tvCount.setText(map.get("count").toString());
-				ImageView imgdelete=(ImageView)localView.findViewById(R.id.imgdelete);
-				ImageView imgadd=(ImageView)localView.findViewById(R.id.imgadd);
-	            
-	            if(map.get("status")!=null&&map.get("status").toString().equals("1"))
-	            {
-	            	imgadd.setVisibility(View.INVISIBLE);
-	            	imgdelete.setVisibility(View.INVISIBLE);
-	            }
-	            else {
-	            	imgadd.setVisibility(View.VISIBLE);
-	            	imgdelete.setVisibility(View.VISIBLE);
-				}
-	            
-		        imgdelete.setTag(position);
-		        imgadd.setTag(position);
-		        
-		        imgdelete.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-			             int position = Integer.parseInt(v.getTag().toString());
-			             OrderItem oItem=TableListAdapter.this.orderItemList.get(position);
-			             changedItem=oItem;
-			             sendId=oItem.getRecipe().getId();
-			             sendCount=-1;
-			             
-			            PostToServer();
-					}
-				});
-		        
-		        imgadd.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						int position = Integer.parseInt(v.getTag().toString());
-						OrderItem oItem=TableListAdapter.this.orderItemList.get(position);
-						sendId=oItem.getRecipe().getId();
-			            sendCount=1;
-						changedItem=oItem;
-				        PostToServer();
-					}
-				});
-			}
-			
-	        
-			return localView;
-		}
 	}
 }

@@ -24,7 +24,11 @@ public class Order implements java.io.Serializable {
 	private Integer status;
 	private String code;
 	private Restaurant restaurant;
-	private List<OrderItem> orderItems = new ArrayList<OrderItem>();
+	private double priceAll;
+	private double priceConfirm;
+	private double priceDeposit;
+	private List<OrderItem> clientItems = new ArrayList<OrderItem>();
+	
 
 	public Order() {
 	}
@@ -41,7 +45,7 @@ public class Order implements java.io.Serializable {
 		this.ordertime = ordertime;
 		this.enttime = enttime;
 		this.status = status;
-		this.orderItems = orderItems;
+		this.clientItems = orderItems;
 	}
 
 	public Integer getId() {
@@ -108,20 +112,44 @@ public class Order implements java.io.Serializable {
 		this.code = code;
 	}
 
-	public List<OrderItem> getOrderItems() {
-		return orderItems;
-	}
-
-	public void setOrderItems(List<OrderItem> orderItems) {
-		this.orderItems = orderItems;
-	}
-
 	public Restaurant getRestaurant() {
 		return restaurant;
 	}
 
 	public void setRestaurant(Restaurant restaurant) {
 		this.restaurant = restaurant;
+	}
+
+	public List<OrderItem> getClientItems() {
+		return clientItems;
+	}
+
+	public void setClientItems(List<OrderItem> clientItems) {
+		this.clientItems = clientItems;
+	}
+
+	public double getPriceAll() {
+		return priceAll;
+	}
+
+	public void setPriceAll(double priceAll) {
+		this.priceAll = priceAll;
+	}
+
+	public double getPriceConfirm() {
+		return priceConfirm;
+	}
+
+	public void setPriceConfirm(double priceConfirm) {
+		this.priceConfirm = priceConfirm;
+	}
+
+	public double getPriceDeposit() {
+		return priceDeposit;
+	}
+
+	public void setPriceDeposit(double priceDeposit) {
+		this.priceDeposit = priceDeposit;
 	}
 	
 }

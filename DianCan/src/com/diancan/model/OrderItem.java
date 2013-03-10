@@ -11,8 +11,9 @@ package com.diancan.model;
 public class OrderItem implements java.io.Serializable {
 	private Integer id;
 	private Recipe recipe;
-	private Order order;
-	private Integer count;
+	private Integer countNew;
+	private Integer countDeposit;
+	private Integer countConfirm;
 	private Integer status;
 
 	public Integer getStatus() {
@@ -26,12 +27,12 @@ public class OrderItem implements java.io.Serializable {
 	public OrderItem() {
 	}
 
-	public OrderItem(Recipe recipe, Order order, Integer count) {
+	public OrderItem(Recipe recipe){
 		this.recipe = recipe;
-		this.order = order;
-		this.count = count;
+		countConfirm = 0;
+		countDeposit = 0;
+		countNew = 0;
 	}
-
 	public Integer getId() {
 		return this.id;
 	}
@@ -48,20 +49,32 @@ public class OrderItem implements java.io.Serializable {
 		this.recipe = recipe;
 	}
 
-	public Order getOrder() {
-		return this.order;
+	public Integer getCountNew() {
+		return countNew;
 	}
 
-	public void setOrder(Order order) {
-		this.order = order;
+	public void setCountNew(Integer countNew) {
+		this.countNew = countNew;
 	}
 
-	public Integer getCount() {
-		return this.count;
+	public Integer getCountDeposit() {
+		return countDeposit;
 	}
 
-	public void setCount(Integer count) {
-		this.count = count;
+	public void setCountDeposit(Integer countDeposit) {
+		this.countDeposit = countDeposit;
+	}
+
+	public Integer getCountConfirm() {
+		return countConfirm;
+	}
+
+	public void setCountConfirm(Integer countConfirm) {
+		this.countConfirm = countConfirm;
+	}
+	
+	public int GetCount(){
+		return countNew+countDeposit+countConfirm;
 	}
 
 }

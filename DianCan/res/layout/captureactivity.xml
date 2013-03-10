@@ -14,28 +14,56 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent">
-
-  <SurfaceView android:id="@+id/preview_view"
-               android:layout_width="fill_parent"
-               android:layout_gravity="center"
-               android:layout_height="fill_parent"
-               />
-
-  <com.diancan.view.ViewfinderView
-      android:id="@+id/viewfinder_view"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      style="@style/FinderView"
-      />
-
-
-
-  <TextView android:id="@+id/txtResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"          
-            android:textSize="14sp"/>
-
-</merge>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    style="@style/Widget.VLayout"
+    >
+	<RelativeLayout
+	    android:layout_width="fill_parent" 
+	    android:layout_height="@dimen/topbar_height"
+	    style="@style/Widget.Layout.TitleBar"
+	    >
+	    <Button android:id="@+id/bt_back" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="@string/btnback"
+		    style="@style/Widget.Button.Title.Back"/>
+		<TextView 
+		    android:gravity="center" 
+		    android:id="@+id/tv_title" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:layout_centerInParent="true"
+		    android:text="@string/captrueTitle" 
+		    style="@style/Widget.TextView.Title"
+		    />
+	</RelativeLayout>
+	<FrameLayout 
+	   android:layout_width="fill_parent"
+	   android:layout_height="fill_parent">
+	
+	  <SurfaceView android:id="@+id/preview_view"
+	               android:layout_width="fill_parent"
+	               android:layout_gravity="center"
+	               android:layout_height="fill_parent"
+	               />
+	
+	  <com.diancan.view.ViewfinderView
+	      android:id="@+id/viewfinder_view"
+	      android:layout_width="fill_parent"
+	      android:layout_height="fill_parent"
+	      style="@style/FinderView"
+	      />
+	
+	
+	
+	  <TextView android:id="@+id/txtResult"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"          
+	            android:textSize="14sp"/>
+	
+	</FrameLayout>
+</LinearLayout>

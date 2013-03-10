@@ -30,6 +30,9 @@ public class MenuUtils {
 	public static final String UPDATE_COMPLETE = "updatecomplete";
 	public static final String DOWNLOAD_COMPLETE = "downloadcomplete";
 	public static final String UPDATE_SERVICE = "com.chihuo.UpdateService";
+	public static final String IMAGE_SMALL = "small/";
+	public static final String IMAGE_MEDIUM = "medium/";
+	public static final String IMAGE_BIG = "big/";
 	public static String initUrl;
 	public static String imageUrl;
 	public static boolean bUpdating = false;

@@ -8,68 +8,21 @@
 	</style>
 	<style name="Widget.AsyncImageView" parent="@style/Widget"/>
 	<style name="Widget.AsyncImageView.Default" parent="@style/Widget.AsyncImageView">
-		<item name="loadingBackground">@drawable/image_loading_small</item>
 		<item name="scaleType">centerCrop</item>
 	</style>
-	<style name="Widget.AsyncImageView.Large" parent="@style/Widget.AsyncImageView">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">fill_parent</item>
-		<item name="loadingBackground">@drawable/image_loading_large</item>
-		<item name="progressStyle">?android:progressBarStyleLargeInverse</item>
-	</style>
-	<style name="Widget.Button" parent="@android:style/Widget.Button">
-		<item name="android:textAppearance">?android:textAppearanceSmall</item>
-		<item name="android:background">@drawable/btn_default</item>
-	</style>
+	
 	<style name="Widget.Button.Red" parent="@style/Widget.Button">
 		<item name="android:textAppearance">?android:textAppearanceMediumInverse</item>
 		<item name="android:textColor">?android:textColorPrimaryInverseDisableOnly</item>
 		<item name="android:background">@drawable/btn_red</item>
 	</style>
-	<style name="Widget.Button.Title" parent="@style/Widget.Button">
-		<item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
-		<item name="android:textColor">@color/white</item>
-		<item name="android:background">@drawable/btn_title</item>
-	</style>
-	<style name="Widget.Button.TagLeft" parent="@style/Widget.Button">
-		<item name="android:textColor">@drawable/btn_tag_left_text</item>
-		<item name="android:background">@drawable/btn_tag_left</item>
-		<item name="android:button">@null</item>
-	</style>
-	<style name="Widget.EditText" parent="@android:style/Widget.EditText">
-		<item name="android:textAppearance">?android:textAppearanceMedium</item>
-		<item name="android:background">@drawable/edit_text</item>
-	</style>
-	<style name="Widget.TextView" parent="@style/Widget"/>
-	<style name="Widget.TextView.TextArrow" parent="@style/Widget.TextView">
-		<item name="android:textAppearance">?android:textAppearanceMedium</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:background">@drawable/bkg_transluscent</item>
-		<item name="android:padding">10.0dip</item>
-		<item name="android:drawableRight">@drawable/ic_array_small</item>
-	</style>
-	<style name="Widget.TextView.Title" parent="@style/Widget.TextView">
-	    <item name="android:textColor">@color/white</item>
-	</style>
-	<style name="Widget.TextView.Title.Item" parent="@style/Widget.TextView">
-	    <item name="android:textColor">@color/gray</item>
-	</style>
+	
 	<style name="Widget.TextView.Title.Tab" parent="@style/Widget.TextView">
 	    <item name="android:textColor">@color/red</item>
 	    <item name="android:textSize">20sp</item>
 	</style>
-	<style name="Widget.TextView.CategoryTitle" parent="@style/Widget.TextView">
-	    <item name="android:textColor">@color/white</item>
-	    <item name="android:gravity">center</item>
-	</style>
 	<style name="Widget.TextView.Gone" parent="@style/Widget.TextView">
 	    <item name="android:visibility">gone</item>
-	</style>
-	<style name="Widget.ListView" parent="@style/Widget.AbsListView">
-		<item name="android:listSelector">@drawable/list_selector_background</item>
-		<item name="android:cacheColorHint">@null</item>
-		<item name="android:divider">@drawable/dotted_line</item>
-		<item name="android:footerDividersEnabled">false</item>
 	</style>
 	<style name="Widget.TextView.SpinnerItem" parent="@android:style/Widget.TextView.SpinnerItem">
 		<item name="android:textAppearance">?android:textAppearanceMedium</item>
@@ -78,21 +31,8 @@
 	<style name="FinderView">
 	    <item name="android:background">@color/transparent</item>
 	</style>
-	<style name="ButtonBar">
-		<item name="android:gravity">center</item>
-		<item name="android:background">@drawable/bottom_bar</item>
-		<item name="android:paddingLeft">4.0dip</item>
-		<item name="android:paddingTop">5.0dip</item>
-		<item name="android:paddingRight">4.0dip</item>
-		<item name="android:paddingBottom">1.0dip</item>
-	</style>
-	<style name="RecipeTopBar">
-		<item name="android:background">@drawable/recipe_bar_top</item>
-		<item name="android:paddingLeft">3.0dip</item>
-		<item name="android:paddingTop">3.0dip</item>
-		<item name="android:paddingRight">3.0dip</item>
-		<item name="android:paddingBottom">3.0dip</item>
-	</style>
+	
+	<!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	<style name="Widget.Layout" parent="@style/Widget"/>
 	<style name="Widget.VLayout" parent="@style/Widget.Layout">
 	    <item name="android:orientation">vertical</item>
@@ -100,14 +40,173 @@
 	<style name="Widget.HLayout" parent="@style/Widget.Layout">
 	    <item name="android:orientation">horizontal</item>
 	</style>
-	<style name="Widget.Layout.CategoryListItem" parent="@style/Widget.VLayout">
-	    <item name="android:background">@drawable/cat_list_item_bg</item>
+	<style name="Widget.RightHLayout" parent="@style/Widget.HLayout">
+	    <item name="android:gravity">right</item>
+	</style>
+	<style name="Widget.Layout.DefaultPageVLayout" parent="@style/Widget.VLayout">
+	    <item name="android:background">@drawable/layoutback</item>
+	</style>
+	<style name="Widget.Layout.GrayPageVLayout" parent="@style/Widget.VLayout">
+	    <item name="android:background">@drawable/layoutback_gray</item>
+	</style>
+	<style name="Widget.Layout.RecipeHLayout" parent="@style/Widget.HLayout">
+	    <item name="android:gravity">right</item>
+	    <item name="android:background">@drawable/layoutback_with_shadow</item>
+	</style>
+	<style name="Widget.Layout.InitPageLayout" parent="@style/Widget.VLayout">
+	    <item name="android:background">@drawable/initback</item>
 	    <item name="android:gravity">center</item>
 	</style>
+	<style name="Widget.Layout.RecipeListTag" parent="@style/Widget.HLayout">
+	    <item name="android:gravity">center_vertical|center_horizontal</item>
+	</style>
+	<style name="Widget.Layout.RestaurantItemHLayout" parent="@style/Widget.HLayout">
+	    <item name="android:background">@drawable/listitemback</item>
+	    <item name="android:padding">5dip</item>
+	    <item name="android:gravity">center_vertical</item>
+	</style>
+	<style name="Widget.Layout.RecipeItemHLayout" parent="@style/Widget.HLayout">
+	    <item name="android:background">@drawable/listitemback</item>
+	    <item name="android:paddingLeft">5dip</item>
+	    <item name="android:paddingRight">5dip</item>
+	    <item name="android:paddingTop">5dip</item>
+	    <item name="android:paddingBottom">2dip</item>
+	</style>
+	<style name="Widget.Layout.TitleBar" parent="@style/Widget.Layout">
+	    <item name="android:background">@drawable/bottom_tab_bg</item>
+	    <item name="android:paddingLeft">10dip</item>
+	    <item name="android:paddingRight">10dip</item>
+	</style>
+	<style name="Widget.TabWidget">
+	    <item name="android:paddingLeft">0dip</item>
+	    <item name="android:paddingRight">0dip</item>
+	    <item name="android:paddingTop">0dip</item>
+	    <item name="android:background">@drawable/bottom_tab_bg</item>
+	</style>
+	
+	<style name="RecipeTopBar">
+		<item name="android:paddingLeft">3.0dip</item>
+		<item name="android:paddingTop">3.0dip</item>
+		<item name="android:paddingRight">3.0dip</item>
+		<item name="android:paddingBottom">3.0dip</item>
+	</style>
+	<style name="Widget.TextView" parent="@style/Widget"/>
+	<style name="Widget.TextView.Title" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/white</item>
+	</style>
+	<style name="Widget.TextView.SectionTitle" parent="@style/Widget.TextView.Title">
+	    <item name="android:textColor">@color/white</item>
+	    <item name="android:background">#FFF95900</item>
+	    <item name="android:gravity">center_vertical|center_horizontal</item>
+	</style>
+	<style name="Widget.TextView.Title.Item" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/gray</item>
+	</style>
+	<style name="Widget.TextView.Count" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/white</item>
+	    <item name="android:gravity">center</item>
+	    <item name="android:textSize">10sp</item>
+	    <item name="android:background">@drawable/count_deposit</item>
+	    <item name="android:visibility">invisible</item>
+	</style>
+	<style name="Widget.TextView.OrderDes" parent="@style/Widget.TextView">
+	    <item name="android:gravity">center</item>
+	    <item name="android:textSize">12sp</item>
+	</style>
+	<style name="Widget.TextView.CountDeposit" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/white</item>
+	    <item name="android:gravity">center</item>
+	    <item name="android:textSize">10sp</item>
+	    <item name="android:background">@drawable/count_deposit</item>
+	    <item name="android:visibility">invisible</item>
+	</style>
+	<style name="Widget.TextView.TabTitle" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@drawable/tab_text_color</item>
+	    <item name="android:gravity">center</item>
+	    <item name="android:textSize">15sp</item>
+	   	<item name="android:singleLine">true</item>
+	   	<item name="android:marqueeRepeatLimit">1</item>
+	   	<item name="android:ellipsize">marquee</item>
+	</style>
+	<style name="Widget.TextView.CategoryTitle" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/black</item>
+	    <item name="android:gravity">center</item>
+	</style>
+	<style name="Widget.Button" parent="@android:style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceSmall</item>
+		<item name="android:background">@drawable/btn_default</item>
+	</style>
+	<style name="Widget.Button.Title" parent="@style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
+		<item name="android:textColor">@color/white</item>
+		<item name="android:background">@drawable/btn_title</item>
+		<item name="android:lines">1</item>
+	</style>
+	<style name="Widget.Button.YesNo" parent="@style/Widget.Button">
+		<item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
+		<item name="android:textColor">@color/black</item>
+		<item name="android:textSize">15sp</item>
+		<item name="android:background">@drawable/btn_yesno</item>
+		<item name="android:lines">1</item>
+	</style>
+	<style name="Widget.Button.Refresh" parent="@style/Widget.Button">
+		<item name="android:background">@drawable/btn_refresh</item>
+		<item name="android:lines">1</item>
+	</style>
+	<style name="Widget.Button.Title.Back">
+	    <item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
+		<item name="android:textColor">@color/white</item>
+		<item name="android:background">@drawable/btn_title_back</item>
+		<item name="android:lines">1</item>
+	</style>
+	<style name="Widget.ListView" parent="@style/Widget.AbsListView">
+		<item name="android:listSelector">@drawable/list_selector_background</item>
+		<item name="android:cacheColorHint">@null</item>
+		<item name="android:divider">@color/transparent</item>
+		<item name="android:footerDividersEnabled">false</item>
+	</style>
+	<style name="Widget.ListView.Recipe" parent="@style/Widget.ListView">
+		<item name="android:listSelector">@drawable/transparentitem</item>
+	</style>
+	<style name="Widget.ListView.Catetory" parent="@style/Widget.AbsListView">
+	    <item name="android:listSelector">@drawable/transparentitem</item>
+		<item name="android:cacheColorHint">@null</item>
+		<item name="android:divider">@null</item>
+		<item name="android:dividerHeight">2dip</item>
+		<item name="android:padding">3dip</item>
+		<item name="android:footerDividersEnabled">false</item>
+	</style>
+	
+	<style name="Widget.Layout.CategoryListItem" parent="@style/Widget.VLayout">
+	    <item name="android:background">@drawable/cat_list_item_bg</item>
+	    <item name="android:padding">0dip</item>
+	    <item name="android:gravity">center</item>
+	</style>
+	
+	<style name="Widget.Layout.Dialog" parent="@style/Widget.VLayout">
+	    <item name="android:padding">5dip</item>
+	    <item name="android:background">@drawable/alertback</item>
+	    <item name="android:gravity">center_vertical|center_horizontal</item>
+	</style>
+	
+	<style name="MyDialog" parent="@android:Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item> 
+        <item name="android:windowBackground">@drawable/transparentitem</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+	
     <style name="AnimationActivity" parent="@android:style/Animation.Activity" mce_bogus="1">    
 		<item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>          
 		<item name="android:activityOpenExitAnimation">@anim/push_left_out</item>          
 		<item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>          
 		<item name="android:activityCloseExitAnimation">@anim/push_right_out</item>      
 	</style> 
+	
+    <style name="Theme.Translucent" parent="android:style/Theme.Translucent">
+        <item name="android:windowBackground">@drawable/transparentitem</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorForeground">#fff</item>
+    </style>
 </resources>

@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
+import com.diancan.Helper.OrderHelper;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.camera.CameraManager;
@@ -13,6 +14,7 @@ import com.diancan.decoding.CaptureActivityHandler;
 import com.diancan.decoding.InactivityTimer;
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpDownloader;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.view.ViewfinderView;
 import com.google.zxing.BarcodeFormat;
@@ -20,6 +22,7 @@ import com.google.zxing.Result;
 
 import android.R.integer;
 import android.app.Activity;
+import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -31,12 +34,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.view.SurfaceHolder;
+import android.view.Window;
 import android.view.SurfaceHolder.Callback;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.SurfaceView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CaptureActivity extends Activity implements Callback {
+public class CaptureActivity extends Activity implements Callback,OnClickListener {
 
 	private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;
@@ -44,6 +55,7 @@ public class CaptureActivity extends Activity implements Callback {
 	private Vector<BarcodeFormat> decodeFormats;
 	private String characterSet;
 	private TextView txtResult;
+	private Button mBtnBack;
 	private InactivityTimer inactivityTimer;
 	private MediaPlayer mediaPlayer;
 	private boolean playBeep;
@@ -59,7 +71,7 @@ public class CaptureActivity extends Activity implements Callback {
                 break;   
             case 1: 
             	Order order=(Order)msg.obj;
-            	ToMain(order);
+            	ToRecipePage(order);
                 break;  
             
             }  
@@ -77,6 +89,9 @@ public class CaptureActivity extends Activity implements Callback {
 		txtResult = (TextView) findViewById(R.id.txtResult);
 		hasSurface = false;
 		inactivityTimer = new InactivityTimer(this);
+		
+		mBtnBack=(Button)findViewById(R.id.bt_back);
+		mBtnBack.setOnClickListener(this);
 	}
 
 	@Override
@@ -124,6 +139,14 @@ public class CaptureActivity extends Activity implements Callback {
 	protected void onDestroy() {
 		inactivityTimer.shutdown();
 		super.onDestroy();
+	}
+	
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v.getId()==R.id.bt_back){
+			ToMainFirstPage();
+		}
 	}
 
 	private void initCamera(SurfaceHolder surfaceHolder) {
@@ -214,13 +237,83 @@ public class CaptureActivity extends Activity implements Callback {
 		
 	}
 	
-	private void ToMain(Order order){
+	private void ToRecipePage(Order order){
+		
+		if(order==null){
+			ShowError("叫服务员先为您开台！");
+			ToMainFirstPage();
+			return;
+		}
+		
 		AppDiancan declare=(AppDiancan)CaptureActivity.this.getApplicationContext();
-		declare.curOrder=order;
-		declare.restaurantId=order.getRestaurant().getId();
-		Intent intent=new Intent(CaptureActivity.this, Main.class);
-	    startActivity(intent);
-	    this.finish();
+		declare.myOrder=order;
+		if(declare.myOrderHelper==null){
+			declare.myOrderHelper=new OrderHelper(order);
+		}
+		else{
+			declare.myOrderHelper.SetOrderAndItemDic(order);
+		}
+		MyRestaurant myRestaurant=new MyRestaurant();
+		myRestaurant.setId(order.getRestaurant().getId());
+		myRestaurant.setName(order.getRestaurant().getName());
+		declare.myRestaurant=myRestaurant;
+		
+		//发广播更新餐桌tab标题
+        Intent in = new Intent();
+        in.setAction("selectedtable");
+        in.putExtra("tablename", order.getDesk().getName());
+        in.addCategory(Intent.CATEGORY_DEFAULT);
+        CaptureActivity.this.sendBroadcast(in);
+		
+        
+        MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_left_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
+		Intent intent = new Intent(this.getParent(), RecipeList.class);
+//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+	
+	/**
+  	 * 跳回导航页
+  	 */
+  	private void ToMainFirstPage(){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_right_in);
+		Intent in = new Intent(this.getParent(), MainFirstPage.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_MAINFIRST, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
 	}
 
 	private void initBeepSound() {
@@ -267,5 +360,6 @@ public class CaptureActivity extends Activity implements Callback {
 			mediaPlayer.seekTo(0);
 		}
 	};
+	
 
 }

@@ -17,11 +17,18 @@
 package com.diancan.http;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.ImageView;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -31,6 +38,13 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * This helper class download images from the Internet and binds those with the provided ImageView.
@@ -45,6 +59,11 @@ public class ImageDownloader {
 
     public enum Mode { NO_ASYNC_TASK, NO_DOWNLOADED_DRAWABLE, CORRECT }
     private Mode mode = Mode.CORRECT;
+    Drawable[] mLayers;
+    
+    public ImageDownloader(Drawable[] lys){
+    	mLayers = lys;
+    }
     
     /**
      * Download the specified image from the Internet and binds it to the provided ImageView. The
@@ -94,7 +113,7 @@ public class ImageDownloader {
 
                 case CORRECT:
                     task = new BitmapDownloaderTask(imageView);
-                    DownloadedDrawable downloadedDrawable = new DownloadedDrawable(task);
+                    DownloadedDrawable downloadedDrawable = new DownloadedDrawable(task,mLayers);
                     imageView.setImageDrawable(downloadedDrawable);
                     imageView.setMinimumHeight(156);
                     task.execute(url);
@@ -141,13 +160,13 @@ public class ImageDownloader {
     }
 
     Bitmap downloadBitmap(String url) {
-        final int IO_BUFFER_SIZE = 4 * 1024;
-
-        // AndroidHttpClient is not allowed to be used from the main thread
+//        final int IO_BUFFER_SIZE = 4 * 1024;
+//
+//        // AndroidHttpClient is not allowed to be used from the main thread
 //        final HttpClient client = (mode == Mode.NO_ASYNC_TASK) ? new DefaultHttpClient() :
 //            AndroidHttpClient.newInstance("Android");
 //        final HttpGet getRequest = new HttpGet(url);
-
+//
 //        try {
 //            HttpResponse response = client.execute(getRequest);
 //            final int statusCode = response.getStatusLine().getStatusCode();
@@ -162,12 +181,13 @@ public class ImageDownloader {
 //                InputStream inputStream = null;
 //                try {
 //                    inputStream = entity.getContent();
+//                    
 //                    // return BitmapFactory.decodeStream(inputStream);
 //                    // Bug on slow connections, fixed in future release.
-//                    BitmapFactory.Options options=new BitmapFactory.Options();
-//                    options.inJustDecodeBounds = false;
-//                    options.inSampleSize = 10;   //width，hight设为原来的十分一
-//                    return BitmapFactory.decodeStream(new FlushedInputStream(inputStream),null,options);
+////                    BitmapFactory.Options options=new BitmapFactory.Options();
+////                    options.inJustDecodeBounds = false;
+////                    options.inSampleSize = 10;   //width，hight设为原来的十分一
+//                    return BitmapFactory.decodeStream(new FlushedInputStream(inputStream),null,null);
 //                } finally {
 //                    if (inputStream != null) {
 //                        inputStream.close();
@@ -189,37 +209,14 @@ public class ImageDownloader {
 //                ((AndroidHttpClient) client).close();
 //            }
 //        }
+//		return null;
+    	
+    	
         Bitmap bitmap=HttpDownloader.getStream(url);
-//        bitmap=Bitmap.createScaledBitmap(bitmap, 80, 80, false);
         return bitmap;
     }
 
-    /**
-     * An InputStream that skips the exact number of bytes provided, unless it reaches EOF.
-     */
-    static class FlushedInputStream extends FilterInputStream {
-        public FlushedInputStream(InputStream inputStream) {
-            super(inputStream);
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            long totalBytesSkipped = 0L;
-            while (totalBytesSkipped < n) {
-                long bytesSkipped = in.skip(n - totalBytesSkipped);
-                if (bytesSkipped == 0L) {
-                    int b = read();
-                    if (b < 0) {
-                        break;  // we reached EOF
-                    } else {
-                        bytesSkipped = 1; // we read one byte
-                    }
-                }
-                totalBytesSkipped += bytesSkipped;
-            }
-            return totalBytesSkipped;
-        }
-    }
+    
 
     /**
      * The actual AsyncTask that will asynchronously download the image.
@@ -249,7 +246,6 @@ public class ImageDownloader {
             if (isCancelled()) {
                 bitmap = null;
             }
-
             addBitmapToCache(url, bitmap);
 
             if (imageViewReference != null) {
@@ -272,11 +268,12 @@ public class ImageDownloader {
      * if a new binding is required, and makes sure that only the last started download process can
      * bind its result, independently of the download finish order.</p>
      */
-    static class DownloadedDrawable extends ColorDrawable {
+    static class DownloadedDrawable extends LayerDrawable {
         private final WeakReference<BitmapDownloaderTask> bitmapDownloaderTaskReference;
 
-        public DownloadedDrawable(BitmapDownloaderTask bitmapDownloaderTask) {
-            super(Color.WHITE);
+        public DownloadedDrawable(BitmapDownloaderTask bitmapDownloaderTask,Drawable[] layers) {
+//            super(Color.WHITE);
+        	super(layers);
             bitmapDownloaderTaskReference =
                 new WeakReference<BitmapDownloaderTask>(bitmapDownloaderTask);
         }

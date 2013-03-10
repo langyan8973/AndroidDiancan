@@ -13,6 +13,10 @@ public class HttpHandler extends Handler {
 	public static final int POST_RECIPE_COUNT=5;
 	public static final int REFRESH_ORDER=6;
 	public static final int CHECK_ORDER=7;
+	public static final int REQUEST_RESTAURANTS=8;
+	public static final int POST_RECIPE_COUNT_FROMBOOK=9;
+	public static final int POST_RECIPE_COUNT_FROMORDER=10;
+	public static final int DEPOSIT_ORDER = 11;
 	HttpCallback mCallback;
 	public HttpHandler(HttpCallback callback){
 		mCallback=callback;
@@ -21,7 +25,13 @@ public class HttpHandler extends Handler {
 	public void handleMessage(Message msg) {
 		// TODO Auto-generated method stub
 		if(msg.what==HttpHandler.REQUEST_ERROR){
-			mCallback.RequestError(msg.obj.toString());
+			if(msg.obj!=null)
+			{
+				mCallback.RequestError(msg.obj.toString());
+			}
+			else {
+				mCallback.RequestError("未知错误");
+			}
 		}
 		else{
 			mCallback.RequestComplete(msg);

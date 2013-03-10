@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" 
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content" 
+	android:clickable="true"
+	>
+	
+	<LinearLayout 
+	    android:id="@+id/header_parent"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    style="@style/Widget.Layout.RecipeListTag"
+	    >
+		<TextView android:id="@+id/header"
+	        android:layout_width="100dip"
+	        android:layout_height="20dip"
+	        style="@style/Widget.TextView.SectionTitle"
+	    />
+	</LinearLayout>
+	
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="90dip"
+	    style="@style/Widget.Layout.RecipeItemHLayout"
+		>
+		<ImageView
+            android:id="@+id/img"
+            android:layout_width="70dip"
+            android:layout_height="70dip"
+            android:layout_margin="3dip"
+            android:scaleType="fitXY" />
+		
+		<RelativeLayout 
+		    android:layout_width="fill_parent"
+		    android:layout_height="73dip"
+		    android:paddingLeft="3dip"
+		    android:paddingRight="3dip"
+		    android:paddingTop="3dip"
+		    android:paddingBottom="0dip"
+		    >
+		    <TextView
+	            android:id="@+id/title"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentLeft="true"
+	            android:layout_alignParentTop="true"
+	            android:textColor="#FF090909"
+	            android:textSize="16sp" />
+		    <TextView
+	            android:id="@+id/price"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@+id/title"
+	            android:textColor="#FFAA0000"
+	            android:textSize="15sp" />
+		    
+		    <ImageView
+	            android:id="@+id/jiahao"
+	            android:layout_width="33dip"
+	            android:layout_height="33dip"
+	            android:layout_alignParentRight="true"
+	            android:layout_alignParentBottom="true"
+	            android:src="@drawable/jiahaodrawable" />
+		     <TextView
+	            android:id="@+id/count"
+	            android:layout_width="67dip"
+	            android:layout_height="33dip"
+	            android:layout_toLeftOf="@+id/jiahao"
+	            android:layout_alignParentBottom="true"
+	            android:gravity="center"
+	            android:textColor="#FFFF0000"
+	            android:textSize="18sp" />
+		     <ImageView
+	            android:id="@+id/jianhao"
+	            android:layout_width="33dip"
+	            android:layout_height="33dip"
+	            android:layout_toLeftOf="@+id/count"
+	            android:layout_alignParentBottom="true"
+	            android:scaleType="fitXY"
+	            android:src="@drawable/jianhaodrawable" />
+		     <TextView android:id="@+id/txtDescription"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentTop="true"
+		        android:layout_alignParentRight="true"
+		        style="@style/Widget.TextView.OrderDes"
+		        />
+		     <TextView 
+		         android:id="@+id/txtConfirm"
+		         android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:layout_alignParentRight="true"
+		         android:layout_below="@+id/txtDescription"
+		         style="@style/Widget.TextView.OrderDes"
+		         />
+		</RelativeLayout>
+		
+	</LinearLayout>
+</LinearLayout>

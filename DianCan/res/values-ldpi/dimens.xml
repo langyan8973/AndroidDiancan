@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="toplayout_width">320dip</dimen>
-    
+    <dimen name="categorylist_width">205dip</dimen>
 </resources>

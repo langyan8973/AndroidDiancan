@@ -6,31 +6,29 @@ import cn.jpush.android.api.JPushInterface;
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.MKEvent;
 import com.baidu.mapapi.MKGeneralListener;
+import com.diancan.Helper.OrderHelper;
+import com.diancan.http.ImageFileCache;
 import com.diancan.model.History;
-import com.diancan.model.MenuListDataObj;
+import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 
 import android.app.Application;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 public class AppDiancan extends Application {
 	public String udidString;
-	public MenuListDataObj menuListDataObj;
-	public HashMap<String, String> hashTypes;
-	public History history;
-	public int restaurantId;
+	public MyRestaurant myRestaurant;
+	public Order myOrder;
+	public OrderHelper myOrderHelper;
 	//百度地图相关
 	public String BMapKey="79D53C4E2FE1E8F907D3087A68958DFDB8CE1E6C";
 	public BMapManager mBMapMan;
 	static AppDiancan mDemoApp;
 	boolean m_bKeyRight=true;
 	
-	//2012.5.28
-	public Order curOrder;
-	public int totalCount=0;
-	public double totalPrice=0;
 	
 	@Override
 	public void onCreate() {
@@ -63,38 +61,6 @@ public class AppDiancan extends Application {
 		JPushInterface.setDebugMode(true); 	//设置开启日志,发布时请关闭日志
         JPushInterface.init(this); 
 	}
-	
-	public MenuListDataObj getMenuListDataObj() {
-		return menuListDataObj;
-	}
-
-	public void setMenuListDataObj(MenuListDataObj menuListDataObj) {
-		this.menuListDataObj = menuListDataObj;
-	}
-	public History getHistory() {
-		return history;
-	}
-
-	public void setHistory(History history) {
-		this.history = history;
-	}
-	
-	public int getTotalCount() {
-		return totalCount;
-	}
-
-	public void setTotalCount(int totalCount) {
-		this.totalCount = totalCount;
-	}
-
-	public double getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-	
 	public static class MyGeneralListener implements MKGeneralListener {
 		@Override
 		public void onGetNetworkState(int iError) {

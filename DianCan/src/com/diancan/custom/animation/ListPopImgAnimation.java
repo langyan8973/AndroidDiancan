@@ -40,7 +40,7 @@ public class ListPopImgAnimation extends Animation {
 			matrix.postTranslate(x, y);
 		}
 		else {
-			if(interpolatedTime<0.95)
+			if(interpolatedTime<0.99)
 			{
 				matrix.preScale(30, 30,halfWidth, halfHeight);
 				float x = x3 * interpolatedTime;

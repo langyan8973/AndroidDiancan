@@ -6,6 +6,8 @@ public class DisplayUtil {
 	public static  float SCALE;
 	public static  int DPWIDTH;
 	public static  int DPHEIGHT;
+	public static  int PIXWIDTH;
+	public static  int PIXHEIGHT;
 	/**
 	 * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
 	 */

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.diancan.MyTable.TableListAdapter;
 import com.diancan.Utils.CustomViewBinder;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.diancanapp.AppDiancan;
@@ -36,32 +35,32 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 public class HistoryPage extends Activity {
-	LinearLayout rootLayout;
-	LinearLayout rootLyt;
-	Button useButton;
-	TextView sumTextView;
-	TextView titleTextView;
+//	LinearLayout rootLayout;
+//	LinearLayout rootLyt;
+//	Button useButton;
+//	TextView sumTextView;
+//	TextView titleTextView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.historypage);
-		
-		rootLayout=(LinearLayout)findViewById(R.id.rootLayoutHis);
-		rootLyt=(LinearLayout)findViewById(R.id.rootLytHis);
-		sumTextView=(TextView)findViewById(R.id.sumTextHis);
-		sumTextView.setTextColor(Color.DKGRAY);
-		sumTextView.setTextSize(30);
-		
-		titleTextView=(TextView)findViewById(R.id.historytitle);
-		titleTextView.setTextColor(Color.BLUE);
-		titleTextView.setTextSize(22);
-		
-		useButton=(Button)findViewById(R.id.usebtn);
-		
-		AppDiancan declare=(AppDiancan)getApplicationContext();
-		Intent intent =getIntent();
-		int index=Integer.parseInt((String)intent.getSerializableExtra("index"));
+//		setContentView(R.layout.historypage);
+//		
+//		rootLayout=(LinearLayout)findViewById(R.id.rootLayoutHis);
+//		rootLyt=(LinearLayout)findViewById(R.id.rootLytHis);
+//		sumTextView=(TextView)findViewById(R.id.sumTextHis);
+//		sumTextView.setTextColor(Color.DKGRAY);
+//		sumTextView.setTextSize(30);
+//		
+//		titleTextView=(TextView)findViewById(R.id.historytitle);
+//		titleTextView.setTextColor(Color.BLUE);
+//		titleTextView.setTextSize(22);
+//		
+//		useButton=(Button)findViewById(R.id.usebtn);
+//		
+//		AppDiancan declare=(AppDiancan)getApplicationContext();
+//		Intent intent =getIntent();
+//		int index=Integer.parseInt((String)intent.getSerializableExtra("index"));
 
 	}
 }

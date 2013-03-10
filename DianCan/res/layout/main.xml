@@ -16,11 +16,8 @@
           
         <TabWidget android:id="@android:id/tabs"  
             android:layout_width="fill_parent"  
-            android:layout_height="wrap_content"  
-            android:paddingLeft="0dip"  
-            android:paddingRight="0dip"  
-            android:paddingTop="0dip" 
-            android:background="@drawable/header"
+            android:layout_height="@dimen/tabbar_height"  
+            style="@style/Widget.TabWidget"
         />     
     </LinearLayout>  
 
