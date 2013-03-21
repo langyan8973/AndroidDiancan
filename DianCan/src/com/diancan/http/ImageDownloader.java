@@ -93,7 +93,7 @@ public class ImageDownloader {
     private void forceDownload(String url, ImageView imageView) {
         // State sanity: url is guaranteed to never be null in DownloadedDrawable and cache keys.
         if (url == null) {
-            imageView.setImageDrawable(null);
+//            imageView.setImageDrawable(null);
             return;
         }
 
@@ -254,7 +254,10 @@ public class ImageDownloader {
                 // Change bitmap only if this process is still associated with it
                 // Or if we don't use any bitmap to task association (NO_DOWNLOADED_DRAWABLE mode)
                 if ((this == bitmapDownloaderTask) || (mode != Mode.CORRECT)) {
-                    imageView.setImageBitmap(bitmap);
+                	if(bitmap!=null){
+                		
+                		imageView.setImageBitmap(bitmap);
+                	}
                 }
             }
         }
@@ -345,6 +348,9 @@ public class ImageDownloader {
      */
     private Bitmap getBitmapFromCache(String url) {
         // First try the hard reference cache
+    	if(url==null){
+    		return null;
+    	}
         synchronized (sHardBitmapCache) {
             final Bitmap bitmap = sHardBitmapCache.get(url);
             if (bitmap != null) {

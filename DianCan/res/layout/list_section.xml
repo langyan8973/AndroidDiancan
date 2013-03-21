@@ -6,7 +6,7 @@
     >
 	<TextView android:id="@+id/header_text"
         android:layout_width="100dip"
-        android:layout_height="20dip"
+        android:layout_height="@dimen/sectionheight"
         style="@style/Widget.TextView.SectionTitle"
     />
 </LinearLayout>

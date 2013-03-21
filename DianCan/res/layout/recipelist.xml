@@ -10,7 +10,7 @@
 	    style="@style/Widget.Layout.TitleBar"
 	    >
 	    <Button android:id="@+id/bt_Categories" 
-		    android:layout_width="wrap_content" 
+	        android:layout_width="wrap_content"
 		    android:layout_height="30dip" 
 		    android:layout_alignParentLeft="true"
 		    android:layout_centerVertical="true" 
@@ -53,13 +53,39 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="fill_parent"
 	    >
-		<ListView android:id="@+id/CategoryList"
-		        android:layout_width="@dimen/categorylist_width"
-		        android:layout_height="wrap_content"
-		        style="@style/Widget.ListView.Catetory"
-		        >
-		</ListView>
-		<LinearLayout android:layout_width="fill_parent"
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="fill_parent"
+		    style="@style/Widget.VLayout"
+		    >
+		    <include android:layout_width="fill_parent"
+	           android:layout_height="@dimen/searchlayout_height"
+	           layout="@layout/searchlayout"
+	           /> 
+	       <FrameLayout 
+	           android:layout_width="@dimen/categorylist_width"
+	           android:layout_height="fill_parent"
+	           >
+	           <ListView android:id="@+id/CategoryList"
+			        android:layout_width="fill_parent"
+			        android:layout_height="fill_parent"
+			        style="@style/Widget.ListView.Catetory"
+			        >
+				</ListView>
+				<ListView 
+				    android:id="@+id/searList"
+				    android:layout_width="fill_parent"
+				    android:layout_height="wrap_content"
+				    android:layout_marginRight="4dip"
+				    android:visibility="gone"
+				    style="@style/Widget.ListView.SearchResult"
+				    >
+				    
+				</ListView>
+	       </FrameLayout>
+		</LinearLayout>
+		
+		<com.diancan.custom.view.LeftShadowLayout android:layout_width="fill_parent"
 		    android:layout_height="fill_parent"
 		    android:id="@+id/group_root"
 		    style="@style/Widget.Layout.RecipeHLayout"
@@ -71,7 +97,7 @@
 		       style="@style/Widget.ListView.Recipe"
 		      >
 		   </com.diancan.custom.view.PinnedHeaderListView> 
-		</LinearLayout>
+		</com.diancan.custom.view.LeftShadowLayout>
 		<ImageView 
 		       android:id="@+id/img_pop"
 		       android:layout_width="1dip"

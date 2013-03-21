@@ -45,13 +45,14 @@ import com.diancan.model.OrderItem;
 public class HttpDownloader {
 	private static final String LOG_TAG = "HttpDownloader";
 	public static ImageFileCache mImageFileCache;
-	public static String getString(String urlStr,String udid) {
+	public static String getString(String urlStr,String udid,String Authorization) {
 		StringBuffer sb = new StringBuffer();
 		DefaultHttpClient client= new DefaultHttpClient();
 		HttpGet get = new HttpGet(urlStr);
 		get.addHeader("accept", "application/json;charset=UTF-8");
 		get.addHeader("Accept-Charset", "utf-8");
 		get.addHeader("X-device",udid);
+		get.addHeader("Authorization",Authorization);
 		try {
 			HttpResponse response = client.execute(get);
 
@@ -235,7 +236,7 @@ public class HttpDownloader {
 //		return location;
 //	}
 	
-	public static String GetOrderForm(String reqString,String udid) throws ClientProtocolException, IOException,
+	public static String GetOrderForm(String reqString,String udid,String Authorization) throws ClientProtocolException, IOException,
 	JSONException {
 		System.out.println("获取单个订单:");
 		DefaultHttpClient client;
@@ -245,6 +246,7 @@ public class HttpDownloader {
 		get.addHeader("accept", "application/json;charset=UTF-8");
 		get.addHeader("Accept-Charset", "utf-8");
 		get.addHeader("X-device",udid);
+		get.addHeader("Authorization",Authorization);
 		HttpResponse response = client.execute(get);
 				
 		HttpEntity entity = response.getEntity();
@@ -263,7 +265,7 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable
 	 */
-	public static String submitOrder(String rootUrl,int tid,int number,String udid) throws Throwable {
+	public static String submitOrder(String rootUrl,int tid,int number,String udid,String Authorization) throws Throwable {
 		JSONObject object = new JSONObject();
 		object.put("tid", tid);
 		object.put("number", number);
@@ -274,6 +276,7 @@ public class HttpDownloader {
 		
 		HttpPost post = new HttpPost(rootUrl + "orders");
 		post.addHeader("X-device",udid);
+		post.addHeader("Authorization",Authorization);
 		post.setEntity(entity);
 		post.setHeader("Content-Type", "application/json;charset=UTF-8");
 		
@@ -293,9 +296,10 @@ public class HttpDownloader {
 		}
 	}
 	
-	public static String GetOrderByCode(String rootUrl,String udid) throws Exception{
+	public static String GetOrderByCode(String rootUrl,String udid,String Authorization) throws Exception{
 		HttpPost post = new HttpPost(rootUrl);
 		post.addHeader("X-device",udid);
+		post.addHeader("Authorization",Authorization);
 		post.setHeader("Content-Type", "application/json;charset=UTF-8");
 		HttpClientParams.setRedirecting(post.getParams(), false);
 		DefaultHttpClient client=new DefaultHttpClient();
@@ -320,11 +324,12 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable 
 	 */
-	public static String RequestFinally(String urlString,String udid) throws Throwable
+	public static String RequestFinally(String urlString,String udid,String Authorization) throws Throwable
 	{
 		
 		HttpPut put=new HttpPut(urlString);
 		put.addHeader("X-device",udid);
+		put.addHeader("Authorization",Authorization);
 		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response=client.execute(put);
 		HttpEntity responseEntity = response.getEntity();
@@ -347,7 +352,8 @@ public class HttpDownloader {
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public static String RequestServices(String rootUrl,String strContent,String orderid,String udid) throws JSONException, ClientProtocolException, IOException
+	public static String RequestServices(String rootUrl,String strContent,String orderid,
+			String udid,String Authorization) throws JSONException, ClientProtocolException, IOException
 	{
 		int statuscode;
 		if(strContent==MenuUtils.Service_2)
@@ -373,6 +379,7 @@ public class HttpDownloader {
 		post.setEntity(entity);
 		post.setHeader("Content-Type", "application/json;charset=UTF-8");
 		post.addHeader("X-device",udid);
+		post.addHeader("Authorization", Authorization);
 		
 		HttpClientParams.setRedirecting(post.getParams(), false);
 		DefaultHttpClient client=new DefaultHttpClient();
@@ -388,10 +395,11 @@ public class HttpDownloader {
 	 * @return
 	 * @throws Throwable
 	 */
-	public static String RequestOrderByCode(String rootUrl,String codeString,String udid) throws Throwable {
+	public static String RequestOrderByCode(String rootUrl,String codeString,String udid,String Authorization) throws Throwable {
 		
 		HttpPut put=new HttpPut(rootUrl+"orders/desk/"+codeString);	
 		put.addHeader("X-device",udid);
+		put.addHeader("Authorization", Authorization);
 		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(put);
 		HttpEntity responseEntity = response.getEntity();
@@ -408,7 +416,8 @@ public class HttpDownloader {
 	}
 	
 	//加减菜
-	public static String alterRecipeCount(String rootUrl, int oid,int rid,JSONObject object,String udid) throws Throwable
+	public static String alterRecipeCount(String rootUrl, int oid,int rid,JSONObject object,
+			String udid,String Authorization) throws Throwable
 	{
 		String urlString=rootUrl + "restaurants/"+rid+"/orders/" + oid;
 		HttpPost post = new HttpPost(urlString);
@@ -418,6 +427,7 @@ public class HttpDownloader {
 		nameValuePairs.add(new BasicNameValuePair("count", object.get("count").toString()));
 		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		post.addHeader("X-device",udid);
+		post.addHeader("Authorization", Authorization);
 		
 		DefaultHttpClient client=new DefaultHttpClient();
 		HttpResponse response = client.execute(post);

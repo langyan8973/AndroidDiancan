@@ -17,6 +17,7 @@ public class HttpHandler extends Handler {
 	public static final int POST_RECIPE_COUNT_FROMBOOK=9;
 	public static final int POST_RECIPE_COUNT_FROMORDER=10;
 	public static final int DEPOSIT_ORDER = 11;
+	public static final int REQUEST_ALLHISTORY = 12;
 	HttpCallback mCallback;
 	public HttpHandler(HttpCallback callback){
 		mCallback=callback;

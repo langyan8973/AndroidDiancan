@@ -6,12 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
 import com.diancan.Utils.DisplayUtil;
 import com.diancan.Utils.JsonUtils;
-import com.diancan.Utils.MenuUtils;
 import com.diancan.custom.animation.ListPopImgAnimation;
 import com.diancan.custom.view.PinnedHeaderListView;
 import com.diancan.diancanapp.AppDiancan;
@@ -19,15 +16,12 @@ import com.diancan.http.HttpCallback;
 import com.diancan.http.HttpHandler;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.Category;
-import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 import com.diancan.model.Recipe;
 import com.diancan.sectionlistview.OrderSectionListAdapter;
 import com.diancan.sectionlistview.SectionListItem;
 import com.diancan.sectionlistview.SectionListAdapter.AdapterViewHolder;
-
-import android.R.integer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.TabActivity;
@@ -41,11 +35,15 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -59,9 +57,11 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 	Button commitButton;
 	Button flashButton;
 	TextView sumTextView;
+	TextView countNewView;
 	ImageView mPopImageView;
 	ProgressBar mProgressBar;
 	String sumString;	
+	String countNewString;
 	AppDiancan declare;
 	NotifiReceiver receiver;
 	RecipeListHttpHelper recipeListHttpHelper;
@@ -103,7 +103,9 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		tabbarHeight = (int)getResources().getDimension(R.dimen.tabbar_height);
 		
 		sumString=getResources().getString(R.string.infostr_sum);
+		countNewString = getResources().getString(R.string.countnewinfo);
 		sumTextView=(TextView)findViewById(R.id.sumText);
+		countNewView = (TextView)findViewById(R.id.countNew);
 		mPopImageView = (ImageView)findViewById(R.id.img_popup);
 		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
 		
@@ -162,7 +164,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		// TODO Auto-generated method stub
     	mProgressBar.setVisibility(View.GONE);
     	switch(msg.what) {  
-        case HttpHandler.REFRESH_ORDER: 
+        case HttpHandler.REFRESH_ORDER:
         	String jsString=msg.obj.toString();
         	ParseOrderRefresh(jsString);
             break;
@@ -258,9 +260,10 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 			strKey = (String) iterator.next();
 			List<OrderItem> orderItemList=hashOrderItems.get(strKey);
 			Iterator<OrderItem> iterator2;
+			int count = orderItemList.size();
 			for(iterator2=orderItemList.iterator();iterator2.hasNext();){
 				OrderItem orderItem=iterator2.next();
-				exampleArray.add(new SectionListItem(orderItem, strKey));
+				exampleArray.add(new SectionListItem(orderItem, strKey+"("+count+")"));
 			}
 		}
     }
@@ -275,14 +278,19 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		orderListView.setAdapter(sectionAdapter);
 		orderListView.setOnScrollListener(sectionAdapter);
 		orderListView.setPinnedHeaderView(getLayoutInflater().inflate(R.layout.list_section, orderListView, false));
-		
 
 		sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+		if(declare.myOrderHelper.getCountNew()==0){
+    		countNewView.setText("");
+    	}
+    	else{
+    		countNewView.setText(declare.myOrderHelper.getCountNew()+countNewString);
+    	}
 		if(declare.myOrder.getPriceAll()==(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())){
-			commitButton.setEnabled(false);
+			commitButton.setVisibility(View.GONE);
 		}
 		else{
-			commitButton.setEnabled(true);
+			commitButton.setVisibility(View.VISIBLE);
 		}
     }
 	
@@ -294,16 +302,23 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     		InitListDatasource();
     		arrayAdapter.notifyDataSetChanged();
     		sumTextView.setText(sumString+declare.myOrder.getPriceAll());
+    		if(declare.myOrderHelper.getCountNew()==0){
+	    		countNewView.setText("");
+	    	}
+	    	else{
+	    		countNewView.setText(declare.myOrderHelper.getCountNew()+countNewString);
+	    	}
     		if(declare.myOrder.getPriceAll()==(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())){
-    			commitButton.setEnabled(false);
+    			commitButton.setVisibility(View.GONE);
     		}
     		else{
-    			commitButton.setEnabled(true);
+    			commitButton.setVisibility(View.VISIBLE);
     		}
     	}
     	else {
     		commitButton.setVisibility(View.GONE);
     		sumTextView.setText(sumString+"0.00");
+    		countNewView.setText("");
 		}
 	}
 	public void FlashOrder(){
@@ -325,6 +340,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     	declare.myOrder = order;
     	declare.myOrderHelper.SetOrderAndItemDic(order);
 		if(order.getStatus()==3 || order.getStatus()==4){
+			countNewView.setText("");
 			SendSetCountMessage();
 			TabActivity main = (TabActivity)this.getParent();
 			main.getTabHost().setCurrentTab(0);
@@ -332,6 +348,12 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		}
 		else{
 			UpdateElement();
+			if(declare.myOrderHelper.getCountNew()==0){
+	    		countNewView.setText("");
+	    	}
+	    	else{
+	    		countNewView.setText(declare.myOrderHelper.getCountNew()+countNewString);
+	    	}
 			SendSetCountMessage();
 		}
 		
@@ -345,6 +367,12 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
     	declare.myOrder = order;
     	declare.myOrderHelper.SetOrderAndItemDic(order);
+    	if(declare.myOrderHelper.getCountNew()==0){
+    		countNewView.setText("");
+    	}
+    	else{
+    		countNewView.setText(declare.myOrderHelper.getCountNew()+countNewString);
+    	}
 		SendSetCountMessage();
 	}
     
@@ -460,7 +488,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		if(orderItem.getCountNew()<=0){
 			return;
 		}
-		if(orderItem.getCountDeposit()==0&&orderItem.getCountNew()==1){
+		if(orderItem.getCountDeposit()==0&&orderItem.getCountNew()==1&&orderItem.getCountConfirm()==0){
 			declare.myOrder.getClientItems().remove(position);
 			declare.myOrderHelper.getOrderItemDic().remove(orderItem.getRecipe().getId());
 			exampleArray.remove(position);
@@ -525,8 +553,11 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		});
         titleView.setText("本次提交");
         contentView.setText(contentString);
+        contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
         dialog.show();
-		
+        Animation animation = AnimationUtils.loadAnimation(MyTable.this, R.anim.activity_in);
+        animation.setInterpolator(new OvershootInterpolator());
+        layout.startAnimation(animation);
 	}
 	
 	

@@ -22,34 +22,24 @@ public class FileUtils {
 	private String SDCardRoot;
 
 	public FileUtils() {
-		// �õ���ǰ�ⲿ�洢�豸��Ŀ¼
 		SDCardRoot = Environment.getExternalStorageDirectory()
 				.getAbsolutePath()
 				+ File.separator;
 	}
-//	public static void Createdbfile() {
-//		try{
-//			_dbPathFile.mkdirs();  
-//		 } catch (Exception e) {
-//			 // TODO Auto-generated catch block
-//			 e.printStackTrace();
-//		 }
-//		try {
-//			_dbFileFile.createNewFile();
-//		 } catch (IOException e) {
-//			 // TODO Auto-generated catch block
-//			 e.printStackTrace();
-//		 }
-////		 File imgpath=new File(_imgPath);
-//		if (!_imgPathFile.exists()) { 
-//			 try{
-//				 _imgPathFile.mkdirs();  
-//			 } catch (Exception e) {
-//				 // TODO Auto-generated catch block
-//				 e.printStackTrace();
-//			 }
-//		}
-//	}
+	public static void Createdbfile() {
+		try{
+			_dbPathFile.mkdirs();  
+		 } catch (Exception e) {
+			 // TODO Auto-generated catch block
+			 e.printStackTrace();
+		 }
+		try {
+			_dbFileFile.createNewFile();
+		 } catch (IOException e) {
+			 // TODO Auto-generated catch block
+			 e.printStackTrace();
+		 }
+	}
 
 	/**
 	 * ��SD���ϴ����ļ�

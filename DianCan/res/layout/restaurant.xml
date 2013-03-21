@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
-    style="@style/Widget.Layout.DefaultPageVLayout"
+    style="@style/Widget.Layout.MainFirstVLayout"
     >
 	<RelativeLayout
 	    android:layout_width="fill_parent" 
@@ -33,10 +33,14 @@
 		    android:text="@string/MapBtnTitle" 
 		    style="@style/Widget.Button.Title"/>
 	</RelativeLayout>
+	<include android:layout_width="fill_parent"
+           android:layout_height="@dimen/searchlayout_height"
+           layout="@layout/searchlayout"
+           />
 	<ListView android:id="@+id/rList" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" 
 		    android:headerDividersEnabled="false"
-		    style="@style/Widget.ListView"
+		    style="@style/Widget.ListView.Restaurant"
 		    />
 </LinearLayout>

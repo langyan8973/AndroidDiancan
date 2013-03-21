@@ -101,9 +101,15 @@ public class RecipeFrameLayout extends FrameLayout {
         	if(isFirst){
         		
             	if(Math.abs(deltaX) > Math.abs(deltaY)){
-            		isLR = true;
-            		isFirst = false;
-            		MoveLayout(deltaX);
+            		if(x>=mParentX){
+            			isLR = true;
+                		isFirst = false;
+                		MoveLayout(deltaX);
+            		}
+            		else{
+            			isFirst = false;
+            			isLR = false;
+            		}
             	}
             	else if(deltaX==0 && deltaY==0){
             		isFirst = true;

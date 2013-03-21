@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.diancan.Helper.OrderHelper;
+import com.diancan.Helper.SearchAdapterHelper;
 import com.diancan.Utils.MenuUtils;
+import com.diancan.custom.adapter.RestaurantArrayAdapter;
+import com.diancan.custom.adapter.RestaurantArrayAdapter.ViewHolder;
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpCallback;
 import com.diancan.http.HttpHandler;
@@ -24,17 +27,21 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,13 +49,18 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class RestaurantActivity extends Activity implements HttpCallback,OnClickListener,OnItemClickListener {
+public class RestaurantActivity extends Activity implements HttpCallback,OnClickListener,
+									OnItemClickListener,TextWatcher,SearchAdapterHelper {
 	ListView mListView;
 	Button backButton;
 	Button mapButton;
+	EditText mEditText;
+	ImageView mClearImageView;
 	List<Restaurant> mRestaurants;
 	HttpHandler httpHandler;
 	AppDiancan appDiancan;
+	ImageDownloader imgDownloader;
+	RestaurantArrayAdapter<Restaurant> restaurantAdapter;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -62,7 +74,13 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		backButton.setOnClickListener(this);
 		mapButton=(Button)findViewById(R.id.bt_map);
 		mapButton.setOnClickListener(this);
+		mEditText = (EditText)findViewById(R.id.searchExt);
+		mEditText.addTextChangedListener(this);
+		mClearImageView = (ImageView)findViewById(R.id.ImgClear);
+		mClearImageView.setOnClickListener(this);
 		appDiancan=(AppDiancan)getApplicationContext();
+		Drawable[] layers={getResources().getDrawable(R.drawable.imagewaiting)};
+		imgDownloader=new ImageDownloader(layers);
 		RequestRestaurants();
 	}
 	
@@ -87,14 +105,14 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub
-		RestaurantAdapter listAdapter=(RestaurantAdapter)mListView.getAdapter();
-		HashMap<String, Object> map=(HashMap<String, Object>)listAdapter.getItem(arg2);
-		String idString=map.get("id").toString();
-		int id=Integer.parseInt(idString);
-		
+		InputMethodManager imm = (InputMethodManager)getSystemService(RestaurantActivity.this.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+		ViewHolder viewHolder = (ViewHolder)arg1.getTag();
+		int rid = Integer.parseInt(viewHolder.titleTextView.getTag().toString());
+		String name = viewHolder.titleTextView.getText().toString();
 		MyRestaurant myRestaurant=new MyRestaurant();
-		myRestaurant.setId(id);
-		myRestaurant.setName(map.get("name").toString());
+		myRestaurant.setId(rid);
+		myRestaurant.setName(name);
 		appDiancan.myRestaurant=myRestaurant;
 		if(appDiancan.myOrder!=null){
 			if(appDiancan.myOrderHelper==null){
@@ -117,9 +135,43 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		case R.id.bt_map:
 			ToMapPage();
 			break;
+		case R.id.ImgClear:
+			mEditText.setText("");
+			break;
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		// TODO Auto-generated method stub
+		restaurantAdapter.getFilter().filter(s);
+		if(count<=0){
+			mClearImageView.setVisibility(View.GONE);
+		}
+		else{
+			mClearImageView.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	@Override
+	public void SetListViewHeight(int count) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
@@ -134,7 +186,7 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 				
 				try {
 					AppDiancan declare=(AppDiancan)RestaurantActivity.this.getApplicationContext();
-					mRestaurants=MenuUtils.getAllRestaurants(declare.udidString);
+					mRestaurants=MenuUtils.getAllRestaurants(declare.udidString,declare.accessToken.getAuthorization());
 					if(mRestaurants==null||mRestaurants.size()==0){
 						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"没有餐厅！").sendToTarget();
 						return;
@@ -153,30 +205,11 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 	 * 显示餐厅列表
 	 */
 	private void DisplayRestaurants(){
-		List<HashMap<String, Object>> hashiList=new ArrayList<HashMap<String,Object>>();
-		Iterator<Restaurant> iterator;
-		for(iterator=mRestaurants.iterator();iterator.hasNext();){
-			Restaurant restaurant=iterator.next();
-			HashMap<String, Object> map=new HashMap<String, Object>();
-			map.put("name", restaurant.getName());
-			map.put("id", restaurant.getId());
-			map.put("address", restaurant.getAddress());
-			map.put("telephone", restaurant.getTelephone());
-			String imgString=restaurant.getImage();
-			if(imgString==null||imgString=="")
-			{
-				map.put("img", MenuUtils.imageUrl+"2e751fc2-62be-4bec-9196-e338010ce05c.png");
-			}
-			else {
-				map.put("img", MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+imgString);
-			}
-			hashiList.add(map);
-			
-			
-		}
-		
-		RestaurantAdapter listAdapter=new RestaurantAdapter(this, hashiList);
-		mListView.setAdapter(listAdapter);
+		restaurantAdapter = 
+				new RestaurantArrayAdapter<Restaurant>(this,R.layout.list_item_restaurant,mRestaurants);
+		restaurantAdapter.setImageDownloader(imgDownloader);
+		restaurantAdapter.setmAdapterHelper(this);
+		mListView.setAdapter(restaurantAdapter);
 	}
 	
 	/**
@@ -217,12 +250,17 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
   	
   	private void ToMapPage(){
   		MenuGroup parent = (MenuGroup)this.getParent();
+  		LocalActivityManager manager = parent.getLocalActivityManager();
+  		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.restaurantlist_out);
+		v1.startAnimation(sAnimation);
 	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
 		contain.removeAllViews();
 		
 		Intent in = new Intent(this.getParent(), MapViewActivity.class);
 		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		LocalActivityManager manager = parent.getLocalActivityManager();
 		Window window = manager.startActivity("MapViewActivity", in);
 		
 		View view=window.getDecorView();		
@@ -256,78 +294,5 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
         view.setLayoutParams(params);
         view.startAnimation(animation);
   	}
-  	
-  	class ViewHolder{
-  		public ImageView imageView;
-  		public TextView titleTextView;
-  		public TextView addressTextView;
-  		public TextView phoneTextView;
-  	}
-  	
-	class RestaurantAdapter extends BaseAdapter{
-		private ImageDownloader imageDownloader;
-    	private LayoutInflater mInflater;  
-    	private List<HashMap<String, Object>> mListData;
-    	
-    	public RestaurantAdapter(Context context,List<HashMap<String, Object>> listData){
-    		mInflater = LayoutInflater.from(context);  
-    		mListData = listData;  
-    		Drawable[] layers={RestaurantActivity.this.getResources().getDrawable(R.drawable.imagewaiting)};
-    		imageDownloader=new ImageDownloader(layers);
-    	}
-		@Override
-		public int getCount() {
-			// TODO Auto-generated method stub
-			return mListData.size();
-		}
 
-		@Override
-		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return mListData.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			ViewHolder viewHolder;
-			if(convertView==null){
-				viewHolder=new ViewHolder();
-				convertView = mInflater.inflate(R.layout.list_item_restaurant, null);
-				HashMap<String, Object> map=mListData.get(position);
-			    TextView titleView=(TextView)convertView.findViewById(R.id.tv_name);
-			    TextView addressView=(TextView)convertView.findViewById(R.id.tv_address);
-			    TextView phoneView=(TextView)convertView.findViewById(R.id.tv_telephone);
-			    ImageView recipeImg=(ImageView)convertView.findViewById(R.id.restaurant_image);
-			    viewHolder.titleTextView=titleView;
-			    viewHolder.addressTextView=addressView;
-			    viewHolder.phoneTextView=phoneView;
-			    viewHolder.imageView=recipeImg;
-			    titleView.setText(map.get("name").toString());
-			    addressView.setText(map.get("address").toString());
-			    phoneView.setText(map.get("telephone").toString());
-			    String strUrl=map.get("img").toString();
-			    imageDownloader.download(strUrl, recipeImg);
-			    convertView.setTag(viewHolder);
-			}
-			else{
-				HashMap<String, Object> map=mListData.get(position);
-				viewHolder=(ViewHolder)convertView.getTag();
-				viewHolder.titleTextView.setText(map.get("name").toString());
-			    viewHolder.addressTextView.setText(map.get("address").toString());
-			    viewHolder.phoneTextView.setText(map.get("telephone").toString());
-			    String strUrl=map.get("img").toString();
-			    imageDownloader.download(strUrl, viewHolder.imageView);
-			}
-		     
-			return convertView;
-		}
-		
-	}
 }

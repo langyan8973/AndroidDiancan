@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" 
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content" 
+	>
+	
+	<LinearLayout 
+	    android:id="@+id/header_parent"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    style="@style/Widget.Layout.RecipeListTag"
+	    >
+		<TextView android:id="@+id/header"
+	        android:layout_width="100dip"
+	        android:layout_height="@dimen/sectionheight"
+	        style="@style/Widget.TextView.HistorySectionTitle"
+	    />
+	</LinearLayout>
+	
+	<LinearLayout 
+	    android:layout_width="fill_parent" 
+	    android:layout_height="60dip"
+	    style="@style/Widget.Layout.HistoryItemVLayout"  	>
+	    <TextView 
+	        android:id="@+id/tv_time"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        style="@style/Widget.TextView.Title.Item"
+	        />
+	    <LinearLayout 
+	        android:layout_width="fill_parent" 
+	        android:layout_height="wrap_content" 
+	        android:orientation="horizontal"
+	        android:paddingLeft="10.0dip" 
+	        android:paddingRight="10.0dip"
+	        >
+	        <TextView android:id="@+id/his_r_name" 
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:paddingLeft="10dip"
+	            android:gravity="left"
+	            android:textStyle="bold"
+	            android:textSize="15sp"
+	            android:textColor="@color/black"
+	            />
+	        <TextView android:textAppearance="?android:textAppearanceMedium"
+	             android:id="@+id/tv_money" 
+	             android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+	             android:layout_weight="1"
+	             android:paddingRight="10dip"
+	             android:gravity="right"
+	             android:textColor="@color/red"
+	              />
+	    </LinearLayout>
+	</LinearLayout>
+</LinearLayout>

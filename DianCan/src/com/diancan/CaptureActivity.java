@@ -216,7 +216,8 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 				AppDiancan declare=(AppDiancan)CaptureActivity.this.getApplicationContext();
 				String urlString=MenuUtils.initUrl+"QR/"+codeString;
 				try {
-					String jsonString=HttpDownloader.GetOrderForm(urlString, declare.udidString);
+					String jsonString=HttpDownloader.GetOrderForm(urlString, declare.udidString,
+							declare.accessToken.getAuthorization());
 					Order order=JsonUtils.ParseJsonToOrder(jsonString);
 					httpHandler.obtainMessage(1,order).sendToTarget();
 				} catch (ClientProtocolException e) {

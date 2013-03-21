@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
@@ -19,7 +20,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class RecipeImgActivity extends Activity {
+public class RecipeImgActivity extends Activity implements OnClickListener {
 	ImageView mImageView;
 	ImageDownloader imageDownloader;
 	@Override
@@ -28,7 +29,7 @@ public class RecipeImgActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.recipe_image);
 		mImageView = (ImageView)findViewById(R.id.img_large);
-		
+		mImageView.setOnClickListener(this);
 		Intent intent = getIntent();
 		String urlString = intent.getStringExtra("url");
 		int centerX = intent.getIntExtra("centerx", 0);
@@ -63,6 +64,14 @@ public class RecipeImgActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v.getId()==R.id.img_large){
+			this.finish();
+		}
 	}
 
 }

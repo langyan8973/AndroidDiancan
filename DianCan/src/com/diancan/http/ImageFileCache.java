@@ -15,7 +15,7 @@ import android.os.StatFs;
 import android.util.Log;
 
 public class ImageFileCache {
-	private static final String CACHDIR = "ChiHuoPro";
+	private static final String CACHDIR = "ChiHuoPro/MenuImg";
     private static final String WHOLESALE_CONV = ".cach";
                                                             
     private static final int MB = 1024*1024;

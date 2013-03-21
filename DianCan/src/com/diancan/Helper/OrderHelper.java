@@ -17,7 +17,9 @@ public class OrderHelper {
 	Order mOrder;
 	SparseArray<Category> categoryDic;
 	SparseArray<OrderItem> orderItemDic;
+	
 	int totalCount;
+	int countNew;
 	
 	public OrderHelper(Order order){
 		SetOrderAndItemDic(order);
@@ -33,7 +35,6 @@ public class OrderHelper {
 	public void setOrder(Order order) {
 		this.mOrder = order;
 	}
-
 	public void setCategoryDic(SparseArray<Category> categoryDic) {
 		this.categoryDic = categoryDic;
 	}
@@ -54,6 +55,12 @@ public class OrderHelper {
 		this.totalCount = totalCount;
 	}
 
+	public int getCountNew() {
+		return countNew;
+	}
+	public void setCountNew(int countNew) {
+		this.countNew = countNew;
+	}
 	/**
 	 * 新加入订单设置MyReataurant对象
 	 * @param order
@@ -64,6 +71,7 @@ public class OrderHelper {
 			orderItemDic = new SparseArray<OrderItem>();
 		}
 		totalCount = 0;
+		countNew = 0;
 		orderItemDic.clear();
 		if(order.getClientItems()!=null&&order.getClientItems().size()>0){
 			Iterator<OrderItem> iterator;
@@ -71,6 +79,7 @@ public class OrderHelper {
 				OrderItem orderItem=iterator.next();
 				orderItemDic.put(orderItem.getRecipe().getId(), orderItem);
 				totalCount+=orderItem.GetCount();
+				countNew+=orderItem.getCountNew();
 			}
 		}
 	}
@@ -109,7 +118,7 @@ public class OrderHelper {
         		stringBuilder.append("\n");
         		stringBuilder.append(orderItem.getRecipe().getName());
         		stringBuilder.append("-------");
-        		stringBuilder.append(orderItem.getCountNew());
+        		stringBuilder.append(orderItem.getCountNew()+"份");
         	}
         }
         contentString = stringBuilder.toString();
@@ -125,11 +134,11 @@ public class OrderHelper {
 		Iterator<OrderItem> iterator;
         for(iterator = mOrder.getClientItems().iterator();iterator.hasNext();){
         	OrderItem orderItem = iterator.next();
-        	if(orderItem.getCountDeposit()!=0){
+        	if(orderItem.getCountDeposit()!=0||orderItem.getCountConfirm()!=0){
         		stringBuilder.append("\n");
         		stringBuilder.append(orderItem.getRecipe().getName());
         		stringBuilder.append("-------");
-        		stringBuilder.append(orderItem.getCountDeposit());
+        		stringBuilder.append((orderItem.getCountDeposit()+orderItem.getCountConfirm())+"份");
         	}
         }
         contentString = stringBuilder.toString();

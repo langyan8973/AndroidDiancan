@@ -19,6 +19,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 /***
  * 
  * @author liuyan
@@ -36,6 +37,8 @@ public class MenuGroup extends ActivityGroup {
 	public static String ID_MAPVIEWACTIVITY = "MapViewActivity";
 	public static String ID_CAPTUREACTIVITY = "CaptureActivity";
 	public static String ID_RECIPLIST = "RecipeList";
+	public static String ID_HISTORYLIST = "HistoryList";
+	public static boolean isChecked = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +65,9 @@ public class MenuGroup extends ActivityGroup {
 		// TODO Auto-generated method stub
 		super.onResume();
 		//结账过后回到首页
-		if(declare.myOrder!=null){
-			if(declare.myOrder.getStatus()!=null&&declare.myOrder.getStatus()==3&&declare.myRestaurant!=null){
-				declare.myOrder = null;
-				declare.myRestaurant = null;
-				ToMainFirstPage();
-			}
+		if(isChecked){
+			ToMainFirstPage();
+			isChecked = false;
 		}
 		
 	}
@@ -100,6 +100,10 @@ public class MenuGroup extends ActivityGroup {
 		}else if(childString.equals(MenuGroup.ID_CAPTUREACTIVITY)){
 			intent=new Intent(MenuGroup .this,CaptureActivity.class);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_CAPTUREACTIVITY,intent);
+			
+		}else if(childString.equals(MenuGroup.ID_HISTORYLIST)){
+			intent=new Intent(MenuGroup .this,HistoryList.class);
+	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_HISTORYLIST,intent);
 			
 		}else if(childString.equals(MenuGroup.ID_RECIPLIST)){
 			if(rid!=-1){
@@ -148,6 +152,7 @@ public class MenuGroup extends ActivityGroup {
         params.height=LayoutParams.FILL_PARENT;
         view.setLayoutParams(params);
         view.startAnimation(animation);
+        declare.myRestaurant = null;
 		return;
 		
 	}
@@ -158,10 +163,11 @@ public class MenuGroup extends ActivityGroup {
 		View v1=w1.getDecorView();
 		Animation sAnimation=AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_out);
 		v1.startAnimation(sAnimation);
-		rootLayout.removeAllViews();				
+		rootLayout.removeAllViews();
 		
 		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
 		Intent intent=new Intent(MenuGroup.this,RestaurantActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_RESTAURANTACTIVITY,intent);
         View view=subActivity.getDecorView();
         rootLayout.addView(view);  
@@ -189,7 +195,8 @@ public class MenuGroup extends ActivityGroup {
 	    		}
 	    		else if(strid.equals(MenuGroup.ID_RESTAURANTACTIVITY)
 	    				||strid.equals(MenuGroup.ID_CAPTUREACTIVITY)
-	    				||strid.equals(MenuGroup.ID_MAPVIEWACTIVITY)){
+	    				||strid.equals(MenuGroup.ID_MAPVIEWACTIVITY)
+	    				||strid.equals(MenuGroup.ID_HISTORYLIST)){
 	    			ToMainFirstPage();
 	    			return true;
 	    		}

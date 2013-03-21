@@ -24,8 +24,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.diancan.MyTable.MyStandardArrayAdapter;
 import com.diancan.R;
 import com.diancan.Utils.MenuUtils;
+import com.diancan.custom.adapter.PinnedHeaderAdapter;
 import com.diancan.custom.view.PinnedHeaderListView;
-import com.diancan.custom.view.PinnedHeaderListView.PinnedHeaderAdapter;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.OrderItem;
 import com.diancan.sectionlistview.SectionListAdapter.AdapterViewHolder;
@@ -210,117 +210,79 @@ public class OrderSectionListAdapter implements ListAdapter, OnItemClickListener
         if (view == null) {
         	viewHolder = new AdapterViewHolder();
             view = inflater.inflate(R.layout.order_section_list_item, null);
-            if (currentItem != null) {
-            	final TextView header = (TextView) view.findViewById(R.id.header);
-            	viewHolder.header=header;
-            	if (header != null) {
-            		header.setText(currentItem.section);
-            	}
-            	
-            	ImageView imgrecipe=(ImageView)view.findViewById(R.id.img);
-            	viewHolder.imgrecipe=imgrecipe;
-    			TextView tvTitle=(TextView)view.findViewById(R.id.title);
-    			viewHolder.tvTitle=tvTitle;
-    			TextView tvPrice=(TextView)view.findViewById(R.id.price);
-    			viewHolder.tvPrice=tvPrice;
-    			TextView tvCount=(TextView)view.findViewById(R.id.count);
-    			viewHolder.tvCount=tvCount;
-    			TextView tvCountDes = (TextView)view.findViewById(R.id.txtDescription);
-    			viewHolder.tvCountDeposit = tvCountDes;
-    			TextView tvCountConfirm = (TextView)view.findViewById(R.id.txtConfirm);
-    			viewHolder.tvCountConfirm = tvCountConfirm;
-    			ImageView imgdelete=(ImageView)view.findViewById(R.id.jianhao);
-    			viewHolder.imgdelete=imgdelete;
-    			ImageView imgadd=(ImageView)view.findViewById(R.id.jiahao);
-    			viewHolder.imgadd=imgadd;
-    			
-    			OrderItem orderItem=(OrderItem)currentItem.item;
-    			tvCount.setText(orderItem.GetCount() + "");
-    			tvCountConfirm.setTextColor(Color.DKGRAY);
-    			if(orderItem.getCountConfirm()>0){
-    				tvCountConfirm.setText(orderItem.getCountConfirm()+"例已上");
-    			}
-    			else{
-    				tvCountConfirm.setText("");
-    			}
-    	        String strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
-    	        imageDownloader.download(strUrl, imgrecipe);
-    	        tvTitle.setText(orderItem.getRecipe().getName());
-    	        tvPrice.setText(orderItem.getRecipe().getPrice().toString());
-    	        imgadd.setTag(position);
-    	        imgdelete.setTag(position);
-    	        imgadd.setOnClickListener(viewClickListener);
-    	        imgdelete.setOnClickListener(viewClickListener);
-    	        
-    	        if(orderItem.getCountNew()<=0){
-    	        	imgdelete.setVisibility(View.INVISIBLE);
-    	        	tvCountDes.setTextColor(Color.DKGRAY);
-    	        	tvCountDes.setText("已下单");
-    	        }
-    	        else{
-    	        	imgdelete.setVisibility(View.VISIBLE);
-    	        	tvCountDes.setTextColor(Color.RED);
-    	        	tvCountDes.setText(orderItem.getCountNew()+"例未下单");
-    	        }
-                
-    			int section = getSectionForPosition(position);
-    			int s2=getPositionForSection(section);
-    			View headerView=view.findViewById(R.id.header_parent);
-    			viewHolder.headerView = headerView;
-                if (s2 == position){
-                	headerView.setVisibility(View.VISIBLE);
-                	header.setVisibility(View.VISIBLE);
-            	} else {
-            		headerView.setVisibility(View.GONE);
-            		header.setVisibility(View.GONE);
-            	}
-                view.setTag(viewHolder);
-            }
+            TextView header = (TextView) view.findViewById(R.id.header);
+            viewHolder.header=header;
+            ImageView imgrecipe=(ImageView)view.findViewById(R.id.img);
+            viewHolder.imgrecipe=imgrecipe;
+            TextView tvTitle=(TextView)view.findViewById(R.id.title);
+            viewHolder.tvTitle=tvTitle;
+            TextView tvPrice=(TextView)view.findViewById(R.id.price);
+            viewHolder.tvPrice=tvPrice;
+            TextView tvCount=(TextView)view.findViewById(R.id.count);
+            viewHolder.tvCount=tvCount;
+            TextView tvCountDes = (TextView)view.findViewById(R.id.txtDescription);
+            viewHolder.tvCountDeposit = tvCountDes;
+            TextView tvCountConfirm = (TextView)view.findViewById(R.id.txtConfirm);
+            viewHolder.tvCountConfirm = tvCountConfirm;
+            ImageView imgdelete=(ImageView)view.findViewById(R.id.jianhao);
+            viewHolder.imgdelete=imgdelete;
+            ImageView imgadd=(ImageView)view.findViewById(R.id.jiahao);
+            viewHolder.imgadd=imgadd;
+            View headerView=view.findViewById(R.id.header_parent);
+			viewHolder.headerView = headerView;
+			view.setTag(viewHolder);
         }
         else {
 			viewHolder=(AdapterViewHolder)view.getTag();
-			if (currentItem != null) {//to set every item's text
-            	viewHolder.header.setText(currentItem.section);
-    			OrderItem orderItem=(OrderItem)currentItem.item;
-    	        String strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
-    	        imageDownloader.download(strUrl, viewHolder.imgrecipe);
-    	        viewHolder.tvCount.setText(orderItem.GetCount()+ "");
-    	        viewHolder.tvCountConfirm.setTextColor(Color.DKGRAY);
-    			if(orderItem.getCountConfirm()>0){
-    				viewHolder.tvCountConfirm.setText(orderItem.getCountConfirm()+"例已上");
-    			}
-    			else{
-    				viewHolder.tvCountConfirm.setText("");
-    			}
-    	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
-    	        viewHolder.tvPrice.setText(orderItem.getRecipe().getPrice().toString());
-    	        viewHolder.imgdelete.setTag(position);
-    	        viewHolder.imgadd.setTag(position);
-    	        viewHolder.imgadd.setOnClickListener(viewClickListener);
-    	        viewHolder.imgdelete.setOnClickListener(viewClickListener);
-    	        
-    	        if(orderItem.getCountNew()<=0){
-    	        	viewHolder.imgdelete.setVisibility(View.INVISIBLE);
-    	        	viewHolder.tvCountDeposit.setTextColor(Color.DKGRAY);
-    	        	viewHolder.tvCountDeposit.setText("已下单");
-    	        }
-    	        else{
-    	        	viewHolder.imgdelete.setVisibility(View.VISIBLE);
-    	        	viewHolder.tvCountDeposit.setTextColor(Color.RED);
-    	        	viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
-    	        }
-    	        
-    			int section = getSectionForPosition(position);
-    			int s2=getPositionForSection(section);
-                if (s2 == position){
-                	viewHolder.headerView.setVisibility(View.VISIBLE);
-                	viewHolder.header.setVisibility(View.VISIBLE);
-            	} else {
-            		viewHolder.headerView.setVisibility(View.GONE);
-            		viewHolder.header.setVisibility(View.GONE);
-            	}
-            }
 		}
+        
+        if (currentItem != null) {//to set every item's text
+        	viewHolder.header.setText(currentItem.section);
+			OrderItem orderItem=(OrderItem)currentItem.item;
+			String strUrl;
+			if(orderItem.getRecipe().getImage()==null){
+				strUrl=null;
+			}
+			else{
+				strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
+			}
+	        imageDownloader.download(strUrl, viewHolder.imgrecipe);
+	        viewHolder.tvCount.setText(orderItem.GetCount()+ "");
+	        viewHolder.tvCountConfirm.setTextColor(Color.DKGRAY);
+			if(orderItem.getCountConfirm()>0){
+				viewHolder.tvCountConfirm.setText(orderItem.getCountConfirm()+"例已上");
+			}
+			else{
+				viewHolder.tvCountConfirm.setText("");
+			}
+	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
+	        viewHolder.tvPrice.setText("￥"+orderItem.getRecipe().getPrice().toString());
+	        viewHolder.imgdelete.setTag(position);
+	        viewHolder.imgadd.setTag(position);
+	        viewHolder.imgadd.setOnClickListener(viewClickListener);
+	        viewHolder.imgdelete.setOnClickListener(viewClickListener);
+	        
+	        if(orderItem.getCountNew()<=0){
+	        	viewHolder.imgdelete.setVisibility(View.INVISIBLE);
+	        	viewHolder.tvCountDeposit.setTextColor(Color.DKGRAY);
+	        	viewHolder.tvCountDeposit.setText("已下单");
+	        }
+	        else{
+	        	viewHolder.imgdelete.setVisibility(View.VISIBLE);
+	        	viewHolder.tvCountDeposit.setTextColor(Color.RED);
+	        	viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+	        }
+	        
+			int section = getSectionForPosition(position);
+			int s2=getPositionForSection(section);
+            if (s2 == position){
+            	viewHolder.headerView.setVisibility(View.VISIBLE);
+            	viewHolder.header.setVisibility(View.VISIBLE);
+        	} else {
+        		viewHolder.headerView.setVisibility(View.GONE);
+        		viewHolder.header.setVisibility(View.GONE);
+        	}
+        }
         
         return view;
     }

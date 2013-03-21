@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -56,7 +57,6 @@ public class Main extends TabActivity {
         
         SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
         int ctab = deviceInfo.getInt("ctab", 0);
-        Log.d("Main", "ctab====================="+ctab);
         m_tabHost.setCurrentTab(ctab);
         m_tabWidget = (TabWidget)findViewById(android.R.id.tabs);
         m_tabWidget.setStripEnabled(false);
@@ -295,6 +295,10 @@ public class Main extends TabActivity {
 		if(declare.myOrder!=null){
 			oid = declare.myOrder.getId();
 			orid = declare.myOrder.getRestaurant().getId();
+			if(rid==-1){
+				rid=orid;
+				rnameString = declare.myOrder.getRestaurant().getName();
+			}
 		}
 		else{
 			oid = -1;
@@ -308,5 +312,11 @@ public class Main extends TabActivity {
 		deviceInfo.edit().putInt("oid", oid).commit();
 		deviceInfo.edit().putInt("orid", orid).commit();
 		deviceInfo.edit().putInt("ctab", currentTab).commit();
+	}
+	
+	//新浪和腾讯微博授权后要接收返回结果并把它传递给MenuGroup
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
 	}
 }

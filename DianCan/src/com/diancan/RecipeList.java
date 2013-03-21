@@ -1,18 +1,23 @@
 package com.diancan;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.SqlLiteDB.MenuDataHelper;
 import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
+import com.diancan.Helper.SearchAdapterHelper;
 import com.diancan.Utils.CustomViewBinder;
 import com.diancan.Utils.DisplayUtil;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.custom.adapter.AdapterCategoryList;
+import com.diancan.custom.adapter.AllMatchArrayAdapter;
 import com.diancan.custom.animation.ListPopImgAnimation;
 import com.diancan.custom.view.PinnedHeaderListView;
 import com.diancan.custom.view.RecipeFrameLayout;
@@ -21,6 +26,7 @@ import com.diancan.http.HttpCallback;
 import com.diancan.http.HttpHandler;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.Category;
+import com.diancan.model.HisRestaurant;
 import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
@@ -37,48 +43,63 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecipeList extends Activity implements HttpCallback,OnItemClickListener,OnClickListener {
+public class RecipeList extends Activity implements HttpCallback,OnItemClickListener,
+							OnClickListener,TextWatcher,SearchAdapterHelper {
 	
 	ListView categoryList;
+	ListView searchListView;
 	PinnedHeaderListView recipeListView;
 	Button mSelectDeskBtn;
 	Button mRefreshBtn;
 	Button mCategoriesBtn;
+	ImageView mClearImg;
 	ImageView mPopImageView;
 	TextView titleView;
 	ProgressBar mProgressBar;
+	EditText mAct;
+	AllMatchArrayAdapter<Recipe> nameAdapter;
 	
 	AppDiancan appDiancan;	
-	SparseArray<Category> m_arr;
 	SparseArray<OrderItem> mItemDic;
 	List<Recipe> allRecipes;
 	ArrayList<HashMap<String, Object>> hashlist;
 	AdapterCategoryList simpleAdapter;
 	int sWidth,sHeight,cIndex,rIndex;
 	ImageDownloader imgDownloader;
-	MyRestaurant myRestaurant;
 	RecipeListHttpHelper recipeListHttpHelper;
 	RecipeFrameLayout recipeLayout;
 	boolean isRefresh;
 	static int TABCOUNT = 3;
 	static int TIME_MEASURE = 500;
-	int topbarHeight,tabbarHeight;
+	int topbarHeight,tabbarHeight,searchitemHeight,sectionHeight;
+	int editTextCount;
 	private long clicktime=0;
 	
 	public class StandardArrayAdapter extends ArrayAdapter<SectionListItem> {
@@ -98,6 +119,8 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
     private SectionListAdapter sectionAdapter;
 
     SectionListItem[] exampleArray;
+    
+    Recipe[] recipeArr;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -106,14 +129,14 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		
 		appDiancan=(AppDiancan)getApplicationContext();
 		recipeListHttpHelper=new RecipeListHttpHelper(this,appDiancan);
-		myRestaurant=appDiancan.myRestaurant;
 		cIndex=-1;
 		
 		sWidth = DisplayUtil.PIXWIDTH;
 		sHeight = DisplayUtil.PIXHEIGHT;
 		topbarHeight = (int)getResources().getDimension(R.dimen.topbar_height);
 		tabbarHeight = (int)getResources().getDimension(R.dimen.tabbar_height);
-		
+		searchitemHeight = (int)getResources().getDimension(R.dimen.searchitem_height)+2;
+		sectionHeight = (int)getResources().getDimension(R.dimen.sectionheight);
 		hashlist=new ArrayList<HashMap<String,Object>>();
 		InitElement();
 	}
@@ -132,7 +155,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 			mRefreshBtn.setVisibility(View.GONE);
 		}
 		
-		if(m_arr==null){
+		if(appDiancan.myRestaurant.getCategoryDic()==null){
 			isRefresh = false;
 			RequestAllTypes();
 		}
@@ -145,6 +168,16 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 				RefreshRecipeList(null);
 			}
 		}
+		
+		HisRestaurant hisRestaurant =new HisRestaurant();
+		hisRestaurant.setRid(appDiancan.myRestaurant.getId());
+		hisRestaurant.setRname(appDiancan.myRestaurant.getName());
+		Date curDate = new Date(System.currentTimeMillis());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String s = dateFormat.format(curDate);
+		hisRestaurant.setTime(s);
+		
+		writeHisRestaurant(hisRestaurant);
 		
 	}
 	
@@ -192,8 +225,8 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.bt_SelectDesk:
-			Intent intent=new Intent(this,TableCodePage.class);
-	        startActivity(intent);
+			toTableCodePage();
+			
 			break;
 		case R.id.bt_Refresh:
 			isRefresh = true;
@@ -216,6 +249,9 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 			int p1 = Integer.parseInt(v.getTag().toString());
 			ClickDecreaseImg(p1,v);
 			break;
+		case R.id.ImgClear:
+			mAct.setText("");
+			break;
 		default:
 			
 			break;
@@ -225,21 +261,60 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub
-		
-		HashMap<String, Object> map=hashlist.get(arg2);
-		cIndex=arg2;
-		final int position = sectionAdapter.getPositionForSection(cIndex);
-		
-		recipeLayout.ToleftStart(0);
-		recipeListView.postDelayed(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				recipeListView.smoothScrollToPositionFromTop(position,0,400);
-				
+		if(arg0.getId()==R.id.CategoryList){
+			HashMap<String, Object> map=hashlist.get(arg2);
+			cIndex=arg2;
+			int position = sectionAdapter.getPositionForSection(cIndex);
+			RecipeListViewPosition(position,0);
+		}
+		else{
+			String clickString = nameAdapter.getItem(arg2).toString();
+			for(int i=0;i<recipeArr.length;i++){
+				if(clickString.equals(recipeArr[i].toString())){
+					InputMethodManager imm = (InputMethodManager)getSystemService(RecipeList.this.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(mAct.getWindowToken(), 0);
+					int si = sectionAdapter.getSectionForPosition(i);
+					int pi = sectionAdapter.getPositionForSection(si);
+					Log.d("RecipeList", "si==="+si+"      i==="+i);
+					int offset;
+					if(pi==i){
+						offset=0;
+					}
+					else{
+						offset = sectionHeight;
+					}
+					RecipeListViewPosition(i,offset);
+					break;
+				}
 			}
-		}, 200);
+		}
+		
+	}
+	
+	@Override
+	public void afterTextChanged(Editable s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		// TODO Auto-generated method stub
+		editTextCount=s.length();
+		nameAdapter.getFilter().filter(s);
+		if(editTextCount<=0){
+			mClearImg.setVisibility(View.GONE);
+		}
+		else{
+			mClearImg.setVisibility(View.VISIBLE);
+		}
 	}
 	
 
@@ -259,6 +334,12 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		mPopImageView = (ImageView)findViewById(R.id.img_pop);
 		titleView = (TextView)findViewById(R.id.tv_title);
 		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
+		searchListView = (ListView)findViewById(R.id.searList);
+		searchListView.setOnItemClickListener(this);
+		mAct = (EditText)findViewById(R.id.searchExt);
+		mAct.addTextChangedListener(this);
+		mClearImg = (ImageView)findViewById(R.id.ImgClear);
+		mClearImg.setOnClickListener(this);
 		isRefresh = false;
 	}
 	
@@ -270,6 +351,19 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		Toast toast = Toast.makeText(RecipeList.this, strMess, Toast.LENGTH_SHORT); 
         toast.show();
 	}
+  	
+  	public void writeHisRestaurant(final HisRestaurant hisRestaurant){
+  		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				MenuDataHelper.OpenDatabase();
+				MenuDataHelper.insertHisRestaurant(hisRestaurant);
+				MenuDataHelper.CloseDatabase();
+			}
+		}).start();
+  	}
   	
   	/**
 	 * 请求所有的菜的类型
@@ -290,7 +384,6 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
   	 */
   	public void SetCategories()
 	{	
-  		m_arr=appDiancan.myRestaurant.getCategoryDic();
   		UpdateOrder();
 	}
   	
@@ -321,16 +414,16 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 			else{
 				appDiancan.myOrderHelper.SetOrderAndItemDic(order);
 			}
-			titleView.setText(myRestaurant.getName()+"-"+order.getDesk().getName());
+			titleView.setText(appDiancan.myRestaurant.getName()+"-"+order.getDesk().getName());
 		}
 		else{
-			titleView.setText(myRestaurant.getName());
+			titleView.setText(appDiancan.myRestaurant.getName());
 		}
-		
-		for(int i=0;i<m_arr.size();i++)
+		hashlist.clear();
+		for(int i=0;i<appDiancan.myRestaurant.getCategoryDic().size();i++)
 		{	
-			int key=m_arr.keyAt(i);
-			Category category=m_arr.get(key);
+			int key=appDiancan.myRestaurant.getCategoryDic().keyAt(i);
+			Category category=appDiancan.myRestaurant.getCategoryDic().get(key);
 			HashMap<String, Object> map=new HashMap<String, Object>();
 			map.put("name", category.getName()); 
 			map.put("id", category.getId());
@@ -351,16 +444,17 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 	
 	public void DisplayRecipeList()
 	{
-		if(appDiancan.myOrder!=null&&appDiancan.myOrder.getRestaurant().getId()==myRestaurant.getId()){
+		if(appDiancan.myOrder!=null&&appDiancan.myOrder.getRestaurant().getId()==appDiancan.myRestaurant.getId()){
 			mItemDic = appDiancan.myOrderHelper.getOrderItemDic();
 		}
 		else{
 			mItemDic = null;
 		}
 		exampleArray=new SectionListItem[allRecipes.size()];
+		recipeArr = new Recipe[allRecipes.size()];
 		for(int i=0;i<allRecipes.size();i++){
 			Recipe recipe=allRecipes.get(i);
-    		Category category=m_arr.get(recipe.getCid());
+    		Category category=appDiancan.myRestaurant.getCategoryDic().get(recipe.getCid());
     		OrderItem orderItem;
         	if(mItemDic!=null&&
         			mItemDic.indexOfKey(recipe.getId())>-1){
@@ -369,9 +463,14 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
         	else{
         		orderItem = new OrderItem(recipe);
         	}
-        	
+        	recipeArr[i]=recipe; 
         	exampleArray[i]=new SectionListItem(orderItem, category.getName());
     	}
+		
+		nameAdapter = new AllMatchArrayAdapter<Recipe>(this,
+				R.layout.dropdownlistitem, recipeArr);
+		nameAdapter.setmAdapterHelper(this);
+		searchListView.setAdapter(nameAdapter);
 		
 		arrayAdapter = new StandardArrayAdapter(this,R.id.title,exampleArray);
 		
@@ -396,13 +495,13 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 				appDiancan.myOrderHelper.SetOrderAndItemDic(order);
 			}
 			
-			titleView.setText(myRestaurant.getName()+"-"+order.getDesk().getName());
+			titleView.setText(appDiancan.myRestaurant.getName()+"-"+order.getDesk().getName());
 		}
 		else{
-			titleView.setText(myRestaurant.getName());
+			titleView.setText(appDiancan.myRestaurant.getName());
 		}
 		
-		if(appDiancan.myOrder!=null&&appDiancan.myOrder.getRestaurant().getId()==myRestaurant.getId()){
+		if(appDiancan.myOrder!=null&&appDiancan.myOrder.getRestaurant().getId()==appDiancan.myRestaurant.getId()){
 			mItemDic = appDiancan.myOrderHelper.getOrderItemDic();
 		}
 		else{
@@ -430,6 +529,11 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		arrayAdapter.notifyDataSetChanged();
 	}
 	
+	private void toTableCodePage(){
+		Intent intent=new Intent(this,TableCodePage.class);
+        startActivity(intent);
+	}
+	
 	/**
 	 * 点击分类按钮展开或者关闭分类
 	 */
@@ -451,6 +555,19 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		int first = recipeListView.getFirstVisiblePosition();
 		View clickView = recipeListView.getChildAt(position - first);
 		return clickView;
+	}
+	
+	private void RecipeListViewPosition(final int position,final int offset){
+		recipeLayout.ToleftStart(0);
+		recipeListView.postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				recipeListView.smoothScrollToPositionFromTop(position,offset,400);
+				
+			}
+		}, 200);
 	}
 	
 	/**
@@ -505,14 +622,12 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		
 		Calendar cld = Calendar.getInstance();
 		
-//		if(cld.getTimeInMillis()-clicktime<TIME_MEASURE)
-//		{
-//			return;
-//		}
 		clicktime=cld.getTimeInMillis();
 		
 		if(appDiancan.myOrder==null){
 			ShowError("点菜前请您先开台！");
+			return;
+		}else if(appDiancan.myOrder.getRestaurant().getId()!=appDiancan.myRestaurant.getId()){
 			return;
 		}
 		
@@ -594,12 +709,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		
 		View clickView = GetClickItemView(position);
 		AdapterViewHolder viewHolder = (AdapterViewHolder)clickView.getTag();
-		
-//		if(myRestaurant.getOrderItemDic().indexOfKey(recipeId)<=-1){
-//			viewHolder.tvCount.setText("");
-//			viewHolder.imgdelete.setVisibility(View.GONE);
-//			return;
-//		}
+
 		if(orderItem.getCountNew()<=0){
 			viewHolder.tvCount.setText("");
 			viewHolder.imgdelete.setVisibility(View.GONE);
@@ -641,4 +751,56 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
         in.addCategory(Intent.CATEGORY_DEFAULT);
         this.sendBroadcast(in);      
     }
+  	
+  	@Override
+	public void SetListViewHeight(int count) {
+		// TODO Auto-generated method stub
+  		ViewGroup.LayoutParams params = searchListView.getLayoutParams(); 
+		if(editTextCount>0){
+			int height;
+			if(count<=6){
+				height = LayoutParams.WRAP_CONTENT;
+			}
+			else{
+				height = 6*searchitemHeight;
+			}
+			params.height = height;
+			searchListView.setLayoutParams(params);
+			if(searchListView.getVisibility()==View.GONE){
+				ExpandList(height);
+			}
+		}
+		else{
+			int height = 6*searchitemHeight;
+			params.height = height;
+			searchListView.setLayoutParams(params);
+			HideList(height);
+		}
+	}
+
+  	/***
+	 * 显示搜索结果
+	 */
+	public void ExpandList(int height)
+	{
+		searchListView.clearAnimation();
+		searchListView.setVisibility(View.VISIBLE);
+		Animation animation=new TranslateAnimation(0, 0, -height, 0);
+		animation.setDuration(300);
+		animation.setInterpolator(new OvershootInterpolator());
+		searchListView.startAnimation(animation);
+	}
+	
+	/***
+	 * 隐藏搜索结果
+	 */
+	public void HideList(int height)
+	{
+		searchListView.clearAnimation();
+		Animation animation=new TranslateAnimation(0, 0, 0, -height);
+		animation.setDuration(300);
+		animation.setInterpolator(new AccelerateInterpolator());
+		searchListView.startAnimation(animation);
+		searchListView.setVisibility(View.GONE);
+	}
 }

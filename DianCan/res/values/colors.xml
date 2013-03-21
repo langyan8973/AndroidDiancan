@@ -2,6 +2,10 @@
 <resources>
     <color name="green">#7700ff00</color>
     <color name="gray">#ff9a9a9a</color>
+    <color name="gold">#b89766</color>
+    <color name="orange">#FF6020</color>
+    <color name="trans_orange">#A9F95900</color>
+    <color name="translucent_white">#22ffffff</color>
     <color name="white">#ffffffff</color>
     <color name="red">#ffff0000</color>
     <color name="black">#ff000000</color>

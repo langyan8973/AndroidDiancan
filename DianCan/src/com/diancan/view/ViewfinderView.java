@@ -29,8 +29,11 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder rectangle and partial
@@ -107,27 +110,32 @@ public final class ViewfinderView extends View {
       int middle = frame.height() / 2 + frame.top;
       canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);
 
-      Collection<ResultPoint> currentPossible = possibleResultPoints;
-      Collection<ResultPoint> currentLast = lastPossibleResultPoints;
-      if (currentPossible.isEmpty()) {
-        lastPossibleResultPoints = null;
-      } else {
-        lastPossibleResultPoints = currentPossible;
-        paint.setAlpha(OPAQUE);
-        paint.setColor(resultPointColor);
-        for (ResultPoint point : currentPossible) {
-          canvas.drawCircle(frame.left + point.getX(), frame.top + point.getY(), 6.0f, paint);
-        }
-      }
-      if (currentLast != null) {
-        paint.setAlpha(OPAQUE / 2);
-        paint.setColor(resultPointColor);
-        for (ResultPoint point : currentLast) {
-          canvas.drawCircle(frame.left + point.getX(), frame.top + point.getY(), 3.0f, paint);
-        }
-      }
-
-      // Request another update at the animation interval, but only repaint the laser line,
+      try {
+			Collection<ResultPoint> currentPossible = possibleResultPoints;
+			Collection<ResultPoint> currentLast = lastPossibleResultPoints;
+			if (currentPossible.isEmpty()) {
+				lastPossibleResultPoints = null;
+			} else {
+				lastPossibleResultPoints = currentPossible;
+				paint.setAlpha(OPAQUE);
+				paint.setColor(resultPointColor);
+				for (ResultPoint point : currentPossible) {
+					canvas.drawCircle(frame.left + point.getX(),
+							frame.top + point.getY(), 6.0f, paint);
+				}
+			}
+			if (currentLast != null) {
+				paint.setAlpha(OPAQUE / 2);
+				paint.setColor(resultPointColor);
+				for (ResultPoint point : currentLast) {
+					canvas.drawCircle(frame.left + point.getX(),
+							frame.top + point.getY(), 3.0f, paint);
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	// Request another update at the animation interval, but only repaint the laser line,
       // not the entire viewfinder mask.
       postInvalidateDelayed(ANIMATION_DELAY, frame.left, frame.top, frame.right, frame.bottom);
     }

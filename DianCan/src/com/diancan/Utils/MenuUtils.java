@@ -19,6 +19,7 @@ import com.diancan.model.AllDomain;
 import com.diancan.model.Category;
 import com.diancan.model.Desk;
 import com.diancan.model.DeskType;
+import com.diancan.model.History;
 import com.diancan.model.Recipe;
 import com.diancan.model.Restaurant;
 import com.google.gson.Gson;
@@ -48,9 +49,9 @@ public class MenuUtils {
 	 * 获取所有餐厅
 	 * @return
 	 */
-	public static List<Restaurant> getAllRestaurants(String udid){
+	public static List<Restaurant> getAllRestaurants(String udid,String Authorization){
 		String urlString=initUrl+"restaurants";
-		String jsonString=HttpDownloader.getString(urlString,udid);
+		String jsonString=HttpDownloader.getString(urlString,udid,Authorization);
 		Type objType=new TypeToken<List<Restaurant>>() {
 		}.getType();
 		Gson sGson=new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
@@ -65,9 +66,9 @@ public class MenuUtils {
 	 * @param y
 	 * @return
 	 */
-	public static List<Restaurant> getAround(String udid,double x,double y,double distance){
+	public static List<Restaurant> getAround(String udid,double x,double y,double distance,String Authorization){
 		String urlString=initUrl+"restaurants/around?x="+x+"&y="+y+"&distance="+distance;
-		String jsonString=HttpDownloader.getString(urlString,udid);
+		String jsonString=HttpDownloader.getString(urlString,udid,Authorization);
 		Type objType=new TypeToken<List<Restaurant>>() {
 		}.getType();
 		Gson sGson=new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
@@ -77,9 +78,9 @@ public class MenuUtils {
 	}
 
 	// 获取所有种类
-	public static List<Category> getAllCategory(int rid,String udid) {
+	public static List<Category> getAllCategory(int rid,String udid,String Authorization) {
 		String urlString = initUrl + "restaurants/"+rid+"/categories";
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 		System.out.println(jsonStr);
 
 		Type objType = new TypeToken<List<Category>>() {
@@ -91,10 +92,10 @@ public class MenuUtils {
 	}
 
 	// 获取某个种类的所有菜
-	public static List<Recipe> getRecipesByCategory(Integer id,String udid) {
+	public static List<Recipe> getRecipesByCategory(Integer id,String udid,String Authorization) {
 		String urlString = initUrl + "categories/" + id;
 
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 
 		Type objType = new TypeToken<List<Recipe>>() {
 		}.getType();
@@ -104,11 +105,11 @@ public class MenuUtils {
 		return infos;
 	}
 	
-	public static List<Recipe> getAllRecipes(int rid,String udid)
+	public static List<Recipe> getAllRecipes(int rid,String udid,String Authorization)
 	{
 		String urlString = initUrl + "restaurants/"+rid+"/recipes";
 
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 
 		Type objType = new TypeToken<List<Recipe>>() {
 		}.getType();
@@ -117,12 +118,25 @@ public class MenuUtils {
 		List<Recipe> infos = sGson.fromJson(jsonStr, objType);
 		return infos;
 	}
+	
+	public static List<History> getAllHistories(String udid,String Authorization){
+		String urlString = initUrl + "user/history";
+
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
+
+		Type objType = new TypeToken<List<History>>() {
+		}.getType();
+		Gson sGson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		List<History> infos = sGson.fromJson(jsonStr, objType);
+		return infos;
+	}
 
 	// 获取所有桌子
-	public static List<Desk> getAllDesks(String udid) {
+	public static List<Desk> getAllDesks(String udid,String Authorization) {
 		String urlString = initUrl + "desks";
 
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 
 		Type objType = new TypeToken<List<Desk>>() {
 		}.getType();
@@ -132,11 +146,11 @@ public class MenuUtils {
 		return infos;
 	}
 	//获取桌子分类
-	public static List<DeskType> getDeskTypes(String udid)
+	public static List<DeskType> getDeskTypes(String udid,String Authorization)
 	{
 		String urlString = initUrl + "desktypes";
 
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 
 		Type objType = new TypeToken<List<DeskType>>() {
 		}.getType();
@@ -146,11 +160,11 @@ public class MenuUtils {
 		return infos;
 	}
 	//获取分类桌子
-	public static List<Desk> getDesksByTid(int id,String udid)
+	public static List<Desk> getDesksByTid(int id,String udid,String Authorization)
 	{
 		String urlString = initUrl + "desktypes/"+id;
 
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 
 		Type objType = new TypeToken<List<Desk>>() {
 		}.getType();
@@ -160,12 +174,12 @@ public class MenuUtils {
 		return infos;
 	}
 
-	public static AllDomain DownloadMenusData(String strdate,String udid) {
+	public static AllDomain DownloadMenusData(String strdate,String udid,String Authorization) {
 		String urlString = initUrl + "all";
 		if (strdate != "") {
 			urlString += "/" + strdate;
 		}
-		String jsonStr = HttpDownloader.getString(urlString,udid);
+		String jsonStr = HttpDownloader.getString(urlString,udid,Authorization);
 		// System.out.println(jsonStr);
 
 		Type objType = new TypeToken<AllDomain>() {
@@ -188,43 +202,6 @@ public class MenuUtils {
 		}
 	}
 
-	public static void SaveMenuDatas(List<Recipe> infos) {
-		for (final Recipe recipe : infos) {
-			// executorService.submit(new Runnable() {
-			// public void run() {
-			// handler.post(new Runnable() {
-			// public void run() {
-			SaveMenuObj(recipe);
-			// }
-			// });
-			// }
-			// });
-		}
-	}
-
-	public static void SaveMenuObj(Recipe recipe) {
-		String filename = FileUtils._imgPathFile.getPath() + "/"
-				+ recipe.getImage();
-		File imgfile = new File(filename);
-		if (imgfile.exists()) {
-			imgfile.delete();
-		}
-		if (!imgfile.exists()) {
-			Bitmap bmp = HttpDownloader.getStream(initUrl + "recipes/"
-					+ recipe.getId());
-
-			try {
-				FileOutputStream out = new FileOutputStream(filename);
-				bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// recipe.setImffage(filename);
-		MenuDataHelper.InsertMenu(recipe);
-	}
 
 	public static void DeleteMenuObj(int id) {
 		Cursor cursor = MenuDataHelper.QueryMenusById(id);

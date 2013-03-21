@@ -41,7 +41,8 @@ public class RecipeListHttpHelper{
 				// TODO Auto-generated method stub
 				
 				try {
-					List<Category> categories=MenuUtils.getAllCategory(appDiancan.myRestaurant.getId(),appDiancan.udidString);
+					List<Category> categories=MenuUtils.getAllCategory(appDiancan.myRestaurant.getId(),
+							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					MyRestaurant myRestaurant=appDiancan.myRestaurant;
 					SparseArray<Category> caArray=new SparseArray<Category>();
 					myRestaurant.setCategoryDic(caArray);
@@ -72,7 +73,8 @@ public class RecipeListHttpHelper{
 				// TODO Auto-generated method stub
 				
 				try {
-					List<Recipe> recipes=MenuUtils.getAllRecipes(appDiancan.myRestaurant.getId(),appDiancan.udidString);
+					List<Recipe> recipes=MenuUtils.getAllRecipes(appDiancan.myRestaurant.getId(),
+							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					if(recipes==null){
 						String strnull="获取菜品失败！";
 						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,strnull).sendToTarget();
@@ -96,10 +98,10 @@ public class RecipeListHttpHelper{
 				// TODO Auto-generated method stub
 				
 				try {
-					MyRestaurant myRestaurant=appDiancan.myRestaurant;
 					
-					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+myRestaurant.getId()+"/orders/" +appDiancan.myOrder.getId(),
-							appDiancan.udidString);
+					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+
+					appDiancan.myOrder.getRestaurant().getId()+"/orders/" +appDiancan.myOrder.getId(),
+							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					if(resultString==null)
 					{
 						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"获取订单失败！").sendToTarget();
@@ -121,7 +123,6 @@ public class RecipeListHttpHelper{
 	public void Diancai(final int iid,final int count){
 		new Thread(){
             public void run(){
-            	MyRestaurant myRestaurant=appDiancan.myRestaurant;
             	//加减菜
         		JSONObject object = new JSONObject();
         		try {
@@ -130,8 +131,12 @@ public class RecipeListHttpHelper{
         		} catch (JSONException e) {
         		}		
         		try {
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, appDiancan.myOrder.getId(),
-        					myRestaurant.getId(), object,appDiancan.udidString);
+        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, 
+        					appDiancan.myOrder.getId(),
+        					appDiancan.myOrder.getRestaurant().getId(),
+        					object,
+        					appDiancan.udidString,
+        					appDiancan.accessToken.getAuthorization());
         			mHandler.obtainMessage(HttpHandler.POST_RECIPE_COUNT,resultString).sendToTarget();
         		} catch (ClientProtocolException e) {
         		} catch (JSONException e) {
@@ -156,8 +161,12 @@ public class RecipeListHttpHelper{
         		} catch (JSONException e) {
         		}		
         		try {
-        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, appDiancan.myOrder.getId(),
-        					myRestaurant.getId(), object,appDiancan.udidString);
+        			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, 
+        					appDiancan.myOrder.getId(),
+        					myRestaurant.getId(), 
+        					object,
+        					appDiancan.udidString,
+        					appDiancan.accessToken.getAuthorization());
         			mHandler.obtainMessage(HttpHandler.POST_RECIPE_COUNT_FROMBOOK,resultString).sendToTarget();
         		} catch (ClientProtocolException e) {
         		} catch (JSONException e) {
@@ -173,7 +182,6 @@ public class RecipeListHttpHelper{
 	public void DiancaiFormOrder(final int iid,final int count){
 		new Thread(){
             public void run(){
-            	MyRestaurant myRestaurant=appDiancan.myRestaurant;
             	//加减菜
         		JSONObject object = new JSONObject();
         		try {
@@ -183,7 +191,10 @@ public class RecipeListHttpHelper{
         		}		
         		try {
         			String resultString = HttpDownloader.alterRecipeCount(MenuUtils.initUrl, appDiancan.myOrder.getId(),
-        					myRestaurant.getId(), object,appDiancan.udidString);
+        					appDiancan.myOrder.getRestaurant().getId(),
+        					object,
+        					appDiancan.udidString,
+        					appDiancan.accessToken.getAuthorization());
         			mHandler.obtainMessage(HttpHandler.POST_RECIPE_COUNT_FROMORDER,resultString).sendToTarget();
         		} catch (ClientProtocolException e) {
         		} catch (JSONException e) {
@@ -203,9 +214,10 @@ public class RecipeListHttpHelper{
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					MyRestaurant myRestaurant=appDiancan.myRestaurant;
-					String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+myRestaurant.getId()+"/orders/" +appDiancan.myOrder.getId(),
-							appDiancan.udidString);
+					String jsonString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+appDiancan.myOrder.getRestaurant().getId()
+							+"/orders/" +appDiancan.myOrder.getId(),
+							appDiancan.udidString,
+							appDiancan.accessToken.getAuthorization());
 					mHandler.obtainMessage(HttpHandler.REFRESH_ORDER,jsonString).sendToTarget();
 				} catch (Throwable e) {
 					// TODO Auto-generated catch block
@@ -224,9 +236,10 @@ public class RecipeListHttpHelper{
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					MyRestaurant myRestaurant=appDiancan.myRestaurant;
-					String urlString=MenuUtils.initUrl+"restaurants/"+appDiancan.myRestaurant.getId()+"/orders/"+appDiancan.myOrder.getId()+"/tocheck";
-					String jsString = HttpDownloader.RequestFinally(urlString,appDiancan.udidString);
+					String urlString=MenuUtils.initUrl+"restaurants/"+appDiancan.myOrder.getRestaurant().getId()
+							+"/orders/"+appDiancan.myOrder.getId()+"/tocheck";
+					String jsString = HttpDownloader.RequestFinally(urlString,appDiancan.udidString,
+							appDiancan.accessToken.getAuthorization());
 					mHandler.obtainMessage(HttpHandler.CHECK_ORDER,jsString).sendToTarget();
 				} catch (ClientProtocolException e) {
 					// TODO Auto-generated catch block
@@ -252,9 +265,10 @@ public class RecipeListHttpHelper{
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					MyRestaurant myRestaurant=appDiancan.myRestaurant;
-					String urlString=MenuUtils.initUrl+"restaurants/"+appDiancan.myRestaurant.getId()+"/orders/"+appDiancan.myOrder.getId()+"/deposit";
-					String jsString = HttpDownloader.RequestFinally(urlString,appDiancan.udidString);
+					String urlString=MenuUtils.initUrl+"restaurants/"+appDiancan.myOrder.getRestaurant().getId()
+							+"/orders/"+appDiancan.myOrder.getId()+"/deposit";
+					String jsString = HttpDownloader.RequestFinally(urlString,appDiancan.udidString,
+							appDiancan.accessToken.getAuthorization());
 					mHandler.obtainMessage(HttpHandler.DEPOSIT_ORDER,jsString).sendToTarget();
 				} catch (ClientProtocolException e) {
 					// TODO Auto-generated catch block

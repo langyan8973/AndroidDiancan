@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.diancan.Utils.FileUtils;
 import com.diancan.model.Category;
 import com.diancan.model.Desk;
+import com.diancan.model.HisRestaurant;
 import com.diancan.model.Recipe;
 public class MenuDataHelper {
 	
@@ -28,10 +29,7 @@ public class MenuDataHelper {
 	public static boolean CreateMenusTable()
 	{
 		try{
-			_menusdb.execSQL("create table category(id varchar(20),name varchar(20),image varchar(200),description varchar(200))");
-			_menusdb.execSQL("create table recipe(id varchar(20),cid varchar(20),name varchar(20),description varchar(200),price Number,image varchar(200))");
-			_menusdb.execSQL("create table desk(id varchar(20),name varchar(20),capacity Number,description varchar(200))");
-			_menusdb.execSQL("create table updatetime(time varchar(50))");
+			_menusdb.execSQL("create table histories(id number,rid number,rname varchar(40),time varchar(40))");
 			return true;
 		}catch(Exception e)
 		{
@@ -67,6 +65,16 @@ public class MenuDataHelper {
 		values.put("description", category.getDescription());
 
 		_menusdb.insert("category", null, values);
+	}
+	
+	public static void insertHisRestaurant(HisRestaurant hisRestaurant){
+		ContentValues values = new ContentValues();
+
+		values.put("rid", hisRestaurant.getRid());
+		values.put("rname",hisRestaurant.getRname());
+		values.put("time", hisRestaurant.getTime());
+
+		_menusdb.insert("histories", null, values);
 	}
 	
 	public static void DeleteCategory(){
@@ -107,7 +115,6 @@ public class MenuDataHelper {
 	
 	public static Cursor QueryMenus()
 	{
-//		Cursor cursor = _menusdb.query("menus", new String[]{"id","name","mark","src"}, "1=1", new String[]{"1"}, null, null, null);
 		Cursor cursor =_menusdb.rawQuery("SELECT * FROM recipe", null);
 		return cursor;
 	}

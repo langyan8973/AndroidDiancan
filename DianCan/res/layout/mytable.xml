@@ -25,13 +25,24 @@
 		      android:indeterminateDrawable="@drawable/progressbar"
 		      style="?android:attr/progressBarStyleSmall">
 		</ProgressBar>
-        <TextView 
-		    android:gravity="center" 
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="fill_parent"
 		    android:layout_centerInParent="true"
-		    style="@style/Widget.TextView.Title"
-		    android:id="@+id/sumText"/>
+		    android:gravity="center_vertical|center_horizontal"
+		    android:orientation="vertical"
+		    >
+		    <TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    style="@style/Widget.TextView.Title"
+			    android:id="@+id/sumText"/>
+		    <TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    style="@style/Widget.TextView.Title.sub"
+			    android:id="@+id/countNew"/>
+		</LinearLayout>
         
         <Button android:id="@+id/BtnFlash" 
 		    android:layout_width="30dip" 

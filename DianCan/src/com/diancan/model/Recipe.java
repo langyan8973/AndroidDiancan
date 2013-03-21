@@ -15,6 +15,7 @@ public class Recipe implements java.io.Serializable {
 	private String image;
 	private String cname;
 	private Integer price;
+	private String pinyin;
 
 	public Recipe() {
 	}
@@ -82,6 +83,21 @@ public class Recipe implements java.io.Serializable {
 
 	public void setPrice(Integer price) {
 		this.price = price;
+	}
+
+	public String getPinyin() {
+		return pinyin;
+	}
+
+	public void setPinyin(String pinyin) {
+		this.pinyin = pinyin;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		String str = name+"**"+pinyin;
+		return str;
 	}
 
 }

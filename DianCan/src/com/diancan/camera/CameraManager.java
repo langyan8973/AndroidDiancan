@@ -16,6 +16,7 @@
 
 package com.diancan.camera;
 
+import android.R.integer;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
@@ -30,6 +31,8 @@ import android.view.SurfaceHolder;
 
 
 import java.io.IOException;
+
+import com.diancan.R;
 
 /**
  * This object wraps the Camera service object and expects to be the only one talking to it. The
@@ -69,6 +72,7 @@ public final class CameraManager {
   private boolean initialized;
   private boolean previewing;
   private final boolean useOneShotPreviewCallback;
+  int topheight,tabheight;
   /**
    * Preview frames are delivered here, which we pass on to the registered handler. Make sure to
    * clear the handler so it will only receive one message.
@@ -101,7 +105,7 @@ public final class CameraManager {
 
     this.context = context;
     this.configManager = new CameraConfigurationManager(context);
-
+    
     // Camera.setOneShotPreviewCallback() has a race condition in Cupcake, so we use the older
     // Camera.setPreviewCallback() on 1.5 and earlier. For Donut and later, we need to use
     // the more efficient one shot callback, as the older one can swamp the system and cause it
@@ -111,6 +115,8 @@ public final class CameraManager {
 
     previewCallback = new PreviewCallback(configManager, useOneShotPreviewCallback);
     autoFocusCallback = new AutoFocusCallback();
+    topheight = (int)context.getResources().getDimension(R.dimen.topbar_height);
+	tabheight = (int)context.getResources().getDimension(R.dimen.tabbar_height);
   }
 
   /**
@@ -219,6 +225,7 @@ public final class CameraManager {
    * @return The rectangle to draw on screen in window coordinates.
    */
   public Rect getFramingRect() {
+	
     Point screenResolution = configManager.getScreenResolution();
     if (framingRect == null) {
       if (camera == null) {
@@ -237,7 +244,7 @@ public final class CameraManager {
         height = MAX_FRAME_HEIGHT;
       }
       int leftOffset = (screenResolution.x - width) / 2;
-      int topOffset = (screenResolution.y - height) / 2;
+      int topOffset = (screenResolution.y - height) / 2-topheight-tabheight;
       framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
       Log.d(TAG, "Calculated framing rect: " + framingRect);
     }

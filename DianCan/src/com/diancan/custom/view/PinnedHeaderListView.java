@@ -16,82 +16,49 @@
 
 package com.diancan.custom.view;
 
-import com.diancan.Utils.DisplayUtil;
-import com.diancan.gesture.BuileGestureExt;
-
-import android.R.bool;
-import android.R.integer;
+import java.util.Date;
+import com.diancan.R;
+import com.diancan.custom.adapter.PinnedHeaderAdapter;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.AbsListView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.AbsListView.OnScrollListener;
 
 /**
  * A ListView that maintains a header pinned at the top of the list. The
  * pinned header can be pushed up and dissolved as needed.
  */
-public class PinnedHeaderListView extends ListView {
-
+public class PinnedHeaderListView extends ListView implements OnScrollListener {
+	private static final String TAG = "PinnedHeaderListView";
     /**
-     * Adapter interface.  The list adapter must implement this interface.
+     * 分组列表分组功能所用的一些成员变量
      */
-    public interface PinnedHeaderAdapter {
-
-        /**
-         * Pinned header state: don't show the header.
-         */
-        public static final int PINNED_HEADER_GONE = 0;
-
-        /**
-         * Pinned header state: show the header at the top of the list.
-         */
-        public static final int PINNED_HEADER_VISIBLE = 1;
-
-        /**
-         * Pinned header state: show the header. If the header extends beyond
-         * the bottom of the first shown element, push it up and clip.
-         */
-        public static final int PINNED_HEADER_PUSHED_UP = 2;
-
-        /**
-         * Computes the desired state of the pinned header for the given
-         * position of the first visible list item. Allowed return values are
-         * {@link #PINNED_HEADER_GONE}, {@link #PINNED_HEADER_VISIBLE} or
-         * {@link #PINNED_HEADER_PUSHED_UP}.
-         */
-        int getPinnedHeaderState(int position);
-
-        /**
-         * Configures the pinned header view to match the first visible list item.
-         *
-         * @param header pinned header view.
-         * @param position position of the first visible list item.
-         * @param alpha fading of the header view, between 0 and 255.
-         */
-        void configurePinnedHeader(View header, int position, int alpha);
-    }
-
     private static final int MAX_ALPHA = 255;
-
     private PinnedHeaderAdapter mAdapter;
     private View mHeaderView;
     private boolean mHeaderViewVisible;
+    //控制其可滑动的状态
     private boolean mEnableTouch;
-
     private int mHeaderViewWidth;
-
     private int mHeaderViewHeight;
-    
     public Context mContext;
-    
     public int mItemCount;
-    
     public PositionScroller mPositionScroller;
     
     
@@ -109,6 +76,7 @@ public class PinnedHeaderListView extends ListView {
         super(context, attrs, defStyle);
         mContext = context;
     }
+    
 
     public void setPinnedHeaderView(View view) {
         mHeaderView = view;
@@ -161,7 +129,6 @@ public class PinnedHeaderListView extends ListView {
         if (mHeaderView == null) {
             return;
         }
-//        System.out.println("postion"+position);
         int state = mAdapter.getPinnedHeaderState(position);
         switch (state) {
             case PinnedHeaderAdapter.PINNED_HEADER_GONE: {
@@ -181,7 +148,6 @@ public class PinnedHeaderListView extends ListView {
             case PinnedHeaderAdapter.PINNED_HEADER_PUSHED_UP: {
                 View firstView = getChildAt(0);
                 int bottom = firstView.getBottom();
-//                int itemHeight = firstView.getHeight();
                 int headerHeight = mHeaderView.getHeight();
                 int y;
                 int alpha;
@@ -210,8 +176,6 @@ public class PinnedHeaderListView extends ListView {
         }
     }
     
-    
-    
     @Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		// TODO Auto-generated method stub
@@ -225,15 +189,29 @@ public class PinnedHeaderListView extends ListView {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
+	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
     	
     	if(!mEnableTouch){
     		return false;
     	}
     	else{
-    		return super.onTouchEvent(ev);
+
+    		return super.onTouchEvent(event);
     	}
+	}
+	
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem,
+			int visibleItemCount, int totalItemCount) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void smoothScrollToPositionFromTop(int position, int offset, int duration) {
@@ -572,4 +550,5 @@ public class PinnedHeaderListView extends ListView {
             }
         }
     }
+
 }

@@ -44,4 +44,9 @@
     <string name="give_me_code">请向服务员索要邀请码</string>
     <string name="commit_order">下单</string>
     <string name="commitstr">本次提交</string>
+    <string name="searchrecipe">输入菜名</string>
+    <string name="search">搜索</string>
+    <string name="countnewinfo">例未下单</string>
+    <string name="historys">历史订单</string>
+    <string name="userset">用户中心</string>
 </resources>

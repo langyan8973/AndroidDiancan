@@ -22,6 +22,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,7 +50,32 @@ public class TableCodePage extends Activity implements OnClickListener {
 		cancelBtn = (Button)findViewById(R.id.dialog_button_cancel);
 		cancelBtn.setOnClickListener(this);
 		declare=(AppDiancan)getApplicationContext();
-		PopInputMethod();
+		
+		final LinearLayout dialogLayout = (LinearLayout)findViewById(R.id.dialogLayout);
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.activity_in);
+		animation.setInterpolator(new OvershootInterpolator());
+		animation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				dialogLayout.clearAnimation();
+				PopInputMethod();
+			}
+		});
+		dialogLayout.startAnimation(animation);
 	}
 	
 	/**
@@ -74,7 +103,7 @@ public class TableCodePage extends Activity implements OnClickListener {
 	{
 		try {
 			String resultString = HttpDownloader.GetOrderByCode(MenuUtils.initUrl+"restaurants/"+declare.myRestaurant.getId()+"/orders/code/"+codeString,
-					declare.udidString);
+					declare.udidString,declare.accessToken.getAuthorization());
 			
 			final Order order=JsonUtils.ParseJsonToOrder(resultString);
 			declare.myOrder=order;

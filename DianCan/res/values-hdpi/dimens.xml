@@ -3,4 +3,8 @@
     <dimen name="toplayout_width">320dip</dimen>
     <dimen name="categorylist_width">205dip</dimen>
     <dimen name="shadow_paddingRight">320dip</dimen>
+    <dimen name="weibosdk_dialog_left_margin">30dp</dimen>
+    <dimen name="weibosdk_dialog_top_margin">30dp</dimen>
+    <dimen name="weibosdk_dialog_right_margin">30dp</dimen>
+	<dimen name="weibosdk_dialog_bottom_margin">15dp</dimen>
 </resources>

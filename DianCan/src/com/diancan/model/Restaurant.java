@@ -12,6 +12,7 @@ public class Restaurant implements java.io.Serializable {
 	String address;
 	String telephone;
 	String image;
+	String pinyin;
 	int status;
 	float x;
 	float y;
@@ -83,7 +84,21 @@ public class Restaurant implements java.io.Serializable {
 	public void setImage(String image) {
 		this.image = image;
 	}
-	
+
+	public String getPinyin() {
+		return pinyin;
+	}
+
+	public void setPinyin(String pinyin) {
+		this.pinyin = pinyin;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		String str = name+"**"+pinyin;
+		return str;
+	}
 	
 	
 }

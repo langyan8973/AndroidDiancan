@@ -7,8 +7,8 @@ import com.diancan.R;
 import com.diancan.RecipeList.StandardArrayAdapter;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.custom.adapter.AdapterCategoryList;
+import com.diancan.custom.adapter.PinnedHeaderAdapter;
 import com.diancan.custom.view.PinnedHeaderListView;
-import com.diancan.custom.view.PinnedHeaderListView.PinnedHeaderAdapter;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.OrderItem;
 
@@ -100,8 +100,6 @@ public class SectionListAdapter implements ListAdapter,
     
 
     private final StandardArrayAdapter linkedAdapter;
-//    private final Map<Integer, String> sectionPositions = new LinkedHashMap<Integer, String>();
-//    private final Map<Integer, Integer> itemPositions = new LinkedHashMap<Integer, Integer>();
     private final Map<String, View> currentViewSections = new HashMap<String, View>();
     private int viewTypeCount;
     protected final LayoutInflater inflater;
@@ -253,108 +251,71 @@ public class SectionListAdapter implements ListAdapter,
         if (view == null) {
         	viewHolder = new AdapterViewHolder();
             view = inflater.inflate(R.layout.section_list_item, null);
-            if (currentItem != null) {
-            	final TextView header = (TextView) view.findViewById(R.id.header);
-            	viewHolder.header=header;
-            	if (header != null) {
-            		header.setText(currentItem.section);
-            	}
-            	
-            	ImageView imgrecipe=(ImageView)view.findViewById(R.id.img);
-            	viewHolder.imgrecipe=imgrecipe;
-    			TextView tvTitle=(TextView)view.findViewById(R.id.title);
-    			viewHolder.tvTitle=tvTitle;
-    			TextView tvPrice=(TextView)view.findViewById(R.id.price);
-    			viewHolder.tvPrice=tvPrice;
-    			TextView tvCount=(TextView)view.findViewById(R.id.count);
-    			viewHolder.tvCount=tvCount;
-    			ImageView imgdelete=(ImageView)view.findViewById(R.id.jianhao);
-    			viewHolder.imgdelete=imgdelete;
-    			ImageView imgadd=(ImageView)view.findViewById(R.id.jiahao);
-    			viewHolder.imgadd=imgadd;
-    			
-    			OrderItem orderItem=(OrderItem)currentItem.item;
-    	        String strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
-    	        imageDownloader.download(strUrl, imgrecipe);
-    	        tvTitle.setText(orderItem.getRecipe().getName());
-    	        tvPrice.setText(orderItem.getRecipe().getPrice().toString());
-    	        imgrecipe.setTag(position);
-    	        imgadd.setTag(position);
-    	        imgdelete.setTag(position);
-    	        imgrecipe.setOnClickListener(viewClickListener);
-    	        imgadd.setOnClickListener(viewClickListener);
-    	        imgdelete.setOnClickListener(viewClickListener);
-    	        
-    	        if(orderItem.GetCount()>0){
-    	        	tvCount.setText(orderItem.GetCount() + "");  
-    	        	if(orderItem.getCountNew()>0){
-    	        		imgdelete.setVisibility(View.VISIBLE);
-    	        	}
-    	        	else{
-    	        		imgdelete.setVisibility(View.GONE);
-    	        	}
-    	        }
-    	        else{
-    	        	
-    	        	imgdelete.setVisibility(View.GONE);
-    	        	tvCount.setText("");
-    	        }
-                
-                
-    			int section = getSectionForPosition(position);
-    			int s2=getPositionForSection(section);
-    			viewHolder.headerView=view.findViewById(R.id.header_parent);
-                if (s2 == position){
-                	viewHolder.headerView.setVisibility(View.VISIBLE);
-                	header.setVisibility(View.VISIBLE);
-            	} else {
-            		viewHolder.headerView.setVisibility(View.GONE);
-            		header.setVisibility(View.GONE);
-            	}
-                view.setTag(viewHolder);
-            }
+            TextView header = (TextView) view.findViewById(R.id.header);
+            viewHolder.header=header;
+            ImageView imgrecipe=(ImageView)view.findViewById(R.id.img);
+            viewHolder.imgrecipe=imgrecipe;
+            TextView tvTitle=(TextView)view.findViewById(R.id.title);
+            viewHolder.tvTitle=tvTitle;
+            TextView tvPrice=(TextView)view.findViewById(R.id.price);
+            viewHolder.tvPrice=tvPrice;
+            TextView tvCount=(TextView)view.findViewById(R.id.count);
+            viewHolder.tvCount=tvCount;
+            ImageView imgdelete=(ImageView)view.findViewById(R.id.jianhao);
+            viewHolder.imgdelete=imgdelete;
+            ImageView imgadd=(ImageView)view.findViewById(R.id.jiahao);
+            viewHolder.imgadd=imgadd;
+            viewHolder.headerView=view.findViewById(R.id.header_parent);
+            view.setTag(viewHolder);
         }
         else {
 			viewHolder=(AdapterViewHolder)view.getTag();
-			if (currentItem != null) {//to set every item's text
-            	viewHolder.header.setText(currentItem.section);
-    			OrderItem orderItem=(OrderItem)currentItem.item;
-    	        String strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
-    	        imageDownloader.download(strUrl, viewHolder.imgrecipe);
-    	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
-    	        viewHolder.tvPrice.setText(orderItem.getRecipe().getPrice().toString());
-    	        viewHolder.imgrecipe.setTag(position);
-    	        viewHolder.imgdelete.setTag(position);
-    	        viewHolder.imgadd.setTag(position);
-    	        viewHolder.imgrecipe.setOnClickListener(viewClickListener);
-    	        viewHolder.imgadd.setOnClickListener(viewClickListener);
-    	        viewHolder.imgdelete.setOnClickListener(viewClickListener);
-    	        
-    	        if(orderItem.GetCount()>0){
-    	        	viewHolder.tvCount.setText(orderItem.GetCount() + "");
-    	        	if(orderItem.getCountNew()>0){
-    	        		viewHolder.imgdelete.setVisibility(View.VISIBLE);
-    	        	}
-    	        	else{
-    	        		viewHolder.imgdelete.setVisibility(View.GONE);
-    	        	}
-    	        }
-    	        else{
-    	        	viewHolder.imgdelete.setVisibility(View.GONE);
-    	        	viewHolder.tvCount.setText("");
-    	        }
-                
-    			int section = getSectionForPosition(position);
-    			int s2=getPositionForSection(section);
-                if (s2 == position){
-                	viewHolder.headerView.setVisibility(View.VISIBLE);
-                	viewHolder.header.setVisibility(View.VISIBLE);
-            	} else {
-            		viewHolder.headerView.setVisibility(View.GONE);
-            		viewHolder.header.setVisibility(View.GONE);
-            	}
-            }
 		}
+        
+        if (currentItem != null) {
+        	viewHolder.header.setText(currentItem.section);
+			OrderItem orderItem=(OrderItem)currentItem.item;
+			String strUrl;
+			if(orderItem.getRecipe().getImage()==null){
+				strUrl=null;
+			}
+			else{
+				strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+orderItem.getRecipe().getImage();
+			}
+	        imageDownloader.download(strUrl, viewHolder.imgrecipe);
+	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
+	        viewHolder.tvPrice.setText("￥"+orderItem.getRecipe().getPrice().toString());
+	        viewHolder.imgrecipe.setTag(position);
+	        viewHolder.imgdelete.setTag(position);
+	        viewHolder.imgadd.setTag(position);
+	        viewHolder.imgrecipe.setOnClickListener(viewClickListener);
+	        viewHolder.imgadd.setOnClickListener(viewClickListener);
+	        viewHolder.imgdelete.setOnClickListener(viewClickListener);
+	        
+	        if(orderItem.GetCount()>0){
+	        	viewHolder.tvCount.setText(orderItem.GetCount() + "");
+	        	if(orderItem.getCountNew()>0){
+	        		viewHolder.imgdelete.setVisibility(View.VISIBLE);
+	        	}
+	        	else{
+	        		viewHolder.imgdelete.setVisibility(View.GONE);
+	        	}
+	        }
+	        else{
+	        	viewHolder.imgdelete.setVisibility(View.GONE);
+	        	viewHolder.tvCount.setText("");
+	        }
+            
+			int section = getSectionForPosition(position);
+			int s2=getPositionForSection(section);
+            if (s2 == position){
+            	viewHolder.headerView.setVisibility(View.VISIBLE);
+            	viewHolder.header.setVisibility(View.VISIBLE);
+        	} else {
+        		viewHolder.headerView.setVisibility(View.GONE);
+        		viewHolder.header.setVisibility(View.GONE);
+        	}
+        }
         
         return view;
     }

@@ -10,6 +10,7 @@ import java.util.List;
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 
+import com.SqlLiteDB.MenuDataHelper;
 import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
 import com.diancan.Utils.DisplayUtil;
@@ -29,6 +30,7 @@ import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 import com.diancan.model.Recipe;
 import com.diancan.model.Restaurant;
+import com.weibo.sdk.android.keep.AccessTokenKeeper;
 
 import android.R.integer;
 import android.R.string;
@@ -42,6 +44,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -56,6 +59,7 @@ public class InitPage extends Activity implements HttpCallback {
 	private HttpHandler httpHandler;
 	private RecipeListHttpHelper recipeListHttpHelper;
 	private AppDiancan appDiancan;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -84,24 +88,31 @@ public class InitPage extends Activity implements HttpCallback {
   		appDiancan=(AppDiancan)getApplicationContext();       
         recipeListHttpHelper = new RecipeListHttpHelper(this, appDiancan);
         
+       
         FileUtils.cacheDir  = new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/MenuImg/");
         if (!FileUtils.cacheDir.exists()) {
 			FileUtils.cacheDir.mkdirs();
 		}
-        HttpDownloader.mImageFileCache = new ImageFileCache();
         
+        createDatabase();
+        
+        HttpDownloader.mImageFileCache = new ImageFileCache();
         MenuUtils.initUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.imageUrl="http://"+getResources().getString(R.string.image_service);
         HttpDownloader.enableHttpResponseCache();
+        
         SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
         String deviceString = deviceInfo.getString("udid", "");
         if(TextUtils.isEmpty(deviceString))
         {
+        	
         	deviceString =  JPushInterface.getUdid(getApplicationContext());
         	deviceInfo.edit().putString("udid",deviceString).commit();
         	RegisterUdid(deviceString);
         }
         appDiancan.udidString=deviceString;
+        appDiancan.accessToken = AccessTokenKeeper.readAccessToken(this);
+        
         // 设置通知样式
       	BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
       	builder.statusBarDrawable = R.drawable.notification_icon;
@@ -152,12 +163,6 @@ public class InitPage extends Activity implements HttpCallback {
 			ToMain();
 			break;
 		}
-//		if(msg.what==HttpHandler.START_MAIN){
-//			ToMain();
-//		}
-//		if(msg.what == httpHandler.REQUEST_ALLCATEGORY){
-//			Sleep();
-//		}
 	}
 
 	@Override
@@ -213,7 +218,8 @@ public class InitPage extends Activity implements HttpCallback {
 				// TODO Auto-generated method stub
 				
 				try {
-					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+rid+"/orders/" +oid,udidString);
+					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+rid+"/orders/" +oid,
+							udidString,appDiancan.accessToken.getAuthorization());
 					if(resultString==null)
 					{
 						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"获取订单失败！").sendToTarget();
@@ -239,7 +245,8 @@ public class InitPage extends Activity implements HttpCallback {
 				// TODO Auto-generated method stub
 				
 				try {
-					List<Category> categories=MenuUtils.getAllCategory(rid,appDiancan.udidString);
+					List<Category> categories=MenuUtils.getAllCategory(rid,appDiancan.udidString,
+							appDiancan.accessToken.getAuthorization());
 					SparseArray<Category> caArray=new SparseArray<Category>();
 					Iterator<Category> iterator;
 					for(iterator=categories.iterator();iterator.hasNext();){
@@ -252,6 +259,25 @@ public class InitPage extends Activity implements HttpCallback {
 					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
 				}
 				
+			}
+		}).start();
+	}
+	
+	public void createDatabase(){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				FileUtils._dbPathFile=new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/Database");
+			    FileUtils._dbFileFile=new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/Database/taochike.db");
+			    if(!FileUtils._dbFileFile.exists())
+				{
+		        	FileUtils.Createdbfile();
+		        	MenuDataHelper.OpenDatabase();
+		        	MenuDataHelper.CreateMenusTable();
+		        	MenuDataHelper.CloseDatabase();
+				}
 			}
 		}).start();
 	}

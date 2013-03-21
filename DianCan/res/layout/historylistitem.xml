@@ -1,20 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="60px">
-    <TextView android:id="@+id/txtDate" 
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignParentLeft="true"
-         android:layout_centerVertical="true"
-         android:textColor="#FF090909"
-         android:textSize="20sp"/>
-    
-     <TextView android:id="@+id/txtSum" 
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignParentRight="true"
-         android:layout_centerVertical="true"
-         android:textColor="#FF090909"
-         android:textSize="15sp"/>
-</RelativeLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content"
+    style="@style/Widget.Layout.HistoryItemVLayout"  	>
+    <TextView 
+        android:id="@+id/his_r_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.TextView.Title.Item"
+        />
+    <LinearLayout 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:orientation="horizontal"
+        android:paddingLeft="10.0dip" 
+        android:paddingRight="10.0dip"
+        >
+        <TextView android:textAppearance="?android:textAppearanceMedium"
+             android:id="@+id/tv_money" 
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:paddingLeft="10dip"
+             android:textColor="@color/sbc_snippet_text"
+              />
+        <TextView android:id="@+id/tv_number" 
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content" 
+            android:paddingLeft="10dip"
+            android:textColor="@color/sbc_snippet_text"
+             />
+        <TextView android:id="@+id/tv_time" 
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content" 
+            android:paddingLeft="10dip"
+            android:textColor="@color/sbc_snippet_text"
+            />
+    </LinearLayout>
+</LinearLayout>

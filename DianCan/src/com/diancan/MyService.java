@@ -8,9 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -167,10 +171,14 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
 				dialog.dismiss();
 			}
 		});
-        titleView.setText("结账：￥"+(declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm())+"元");
+        double totalprice = declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm();
+        titleView.setText("结账：￥"+totalprice+"元");
         contentView.setText(contentString);
+        contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
         dialog.show();
-		
+		Animation animation = AnimationUtils.loadAnimation(MyService.this, R.anim.activity_in);
+		animation.setInterpolator(new OvershootInterpolator());
+		layout.startAnimation(animation);
 	}
   	
   	private void ParseOrderRefresh(String jsString){
@@ -182,6 +190,9 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
     	declare.myOrder = order;
 		declare.myOrderHelper.SetOrderAndItemDic(order);
 		if(order.getStatus()==3 || order.getStatus()==4){
+			declare.myOrder = null;
+			declare.myOrderHelper = null;
+			MenuGroup.isChecked = true;
 			SendSetCountMessage();
 			TabActivity main = (TabActivity)this.getParent();
 			main.getTabHost().setCurrentTab(0);

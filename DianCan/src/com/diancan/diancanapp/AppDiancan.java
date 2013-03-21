@@ -12,6 +12,7 @@ import com.diancan.model.History;
 import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
+import com.weibo.sdk.android.Oauth2AccessToken;
 
 import android.app.Application;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 public class AppDiancan extends Application {
 	public String udidString;
+	public Oauth2AccessToken accessToken;
 	public MyRestaurant myRestaurant;
 	public Order myOrder;
 	public OrderHelper myOrderHelper;
