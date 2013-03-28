@@ -38,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class HistoryList extends Activity implements OnClickListener,OnItemClickListener,
@@ -45,8 +46,10 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
 	AppDiancan appDiancan;
 	Button btnBack;
 	PinnedHeaderListView historyListView;
+	ProgressBar mProgressBar;
 	HttpHandler mHandler;
 	List<History> mHistories;
+	ArrayList<String> idStrings;
 	
 	public class MyStandardArrayAdapter extends ArrayAdapter<SectionListItem> {
 
@@ -70,6 +73,7 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
 		btnBack.setOnClickListener(this);
 		historyListView = (PinnedHeaderListView)findViewById(R.id.historyList);
 		historyListView.setOnItemClickListener(this);
+		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
 		
 		mHandler = new HttpHandler(this);
 		RequestAllHistorys();
@@ -89,11 +93,12 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub
-		
+		ToHistoryPage(arg2);
 	}
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
+		mProgressBar.setVisibility(View.GONE);
 		switch(msg.what) {  
         case HttpHandler.REQUEST_ALLHISTORY:
         	mHistories = (List<History>)msg.obj;
@@ -104,6 +109,7 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
 	@Override
 	public void RequestError(String errString) {
 		// TODO Auto-generated method stub
+		mProgressBar.setVisibility(View.GONE);
 		ShowError(errString);
 	}
 	
@@ -120,6 +126,7 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
      * 发送请求获取所有历史订单
      */
     private void RequestAllHistorys(){
+    	mProgressBar.setVisibility(View.VISIBLE);
     	new Thread(new Runnable() {
 			
 			@Override
@@ -140,16 +147,20 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
     }
     
     private void DisplayHistories(){
-    	
+    	idStrings = new ArrayList<String>();
     	MyStandardArrayAdapter arrayAdapter;
     	HistoriesAdapter sectionAdapter;
         List<SectionListItem> exampleArray =new ArrayList<SectionListItem>();
         Date curDate = new Date(System.currentTimeMillis());
+        if(mHistories==null||mHistories.size()<=0){
+        	return;
+        }
         Iterator<History> iterator;
         for(iterator = mHistories.iterator();iterator.hasNext();){
         	History history = iterator.next();
         	String section = MyDateUtils.getWeekString(curDate, history.getTime());
         	exampleArray.add(new SectionListItem(history, section));
+        	idStrings.add(history.toString());
         }
         
         arrayAdapter = new MyStandardArrayAdapter(this,R.id.his_r_name,exampleArray);
@@ -187,4 +198,33 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
         view.setLayoutParams(params);
         view.startAnimation(animation);
 	}
+  	
+  	/**
+  	 * 跳到历史订单页面
+  	 */
+  	private void ToHistoryPage(int index){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_left_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
+		Intent in = new Intent(this.getParent(), HistoryPage.class);
+		in.putExtra("index", index);
+		in.putStringArrayListExtra("ids", idStrings);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_HISTORYPAGE, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+  	}
 }

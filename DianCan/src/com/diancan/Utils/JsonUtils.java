@@ -1,11 +1,14 @@
 package com.diancan.Utils;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Set;
 
 import com.diancan.model.History;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
+import com.diancan.model.city;
+import com.diancan.model.favorite;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -61,5 +64,35 @@ public class JsonUtils {
 			e.printStackTrace();
 		}
 		return orderItems;
+	}
+	
+	public static List<city> parseJsonTocities(String jsonString){
+		Type objType=new TypeToken<List<city>>() {
+		}.getType();
+		Gson sGson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		List<city> cities=null;
+		try {
+			cities = sGson.fromJson(jsonString, objType);
+		} catch (JsonSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return cities;
+	}
+	
+	public static favorite parseJsonToFavorite(String jsonString){
+		Type objType=new TypeToken<favorite>() {
+		}.getType();
+		Gson sGson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:SS")
+				.create();
+		favorite f=null;
+		try {
+			f = sGson.fromJson(jsonString, objType);
+		} catch (JsonSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return f;
 	}
 }

@@ -2,84 +2,86 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/Widget.Layout.DefaultPageVLayout"
+    style="@style/Widget.Layout.MainFirstVLayout"
      >
-    <RelativeLayout 
-	    android:layout_width="fill_parent" 
-	    android:layout_height="@dimen/topbar_height"
-	    style="@style/Widget.Layout.TitleBar"
-	    >
-	    <!-- <Button android:id="@+id/bt_map" 
-		    android:layout_width="wrap_content" 
-		    android:layout_height="30dip" 
-		    android:layout_alignParentLeft="true"
-		    android:layout_centerVertical="true"
-		    android:text="@string/MapBtnTitle"
-		    style="@style/Widget.Button.Title"/> -->
-		<TextView 
-		    android:gravity="center" 
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:layout_centerInParent="true"
-		    android:text="@string/myappname" 
-		    style="@style/Widget.TextView.Title"
-		    />
-		<!-- <Button android:id="@+id/bt_camera" 
-		    android:layout_width="wrap_content" 
-		    android:layout_height="30dip" 
-		     android:layout_alignParentRight="true" 
-		    android:layout_centerVertical="true"
-		    android:text="@string/catbtntitle" 
-		    style="@style/Widget.Button.Title"/> -->
-	</RelativeLayout>
-	<LinearLayout 
+	<LinearLayout
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
+	    android:layout_height="200dip"
+	    android:gravity="right"
+	    style="@style/Widget.HLayout"
 	    >
 	    <TextView 
-	        android:id="@+id/tencentInfo"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:maxHeight="300dip"
+	        android:id="@+id/selectcity_btn"
+	        android:layout_width="60dip"
+	        android:layout_height="30dip"
+	        android:layout_margin="5dip"
+	        android:gravity="center"
+	        android:text="@string/titlecity"
+	        android:textSize="15sp"
+	        android:textColor="@color/white"
+	        android:shadowColor="@color/black"
+	        android:shadowRadius="1"
+	        android:shadowDy="2"
+	        android:background="@drawable/citybtn"
 	        />
 	</LinearLayout>
 	<LinearLayout 
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="10dip"
 	    android:orientation="horizontal"
-	    android:gravity="bottom"
+	    android:gravity="center_horizontal"
 	    >
 	    <Button 
 	        android:id="@+id/toRestaurants"
-	        android:layout_width="70dip"
-	        android:layout_height="70dip"
-	        android:layout_margin="2dip"
-	        android:text="附近的餐厅"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
 	        style="@style/Widget.Button.MapNear"
 	        />
 	    <Button 
 	        android:id="@+id/toCapture"
-	        android:layout_width="70dip"
-	        android:layout_height="70dip"
-	        android:layout_margin="2dip"
-	        android:text="开台"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
 	        style="@style/Widget.Button.Twodimension"
 	        />
 	    <Button 
-	        android:id="@+id/toHistory"
-	        android:layout_width="70dip"
-	        android:layout_height="70dip"
-	        android:layout_margin="2dip"
-	        android:text="历史订单"
-	        style="@style/Widget.Button.History"
+	        android:id="@+id/toBrowse"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
+	        style="@style/Widget.Button.Browse"
 	        />
+	</LinearLayout>
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="10dip"
+	    android:orientation="horizontal"
+	    android:gravity="center_horizontal"
+	    >
 	    <Button 
 	        android:id="@+id/user_btn"
-	        android:layout_width="70dip"
-	        android:layout_height="70dip"
-	        android:layout_margin="2dip"
-	        android:text="个人中心"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
 	        style="@style/Widget.Button.Account"
 	        />
+	    <Button 
+	        android:id="@+id/search_btn"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
+	        style="@style/Widget.Button.Search"
+	        />
+	    <Button 
+	        android:id="@+id/toHistory"
+	        android:layout_width="80dip"
+	        android:layout_height="80dip"
+	        android:layout_margin="8dip"
+	        style="@style/Widget.Button.History"
+	        />
+	    
 	</LinearLayout>
 </LinearLayout>

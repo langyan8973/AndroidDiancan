@@ -49,4 +49,9 @@
     <string name="countnewinfo">例未下单</string>
     <string name="historys">历史订单</string>
     <string name="userset">用户中心</string>
+    <string name="hisBrowse">浏览记录</string>
+    <string name="currentcity">当前选中的城市</string>
+    <string name="citylist">城市列表</string>
+    <string name="selectCitystr">选择城市</string>
+    <string name="titlecity">选城市</string>
 </resources>

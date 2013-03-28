@@ -2,8 +2,6 @@ package com.diancan;
 
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpDownloader;
-import com.diancan.model.AllDomain;
-
 import android.R.integer;
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -29,7 +27,6 @@ public class MenuGroup extends ActivityGroup {
 
 	public LinearLayout rootLayout;
 	public LocalActivityManager activityManager;
-	AllDomain infos;
 	AppDiancan declare;
 	
 	public static String ID_MAINFIRST = "MainFirstPage";
@@ -38,6 +35,11 @@ public class MenuGroup extends ActivityGroup {
 	public static String ID_CAPTUREACTIVITY = "CaptureActivity";
 	public static String ID_RECIPLIST = "RecipeList";
 	public static String ID_HISTORYLIST = "HistoryList";
+	public static String ID_HISTORYPAGE = "HistoryPage";
+	public static String ID_HISBROWSE = "HisBrowse";
+	public static String ID_SEARCHPAGE = "SearchPage";
+	
+	public static String back_id;
 	public static boolean isChecked = false;
 	
 	@Override
@@ -180,6 +182,98 @@ public class MenuGroup extends ActivityGroup {
 		return;
 	}
 	
+	public void toMapViewPage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
+		Intent intent=new Intent(MenuGroup.this,MapViewActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_MAPVIEWACTIVITY,intent);
+        View view=subActivity.getDecorView();
+        rootLayout.addView(view);  
+        
+        LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+		return;
+	}
+	
+	public void toHisBrowsePage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
+		Intent intent=new Intent(MenuGroup.this,HisBrowse.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_HISBROWSE,intent);
+        View view=subActivity.getDecorView();
+        rootLayout.addView(view);  
+        
+        LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+		return;
+	}
+	
+	public void toSearchPage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
+		Intent intent=new Intent(MenuGroup.this,SearchPage.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_SEARCHPAGE,intent);
+        View view=subActivity.getDecorView();
+        rootLayout.addView(view);  
+        
+        LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+		return;
+	}
+	
+	public void ToHistoryListPage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
+		Intent intent=new Intent(MenuGroup.this,HistoryList.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_HISTORYLIST,intent);
+        View view=subActivity.getDecorView();
+        rootLayout.addView(view);  
+        
+        LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+		return;
+	}
+	
 	/***
 	 * 监听返回按键
 	 */
@@ -196,12 +290,29 @@ public class MenuGroup extends ActivityGroup {
 	    		else if(strid.equals(MenuGroup.ID_RESTAURANTACTIVITY)
 	    				||strid.equals(MenuGroup.ID_CAPTUREACTIVITY)
 	    				||strid.equals(MenuGroup.ID_MAPVIEWACTIVITY)
-	    				||strid.equals(MenuGroup.ID_HISTORYLIST)){
+	    				||strid.equals(MenuGroup.ID_HISTORYLIST)
+	    				||strid.equals(MenuGroup.ID_HISBROWSE)
+	    				||strid.equals(MenuGroup.ID_SEARCHPAGE)){
 	    			ToMainFirstPage();
 	    			return true;
 	    		}
 	    		else if(strid.equals(MenuGroup.ID_RECIPLIST)){
-	    			ToRestaurantPage();
+	    			if(MenuGroup.back_id == MenuGroup.ID_RESTAURANTACTIVITY){
+	    				
+	    				ToRestaurantPage();
+	    			}else if(MenuGroup.back_id == MenuGroup.ID_MAPVIEWACTIVITY){
+	    				toMapViewPage();
+	    			}
+	    			else if(MenuGroup.back_id == MenuGroup.ID_HISBROWSE){
+	    				toHisBrowsePage();
+	    			}
+	    			else if(MenuGroup.back_id == MenuGroup.ID_SEARCHPAGE){
+	    				toSearchPage();
+	    			}
+	    			return true;
+	    		}
+	    		else if(strid.equals(MenuGroup.ID_HISTORYPAGE)){
+	    			ToHistoryListPage();
 	    			return true;
 	    		}
 	    		else {

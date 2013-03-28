@@ -1,5 +1,8 @@
 package com.SqlLiteDB;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,7 +32,7 @@ public class MenuDataHelper {
 	public static boolean CreateMenusTable()
 	{
 		try{
-			_menusdb.execSQL("create table histories(id number,rid number,rname varchar(40),time varchar(40))");
+			_menusdb.execSQL("create table histories(id INTEGER PRIMARY KEY,rid number,rname varchar(40),image varchar(60),time DATETIME DEFAULT CURRENT_TIMESTAMP)");
 			return true;
 		}catch(Exception e)
 		{
@@ -55,67 +58,48 @@ public class MenuDataHelper {
 	public static void DeleteMenu(){
 		_menusdb.execSQL("delete from recipe");
 	}
-	
-	public static void InsertCategory(Category category){
-		ContentValues values = new ContentValues();
-
-		values.put("id", category.getId());
-		values.put("name",category.getName());
-		values.put("image", category.getImage());
-		values.put("description", category.getDescription());
-
-		_menusdb.insert("category", null, values);
-	}
-	
 	public static void insertHisRestaurant(HisRestaurant hisRestaurant){
-		ContentValues values = new ContentValues();
-
-		values.put("rid", hisRestaurant.getRid());
-		values.put("rname",hisRestaurant.getRname());
-		values.put("time", hisRestaurant.getTime());
-
-		_menusdb.insert("histories", null, values);
-	}
-	
-	public static void DeleteCategory(){
-		try {
-			_menusdb.execSQL("delete from category");
-		} catch (Exception e) {
-			e.printStackTrace();
+		Cursor cursor =_menusdb.rawQuery("SELECT * FROM histories where rid="+hisRestaurant.getRid(), null);
+		boolean isFind = false;
+		if(cursor.moveToNext()){
+			isFind = true;
 		}
-	}
-	
-	public static void InsertDesk(Desk desk){
-		ContentValues values = new ContentValues();
-
-		values.put("id", desk.getId());
-		values.put("name",desk.getName());
-		values.put("capacity",desk.getCapacity());
-		values.put("description", desk.getDescription());
-
-		_menusdb.insert("desk", null, values);
-	}
-	
-	public static void InsertUpdateTime(String strtime)
-	{
-		ContentValues values = new ContentValues();
-
-		values.put("time", strtime);
-
-		_menusdb.insert("updatetime", null, values);
-	}
-	
-	public static void DeleteDesk(){
-		try {
-			_menusdb.execSQL("delete from desk");
-		} catch (Exception e) {
-			e.printStackTrace();
+		cursor.close();
+		
+		if(isFind){
+			String where="rid=?";
+	        String[] whereValue={String.valueOf(hisRestaurant.getRid())};
+	        ContentValues cv=new ContentValues(); 
+	        cv.put("rid", hisRestaurant.getRid());
+			cv.put("rname",hisRestaurant.getRname());
+			cv.put("image", hisRestaurant.getImage());
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String s = dateFormat.format(hisRestaurant.getTime());
+			cv.put("time",s );
+	        _menusdb.update("histories", cv, where, whereValue);
 		}
+		else{
+			ContentValues values = new ContentValues();
+
+			values.put("rid", hisRestaurant.getRid());
+			values.put("rname",hisRestaurant.getRname());
+			values.put("image", hisRestaurant.getImage());
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String s = dateFormat.format(hisRestaurant.getTime());
+			values.put("time",s );
+			_menusdb.insert("histories", null, values);
+		}
+		
 	}
 	
 	public static Cursor QueryMenus()
 	{
 		Cursor cursor =_menusdb.rawQuery("SELECT * FROM recipe", null);
+		return cursor;
+	}
+	
+	public static Cursor QueryHisRestaurants(){
+		Cursor cursor =_menusdb.rawQuery("SELECT * FROM histories order by time desc", null);
 		return cursor;
 	}
 	
@@ -130,46 +114,6 @@ public class MenuDataHelper {
 		Cursor cursor =_menusdb.rawQuery("SELECT * FROM recipe where id='"+id+"'", null);
 		return cursor;
 	}
-	public static Cursor QueryCategorysById(int id)
-	{
-		Cursor cursor =_menusdb.rawQuery("SELECT * FROM category where id='"+id+"'", null);
-		return cursor;
-	}
-	public static Cursor QueryCategory()
-	{
-		Cursor cursor =_menusdb.rawQuery("SELECT * FROM category", null);
-		return cursor;
-	}
-	public static Cursor QueryDesk()
-	{
-		Cursor cursor =_menusdb.rawQuery("SELECT * FROM desk", null);
-		return cursor;
-	}
-	public static Cursor QuetyUpdateTime()
-	{
-		Cursor cursor =_menusdb.rawQuery("SELECT * FROM updatetime", null);
-		return cursor;
-	}
-	
-	public static void deletefromrecipe(String id)
-    {
-        String where="id='?'";
-        String[] whereValue={id};
-        _menusdb.delete("recipe", where, whereValue);
-    }
-	public static void deletefromdesk(String id)
-    {
-        String where="id='?'";
-        String[] whereValue={id};
-        _menusdb.delete("desk", where, whereValue);
-    }
-	public static void deletefromcategory(String id)
-    {
-        String where="id='?'";
-        String[] whereValue={id};
-        _menusdb.delete("category", where, whereValue);
-    }
-    
     public static void updaterecipe(Recipe menuInfo)
     {
         String where="id='?'";
@@ -181,25 +125,5 @@ public class MenuDataHelper {
         cv.put("price", menuInfo.getPrice());
         cv.put("image", menuInfo.getImage());
         _menusdb.update("recipe", cv, where, whereValue);
-    }
-    public static void updatecateDesk(Desk desk)
-    {
-        String where="id='?'";
-        String[] whereValue={desk.getId().toString()};
-        ContentValues cv=new ContentValues(); 
-        cv.put("name",desk.getName());
-        cv.put("capacity",desk.getCapacity());
-        cv.put("description", desk.getDescription());
-        _menusdb.update("desk", cv, where, whereValue);
-    }
-    public static void updatecategory(Category category)
-    {
-        String where="id='?'";
-        String[] whereValue={category.getId().toString()};
-        ContentValues cv=new ContentValues(); 
-        cv.put("name",category.getName());
-        cv.put("image", category.getImage());
-        cv.put("description", category.getDescription());
-        _menusdb.update("category", cv, where, whereValue);
     }
 }

@@ -1,6 +1,7 @@
 package com.diancan;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ResponseCache;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,18 @@ import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 
 import com.SqlLiteDB.MenuDataHelper;
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.GeoPoint;
+import com.baidu.mapapi.LocationListener;
+import com.baidu.mapapi.MKAddrInfo;
+import com.baidu.mapapi.MKBusLineResult;
+import com.baidu.mapapi.MKDrivingRouteResult;
+import com.baidu.mapapi.MKPoiResult;
+import com.baidu.mapapi.MKSearch;
+import com.baidu.mapapi.MKSearchListener;
+import com.baidu.mapapi.MKSuggestionResult;
+import com.baidu.mapapi.MKTransitRouteResult;
+import com.baidu.mapapi.MKWalkingRouteResult;
 import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
 import com.diancan.Utils.DisplayUtil;
@@ -30,6 +43,7 @@ import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
 import com.diancan.model.Recipe;
 import com.diancan.model.Restaurant;
+import com.diancan.model.city;
 import com.weibo.sdk.android.keep.AccessTokenKeeper;
 
 import android.R.integer;
@@ -38,6 +52,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -57,8 +72,8 @@ public class InitPage extends Activity implements HttpCallback {
 
 	
 	private HttpHandler httpHandler;
-	private RecipeListHttpHelper recipeListHttpHelper;
 	private AppDiancan appDiancan;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,29 +93,30 @@ public class InitPage extends Activity implements HttpCallback {
   		DisplayUtil.DPWIDTH=DisplayUtil.px2dip(dm.widthPixels);
   		DisplayUtil.DPHEIGHT=DisplayUtil.px2dip(dm.heightPixels - notifyBarHeight);
   		DisplayUtil.PIXHEIGHT = (int)(dm.heightPixels- notifyBarHeight) ;
-  		System.out.println("pix宽度："+dm.widthPixels);
-  		System.out.println("pix高度："+dm.heightPixels);
-  		System.out.println("屏幕密度："+dm.density);
-  		System.out.println("dp宽度："+DisplayUtil.DPWIDTH);
-  		System.out.println("dp高度："+DisplayUtil.DPHEIGHT);
   		
-  	    //获取应用全局变量   
-  		appDiancan=(AppDiancan)getApplicationContext();       
-        recipeListHttpHelper = new RecipeListHttpHelper(this, appDiancan);
-        
+  		//初始化应用全局变量   
+  		appDiancan=(AppDiancan)getApplicationContext();   
        
+		//初始化缓存路径
         FileUtils.cacheDir  = new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/MenuImg/");
         if (!FileUtils.cacheDir.exists()) {
 			FileUtils.cacheDir.mkdirs();
 		}
-        
+        //创建数据库
         createDatabase();
-        
+        //启用缓存
         HttpDownloader.mImageFileCache = new ImageFileCache();
+        HttpDownloader.enableHttpResponseCache();
+        //初始化服务地址
         MenuUtils.initUrl="http://"+getResources().getString(R.string.url_service);
         MenuUtils.imageUrl="http://"+getResources().getString(R.string.image_service);
-        HttpDownloader.enableHttpResponseCache();
-        
+        // 设置通知样式
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
+        builder.statusBarDrawable = R.drawable.notification_icon;
+        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+        builder.notificationDefaults = Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE;  // 设置为铃声与震动都要
+        JPushInterface.setPushNotificationBuilder(1, builder);
+        //读取udid
         SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
         String deviceString = deviceInfo.getString("udid", "");
         if(TextUtils.isEmpty(deviceString))
@@ -113,12 +129,16 @@ public class InitPage extends Activity implements HttpCallback {
         appDiancan.udidString=deviceString;
         appDiancan.accessToken = AccessTokenKeeper.readAccessToken(this);
         
-        // 设置通知样式
-      	BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(InitPage.this);
-      	builder.statusBarDrawable = R.drawable.notification_icon;
-      	builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
-      	builder.notificationDefaults = Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE;  // 设置为铃声与震动都要
-      	JPushInterface.setPushNotificationBuilder(1, builder);
+        String citynameString = deviceInfo.getString("cityname", "-1");
+        if(!citynameString.equals("-1")){
+        	city c = new city();
+        	c.setName(citynameString);
+        	c.setId(deviceInfo.getString("cityid", ""));
+        	appDiancan.selectedCity = c;
+        }
+        else{
+        	appDiancan.selectedCity=null;
+        }
       	
       	int rid = deviceInfo.getInt("rid", -1);
         String rname = deviceInfo.getString("rname", "-1");
@@ -143,6 +163,7 @@ public class InitPage extends Activity implements HttpCallback {
         }
         
 	}
+	
 	
 	@Override
 	public void RequestComplete(Message msg) {
@@ -172,6 +193,21 @@ public class InitPage extends Activity implements HttpCallback {
 	}
 	
 	
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		
+		super.onResume();
+	}
+
 	private void RegisterUdid(final String udid){
 		new Thread(new Runnable() {
 			
@@ -263,6 +299,7 @@ public class InitPage extends Activity implements HttpCallback {
 		}).start();
 	}
 	
+	
 	public void createDatabase(){
 		new Thread(new Runnable() {
 			
@@ -310,5 +347,5 @@ public class InitPage extends Activity implements HttpCallback {
 		Toast toast = Toast.makeText(InitPage.this, strMess, Toast.LENGTH_SHORT); 
         toast.show();
 	}
-  	  	
+  	 
 }

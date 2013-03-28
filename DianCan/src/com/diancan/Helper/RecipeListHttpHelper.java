@@ -91,6 +91,10 @@ public class RecipeListHttpHelper{
 	}
 	
 	public void RequestOrderById(){
+		RequestOrderByOid(appDiancan.myOrder.getRestaurant().getId(),appDiancan.myOrder.getId());
+	}
+	
+	public void RequestOrderByOid(final int rid,final int oid){
 		new Thread(new Runnable() {
 			
 			@Override
@@ -100,7 +104,7 @@ public class RecipeListHttpHelper{
 				try {
 					
 					String resultString = HttpDownloader.getString(MenuUtils.initUrl+ "restaurants/"+
-					appDiancan.myOrder.getRestaurant().getId()+"/orders/" +appDiancan.myOrder.getId(),
+					rid+"/orders/" +oid,
 							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					if(resultString==null)
 					{

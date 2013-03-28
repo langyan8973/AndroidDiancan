@@ -10,7 +10,7 @@
         android:contentDescription="@string/image_discription"
         style="@style/Widget.AsyncImageView.Default" />
     <LinearLayout android:paddingLeft="10.0dip" 
-        android:layout_width="0dip" 
+        android:layout_width="fill_parent" 
         android:layout_height="wrap_content" 
         android:orientation="vertical"
         android:layout_weight="1.0">
@@ -31,4 +31,9 @@
             android:textColor="@color/sbc_snippet_text"
             />
     </LinearLayout>
+    <ImageView android:id="@+id/favoriteBtn" 
+        android:layout_width="40.0dip" 
+        android:layout_height="40.0dip" 
+        android:contentDescription="@string/image_discription"
+        style="@style/Widget.AsyncImageView.Default" />
 </LinearLayout>

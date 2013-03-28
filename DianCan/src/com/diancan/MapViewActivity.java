@@ -64,6 +64,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 	int iZoom = 0;
 	int selectId=0;
 	String selectName;
+	String selectImage;
 	List<Restaurant> mRestaurants;
 	ImageDownloader imgDownloader;
 	//记录范围变化次数
@@ -262,6 +263,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 		
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
+		MenuGroup.back_id = MenuGroup.ID_MAPVIEWACTIVITY;
 //		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
@@ -292,7 +294,8 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					mRestaurants=MenuUtils.getAround(declare.udidString,x,y,distance,declare.accessToken.getAuthorization());
+					mRestaurants=MenuUtils.getAround(declare.udidString,x,y,distance,
+							declare.accessToken.getAuthorization(),declare.selectedCity.getId());
 					if(mRestaurants==null||mRestaurants.size()==0){
 						httpHandler.obtainMessage(0,"没有餐厅！").sendToTarget();
 						return;
@@ -336,6 +339,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 				MyRestaurant myRestaurant=new MyRestaurant();
 				myRestaurant.setId(selectId);
 				myRestaurant.setName(selectName);
+				myRestaurant.setImage(selectImage);
 				declare.myRestaurant=myRestaurant;
 //				Intent intent=new Intent(MapViewActivity.this, Main.class);
 //			    startActivity(intent);
@@ -434,6 +438,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 			String idString=pointsList.get(i).getSnippet();
 			selectId=Integer.parseInt(idString);
 			selectName = restaurant.getName();
+			selectImage = restaurant.getImage();
 			return true;
 		}
 

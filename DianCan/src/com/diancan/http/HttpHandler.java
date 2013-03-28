@@ -18,6 +18,13 @@ public class HttpHandler extends Handler {
 	public static final int POST_RECIPE_COUNT_FROMORDER=10;
 	public static final int DEPOSIT_ORDER = 11;
 	public static final int REQUEST_ALLHISTORY = 12;
+	public static final int REQUEST_CITYANDCODE = 13;
+	public static final int GET_CITIES = 14;
+	public static final int RESULT_NULL = 15;
+	public static final int REQUEST_FAVORITES = 16;
+	public static final int POST_FAVORITE = 17;
+	public static final int DELETE_FAVORITE = 18;
+	public static final int LOCATION_CITY = 19;
 	HttpCallback mCallback;
 	public HttpHandler(HttpCallback callback){
 		mCallback=callback;

@@ -1,8 +1,5 @@
 package com.diancan;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.ImageDownloader;
 import com.weibo.sdk.android.Oauth2AccessToken;

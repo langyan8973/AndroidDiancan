@@ -32,6 +32,9 @@
 	<style name="Widget.Layout.MainFirstVLayout" parent="@style/Widget.VLayout">
 	    <item name="android:background">@drawable/mainfirstback</item>
 	</style>
+	<style name="Widget.Layout.RestaurantVLayout" parent="@style/Widget.VLayout">
+	    <item name="android:background">@drawable/restaurantback</item>
+	</style>
 	<style name="Widget.Layout.GrayPageVLayout" parent="@style/Widget.VLayout">
 	    <item name="android:background">@drawable/layoutback_gray</item>
 	</style>
@@ -123,7 +126,12 @@
 	</style>
 	<style name="Widget.TextView.Title.Item" parent="@style/Widget.TextView">
 	    <item name="android:textColor">#FF090909</item>
-	    <item name="android:textSize">16sp</item>
+	    <item name="android:textSize">18sp</item>
+	</style>
+	<style name="Widget.TextView.CityText" parent="@style/Widget.TextView">
+	    <item name="android:textColor">@color/white</item>
+	    <item name="android:gravity">center</item>
+	    <item name="android:background">@drawable/spinnerback</item>
 	</style>
 	<style name="Widget.TextView.Count" parent="@style/Widget.TextView">
 	    <item name="android:textColor">@color/white</item>
@@ -191,11 +199,17 @@
 	<style name="Widget.Button.Twodimension" parent="@style/Widget.Button.Bottom">
 		<item name="android:background">@drawable/btn_twodimension</item>
 	</style>
+	<style name="Widget.Button.Browse" parent="@style/Widget.Button.Bottom">
+		<item name="android:background">@drawable/btn_browse</item>
+	</style>
 	<style name="Widget.Button.History" parent="@style/Widget.Button.Bottom">
 		<item name="android:background">@drawable/btn_history</item>
 	</style>
 	<style name="Widget.Button.Account" parent="@style/Widget.Button.Bottom">
 		<item name="android:background">@drawable/btn_account</item>
+	</style>
+	<style name="Widget.Button.Search" parent="@style/Widget.Button.Bottom">
+		<item name="android:background">@drawable/btn_search</item>
 	</style>
 	<style name="Widget.Button.Title.Back">
 	    <item name="android:textAppearance">?android:textAppearanceSmallInverse</item>
@@ -221,6 +235,10 @@
 	</style>
 	<style name="Widget.ListView.Recipe" parent="@style/Widget.ListView">
 		<item name="android:listSelector">@drawable/transparentitem</item>
+	</style>
+	<style name="Widget.ListView.City" parent="@style/Widget.ListView">
+	    <item name="android:background">@drawable/c</item>
+	    <item name="android:divider">@drawable/dotted_line_segment</item>
 	</style>
 	<style name="Widget.ListView.Catetory" parent="@style/Widget.AbsListView">
 	    <item name="android:listSelector">@drawable/transparentitem</item>

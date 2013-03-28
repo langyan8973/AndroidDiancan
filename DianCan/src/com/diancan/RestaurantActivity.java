@@ -6,17 +6,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.GeoPoint;
+import com.baidu.mapapi.LocationListener;
 import com.diancan.Helper.OrderHelper;
+import com.diancan.Helper.RestaurantHttpHelper;
 import com.diancan.Helper.SearchAdapterHelper;
+import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.custom.adapter.RestaurantArrayAdapter;
 import com.diancan.custom.adapter.RestaurantArrayAdapter.ViewHolder;
 import com.diancan.diancanapp.AppDiancan;
 import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpDownloader;
 import com.diancan.http.HttpHandler;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.MyRestaurant;
 import com.diancan.model.Restaurant;
+import com.diancan.model.favorite;
 import com.google.zxing.common.StringUtils;
 
 import android.app.Activity;
@@ -24,11 +31,14 @@ import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,6 +54,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -56,18 +67,21 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 	Button mapButton;
 	EditText mEditText;
 	ImageView mClearImageView;
+	ProgressBar mProgressBar;
 	List<Restaurant> mRestaurants;
-	HttpHandler httpHandler;
+	RestaurantHttpHelper restaurantHttpHelper;
+	SparseIntArray favoriteIntArray = new SparseIntArray();;
 	AppDiancan appDiancan;
 	ImageDownloader imgDownloader;
 	RestaurantArrayAdapter<Restaurant> restaurantAdapter;
+	LocationListener mLocationListener=null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.restaurant);
-		httpHandler = new HttpHandler(this);
+		
 		mListView=(ListView)findViewById(R.id.rList);
 		mListView.setOnItemClickListener(this);
 		backButton=(Button)findViewById(R.id.bt_back);
@@ -78,19 +92,104 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		mEditText.addTextChangedListener(this);
 		mClearImageView = (ImageView)findViewById(R.id.ImgClear);
 		mClearImageView.setOnClickListener(this);
+		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
 		appDiancan=(AppDiancan)getApplicationContext();
+		
+		restaurantHttpHelper = new RestaurantHttpHelper(this, appDiancan);
+		
 		Drawable[] layers={getResources().getDrawable(R.drawable.imagewaiting)};
 		imgDownloader=new ImageDownloader(layers);
-		RequestRestaurants();
+		
+		if(appDiancan.mBMapMan==null)
+		{
+			appDiancan.mBMapMan=new BMapManager(getApplicationContext());
+			appDiancan.mBMapMan.init(appDiancan.BMapKey, new AppDiancan.MyGeneralListener());
+		}
+		appDiancan.mBMapMan.start();
+		//请求收藏列表
+		restaurantHttpHelper.RequestFavorites();
+		//定位监听器
+        mLocationListener=new LocationListener() {
+			
+			@Override
+			public void onLocationChanged(Location location) {
+				// TODO Auto-generated method stub
+				if (location != null){
+					GeoPoint pt = new GeoPoint((int)(location.getLatitude()*1e6),
+							(int)(location.getLongitude()*1e6));
+					double x=location.getLongitude();
+					double y=location.getLatitude();
+					Log.d("onLocationChanged", "x===="+x+"    y===="+y);
+					mProgressBar.setVisibility(View.VISIBLE);
+					restaurantHttpHelper.RequestRestaurants(x,y,1000);
+					
+				}
+			}
+		};
+		
 	}
 	
+	
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		if(appDiancan.mBMapMan!=null){
+			appDiancan.mBMapMan.getLocationManager().removeUpdates(mLocationListener);
+			appDiancan.mBMapMan.stop();
+		}
+		super.onPause();
+	}
+
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		appDiancan.mBMapMan.getLocationManager().requestLocationUpdates(mLocationListener);
+		appDiancan.mBMapMan.start();
+		super.onResume();
+	}
+
+
+
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
+		mProgressBar.setVisibility(View.GONE);
 		switch(msg.what) {  
         case HttpHandler.REQUEST_RESTAURANTS: 
+        	mRestaurants = (List<Restaurant>)msg.obj;
         	DisplayRestaurants();
             break; 
+        case HttpHandler.REQUEST_FAVORITES:
+        	List<favorite> favorites = (List<favorite>)msg.obj;
+        	if(favorites==null||favorites.size()==0){
+				return;
+			}
+			Iterator<favorite> iterator;
+			for(iterator=favorites.iterator();iterator.hasNext();){
+				favorite f=iterator.next();
+				favoriteIntArray.put(f.getRid(), f.getId());
+			}
+			if(restaurantAdapter!=null){
+				restaurantAdapter.setfSparseIntArray(favoriteIntArray);
+				restaurantAdapter.notifyDataSetChanged();
+			}
+			break;
+        case HttpHandler.POST_FAVORITE:
+        	favorite f = (favorite)msg.obj;
+        	if(favoriteIntArray==null){
+        		favoriteIntArray = new SparseIntArray();
+        	}
+        	favoriteIntArray.put(f.getRid(), f.getId());
+        	restaurantAdapter.notifyDataSetChanged();
+        	break;
+        case HttpHandler.DELETE_FAVORITE:
+        	int rid = Integer.parseInt(msg.obj.toString());
+        	favoriteIntArray.delete(rid);
+        	restaurantAdapter.notifyDataSetChanged();
+        	break;
         default:
             break;
         }
@@ -99,6 +198,7 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 	@Override
 	public void RequestError(String errString) {
 		// TODO Auto-generated method stub
+		mProgressBar.setVisibility(View.GONE);
 		ShowError(errString);
 	}
 
@@ -107,12 +207,9 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		// TODO Auto-generated method stub
 		InputMethodManager imm = (InputMethodManager)getSystemService(RestaurantActivity.this.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-		ViewHolder viewHolder = (ViewHolder)arg1.getTag();
-		int rid = Integer.parseInt(viewHolder.titleTextView.getTag().toString());
-		String name = viewHolder.titleTextView.getText().toString();
-		MyRestaurant myRestaurant=new MyRestaurant();
-		myRestaurant.setId(rid);
-		myRestaurant.setName(name);
+		
+		Restaurant restaurant = mRestaurants.get(arg2);
+		MyRestaurant myRestaurant=new MyRestaurant(restaurant);
 		appDiancan.myRestaurant=myRestaurant;
 		if(appDiancan.myOrder!=null){
 			if(appDiancan.myOrderHelper==null){
@@ -137,6 +234,16 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 			break;
 		case R.id.ImgClear:
 			mEditText.setText("");
+			break;
+		case R.id.favoriteBtn:
+			int rid = Integer.parseInt(v.getTag().toString());
+			mProgressBar.setVisibility(View.VISIBLE);
+			if(favoriteIntArray.get(rid)==0){
+				restaurantHttpHelper.favoriteRestaurant(rid);
+			}
+			else{
+				restaurantHttpHelper.deleteFavorite(rid);
+			}
 			break;
 		default:
 			break;
@@ -174,40 +281,15 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		
 	}
 	
-	/**
-	 * 请求餐厅数据
-	 */
-	private void RequestRestaurants(){
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				
-				try {
-					AppDiancan declare=(AppDiancan)RestaurantActivity.this.getApplicationContext();
-					mRestaurants=MenuUtils.getAllRestaurants(declare.udidString,declare.accessToken.getAuthorization());
-					if(mRestaurants==null||mRestaurants.size()==0){
-						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"没有餐厅！").sendToTarget();
-						return;
-					}
-					httpHandler.obtainMessage(HttpHandler.REQUEST_RESTAURANTS).sendToTarget();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,e.getMessage()).sendToTarget();
-				}
-				
-			}
-		}).start();
-	}
 	
 	/**
 	 * 显示餐厅列表
 	 */
 	private void DisplayRestaurants(){
 		restaurantAdapter = 
-				new RestaurantArrayAdapter<Restaurant>(this,R.layout.list_item_restaurant,mRestaurants);
+				new RestaurantArrayAdapter<Restaurant>(this,R.layout.list_item_restaurant,mRestaurants,favoriteIntArray);
 		restaurantAdapter.setImageDownloader(imgDownloader);
+		restaurantAdapter.setMyClickListener(this);
 		restaurantAdapter.setmAdapterHelper(this);
 		mListView.setAdapter(restaurantAdapter);
 	}
@@ -284,6 +366,7 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
+		MenuGroup.back_id = MenuGroup.ID_RESTAURANTACTIVITY;
 //		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		

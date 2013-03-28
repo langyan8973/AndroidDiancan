@@ -9,6 +9,7 @@ import android.util.SparseIntArray;
 public class MyRestaurant{
 	int id;
 	String name;
+	String image;
 	SparseArray<Category> categoryDic;
 	
 	public int getId() {
@@ -39,9 +40,19 @@ public class MyRestaurant{
 	public MyRestaurant(){
 		
 	}
+	public String getImage() {
+		return image;
+	}
+	
+	public void setImage(String image) {
+		this.image = image;
+	}
 	
 	public MyRestaurant(Restaurant restaurant){
 		setId(restaurant.getId());
 		setName(restaurant.getName());
+		setImage(restaurant.getImage());
 	}
+
+	
 }

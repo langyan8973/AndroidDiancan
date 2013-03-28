@@ -7,14 +7,18 @@ import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.MKEvent;
 import com.baidu.mapapi.MKGeneralListener;
 import com.diancan.Helper.OrderHelper;
+import com.diancan.http.HttpCallback;
+import com.diancan.http.HttpHandler;
 import com.diancan.http.ImageFileCache;
 import com.diancan.model.History;
 import com.diancan.model.MyRestaurant;
 import com.diancan.model.Order;
 import com.diancan.model.OrderItem;
+import com.diancan.model.city;
 import com.weibo.sdk.android.Oauth2AccessToken;
 
 import android.app.Application;
+import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
@@ -30,6 +34,9 @@ public class AppDiancan extends Application {
 	public BMapManager mBMapMan;
 	static AppDiancan mDemoApp;
 	boolean m_bKeyRight=true;
+	
+	public city locationCity;
+	public city selectedCity;
 	
 	
 	@Override

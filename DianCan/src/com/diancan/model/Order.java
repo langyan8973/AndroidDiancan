@@ -28,7 +28,6 @@ public class Order implements java.io.Serializable {
 	private double priceConfirm;
 	private double priceDeposit;
 	private List<OrderItem> clientItems = new ArrayList<OrderItem>();
-	
 
 	public Order() {
 	}
@@ -151,5 +150,6 @@ public class Order implements java.io.Serializable {
 	public void setPriceDeposit(double priceDeposit) {
 		this.priceDeposit = priceDeposit;
 	}
+
 	
 }

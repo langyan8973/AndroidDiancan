@@ -18,7 +18,7 @@ public class MyDateUtils {
 	  Calendar calendar = Calendar.getInstance(); 
 	  calendar.setTime(date); 
 	  int intWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; 
-	  return weekDaysCode[intWeek]; 
+	  return weekDaysName[intWeek]; 
 	} 
 	/** 
 	  * 获得周一的日期 
@@ -213,6 +213,8 @@ public class MyDateUtils {
 	    	}
 	    }
 	    
-	    return strDate;
+	    String weekString = getWeekOfDate(oldDate);
+	    
+	    return strDate+"  "+weekString;
 	}
 }

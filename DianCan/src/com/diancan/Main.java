@@ -196,16 +196,6 @@ public class Main extends TabActivity {
 	    m_tabHost.addTab(m_tabHost.newTabSpec("menu3").setIndicator(v).setContent(intent));
     }  
     
-    /***
-     * 增加结账标签
-     */
-    public void addCheckTab(){  
-        Intent intent = new Intent();  
-        intent.setClass(Main.this, HistoryGroup.class);
-        Drawable drawable=rsResources.getDrawable(R.drawable.pay_tab_back);
-        View v=CreateTabItem(drawable, rsResources.getString(R.string.title_Tab4));
-	    m_tabHost.addTab(m_tabHost.newTabSpec("menu4").setIndicator(v).setContent(intent));
-    } 
 
 	@Override
 	protected void onDestroy() {
@@ -305,8 +295,11 @@ public class Main extends TabActivity {
 			orid = -1;
 		}
 		
-		
 		currentTab = m_tabHost.getCurrentTab();
+		if(declare.selectedCity!=null){
+			deviceInfo.edit().putString("cityname", declare.selectedCity.getName()).commit();
+			deviceInfo.edit().putString("cityid", declare.selectedCity.getId()).commit();
+		}
 		deviceInfo.edit().putInt("rid", rid).commit();
 		deviceInfo.edit().putString("rname",rnameString).commit();
 		deviceInfo.edit().putInt("oid", oid).commit();

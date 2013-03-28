@@ -172,10 +172,10 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		HisRestaurant hisRestaurant =new HisRestaurant();
 		hisRestaurant.setRid(appDiancan.myRestaurant.getId());
 		hisRestaurant.setRname(appDiancan.myRestaurant.getName());
+		hisRestaurant.setImage(appDiancan.myRestaurant.getImage());
 		Date curDate = new Date(System.currentTimeMillis());
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String s = dateFormat.format(curDate);
-		hisRestaurant.setTime(s);
+		
+		hisRestaurant.setTime(curDate);
 		
 		writeHisRestaurant(hisRestaurant);
 		

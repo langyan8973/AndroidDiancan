@@ -2,23 +2,16 @@ package com.diancan.custom.view;
 
 import com.diancan.R;
 import com.diancan.Utils.DisplayUtil;
-import com.diancan.gesture.BuileGestureExt;
-
-import android.R.integer;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 public class RecipeFrameLayout extends FrameLayout {
 	LinearLayout listLayout;

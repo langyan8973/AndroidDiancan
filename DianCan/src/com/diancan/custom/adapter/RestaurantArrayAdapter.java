@@ -8,8 +8,13 @@ import com.diancan.R;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.http.ImageDownloader;
 import com.diancan.model.Restaurant;
+import com.diancan.model.favorite;
+
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.SparseIntArray;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,9 +26,13 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
   		public TextView titleTextView;
   		public TextView addressTextView;
   		public TextView phoneTextView;
+  		public ImageView fovariteImageView;
   	}
 	
 	private ImageDownloader imageDownloader;
+	private OnClickListener myClickListener;
+	private Context mContext;
+	private SparseIntArray fSparseIntArray;
 	
 	public ImageDownloader getImageDownloader() {
 		return imageDownloader;
@@ -33,9 +42,26 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
 		this.imageDownloader = imageDownloader;
 	}
 
+	public OnClickListener getMyClickListener() {
+		return myClickListener;
+	}
+
+	public void setMyClickListener(OnClickListener myClickListener) {
+		this.myClickListener = myClickListener;
+	}
+
+	public SparseIntArray getfSparseIntArray() {
+		return fSparseIntArray;
+	}
+
+	public void setfSparseIntArray(SparseIntArray fSparseIntArray) {
+		this.fSparseIntArray = fSparseIntArray;
+	}
+
 	public RestaurantArrayAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
 		// TODO Auto-generated constructor stub
+		mContext = context;
 	}
 
 	/**
@@ -48,6 +74,7 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
      */
     public RestaurantArrayAdapter(Context context, int resource, int textViewResourceId) {
         super(context, resource, textViewResourceId, new ArrayList<T>());
+        mContext = context;
     }
 
     /**
@@ -60,6 +87,7 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
      */
     public RestaurantArrayAdapter(Context context, int textViewResourceId, T[] objects) {
         super(context, textViewResourceId, 0, Arrays.asList(objects));
+        mContext = context;
     }
 
     /**
@@ -73,6 +101,7 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
      */
     public RestaurantArrayAdapter(Context context, int resource, int textViewResourceId, T[] objects) {
         super(context, resource, textViewResourceId, Arrays.asList(objects));
+        mContext = context;
     }
 
     /**
@@ -83,8 +112,10 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
      *                 instantiating views.
      * @param objects The objects to represent in the ListView.
      */
-    public RestaurantArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
+    public RestaurantArrayAdapter(Context context, int textViewResourceId, List<T> objects,SparseIntArray sparseIntArray) {
         super(context, textViewResourceId, 0, objects);
+        mContext = context;
+        fSparseIntArray = sparseIntArray;
     }
 
     /**
@@ -98,6 +129,7 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
      */
     public RestaurantArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
         super(context, resource, textViewResourceId, objects);
+        mContext = context;
     }
 
 	@Override
@@ -114,10 +146,12 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
 		    TextView addressView=(TextView)view.findViewById(R.id.tv_address);
 		    TextView phoneView=(TextView)view.findViewById(R.id.tv_telephone);
 		    ImageView recipeImg=(ImageView)view.findViewById(R.id.restaurant_image);
+		    ImageView favoriteImageView = (ImageView)view.findViewById(R.id.favoriteBtn);
 		    viewHolder.titleTextView=titleView;
 		    viewHolder.addressTextView=addressView;
 		    viewHolder.phoneTextView=phoneView;
 		    viewHolder.imageView=recipeImg;
+		    viewHolder.fovariteImageView = favoriteImageView;
 		    view.setTag(viewHolder);
             
         } else {
@@ -136,8 +170,16 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
 			strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+restaurant.getImage();
 		}
 	    imageDownloader.download(strUrl, viewHolder.imageView);
-
-
+	    Drawable drawable;
+	    if(fSparseIntArray!=null && fSparseIntArray.get(restaurant.getId())!=0){
+	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn_select);
+	    }
+	    else{
+	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn);
+	    }
+	    viewHolder.fovariteImageView.setImageDrawable(drawable);
+	    viewHolder.fovariteImageView.setTag(restaurant.getId());
+	    viewHolder.fovariteImageView.setOnClickListener(myClickListener);
         return view;
 	}
 

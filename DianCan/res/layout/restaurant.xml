@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
-    style="@style/Widget.Layout.MainFirstVLayout"
+    style="@style/Widget.Layout.RestaurantVLayout"
     >
 	<RelativeLayout
 	    android:layout_width="fill_parent" 
@@ -16,6 +16,15 @@
 		    android:layout_centerVertical="true" 
 		    android:text="@string/btnback"
 		    style="@style/Widget.Button.Title.Back"/>
+	    <ProgressBar android:id="@+id/httppro"
+		      android:layout_width="wrap_content" 
+		      android:layout_height="wrap_content"
+		      android:layout_toRightOf="@+id/bt_back"
+		      android:layout_centerVertical="true"
+		      android:layout_marginLeft="5dip"
+		      android:indeterminateDrawable="@drawable/progressbar"
+		      style="?android:attr/progressBarStyleSmall">
+		</ProgressBar>
 		<TextView 
 		    android:gravity="center" 
 		    android:id="@+id/tv_title" 

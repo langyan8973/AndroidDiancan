@@ -1,37 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"  
-    android:id="@+id/ScrollView" android:layout_width="fill_parent"  
-    android:layout_height="fill_parent" android:scrollbars="vertical"
-    > 
-    <LinearLayout
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical"    
-	    android:id="@+id/rootLytHis" >
-	<LinearLayout 
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical"
-	    android:background="#FFFFFFFF">
-	 <TextView 
-	     android:id="@+id/historytitle"
-	     android:layout_width="wrap_content"
-	     android:layout_height="wrap_content"/>   
-	</LinearLayout>
-		
-	<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	style="@style/Widget.Layout.DefaultPageVLayout"
+	>
+	<RelativeLayout
+	    android:layout_width="fill_parent" 
+	    android:layout_height="@dimen/topbar_height"
+	    style="@style/Widget.Layout.TitleBar"
+	    >
+	    <Button android:id="@+id/bt_back" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="@string/btnback"
+		    style="@style/Widget.Button.Title.Back"/>
+	    <ProgressBar android:id="@+id/httppro"
+		      android:layout_width="wrap_content" 
+		      android:layout_height="wrap_content"
+		      android:layout_toRightOf="@+id/bt_back"
+		      android:layout_centerVertical="true"
+		      android:layout_marginLeft="5dip"
+		      android:indeterminateDrawable="@drawable/progressbar"
+		      style="?android:attr/progressBarStyleSmall">
+		</ProgressBar>
+		<TextView 
+		    android:gravity="center" 
+		    android:id="@+id/tv_title" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:layout_centerInParent="true"
+		    android:text="@string/historys" 
+		    style="@style/Widget.TextView.Title"
+		    />
+		<TextView 
+	        android:id="@+id/timeText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+	        android:layout_alignParentBottom="true"
+	        android:textColor="@color/white"
+	        />
+	</RelativeLayout>
+	<FrameLayout 
+	    android:id="@+id/animateContainer"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:orientation="vertical"    
-	    android:id="@+id/rootLayoutHis" >
-	</LinearLayout>
-	<TextView 
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/sumTextHis"/>
-	<Button android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/usebtn"
-	    android:text="@string/btnstr_use"/>
-	</LinearLayout>
-</ScrollView>
+	    >
+	    <com.diancan.custom.view.DropDownListView 
+	    	android:id="@+id/itemList" 
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:headerDividersEnabled="false"
+		    android:background="@drawable/layoutback"
+		    style="@style/Widget.ListView.Restaurant"
+		    />
+	    <ImageView 
+	        android:id="@+id/animateImg"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:visibility="gone"
+	        />
+	</FrameLayout>
+</LinearLayout>

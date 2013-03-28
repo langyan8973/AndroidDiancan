@@ -21,6 +21,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -193,48 +194,6 @@ public class HttpDownloader {
 		   String jsonString=parseContent(responseEntity.getContent());
 			return jsonString;
 	}
-//	public static String OrderForm(String rootUrl,Order order,String udid) throws ClientProtocolException, IOException,
-//		JSONException {
-//		
-//		DefaultHttpClient client;
-//		client = new DefaultHttpClient();
-//		
-//		System.out.println("提交订单:");
-//		HttpPost post = new HttpPost(rootUrl + "orders");
-//		post.addHeader("X-device",udid);
-//		
-//		JSONArray list = new JSONArray();
-//		Iterator<OrderItem> iterator;
-//		for(iterator=order.getOrderItems().iterator();iterator.hasNext();)
-//		{
-//			OrderItem orderItem=iterator.next();
-//			JSONObject obj = new JSONObject();
-//			obj.put("rid", orderItem.getRecipe().getId());
-//			obj.put("count",orderItem.getCount());
-//			list.put(obj);
-//		}
-//		
-//		JSONObject object = new JSONObject();
-//		object.put("tid",order.getDesk().getId());
-//		object.put("number", order.getNumber());
-//		object.put("recipes", list);
-//		System.out.println(object.toString());
-//		StringEntity entity = new StringEntity(object.toString(), "UTF-8");
-//		entity.setContentType("application/json;charset=UTF-8");
-//		entity.setContentEncoding("UTF-8");
-//		
-//		post.setEntity(entity);
-//		post.setHeader("Content-Type", "application/json;charset=UTF-8");
-//		
-//		HttpClientParams.setRedirecting(post.getParams(), false);
-//		
-//		HttpResponse response = client.execute(post);
-//		junit.framework.Assert.assertEquals(201, response.getStatusLine().getStatusCode());
-//		
-//		String location = response.getLastHeader("Location").getValue();
-//		System.out.println("创建成功：" + location);
-//		return location;
-//	}
 	
 	public static String GetOrderForm(String reqString,String udid,String Authorization) throws ClientProtocolException, IOException,
 	JSONException {
@@ -441,6 +400,41 @@ public class HttpDownloader {
 			throw new Exception(jsonString);
 		}
 		
+	}
+	
+	public static String favoriteRestaurant(String rootUrl,int rid,
+			String udid,String Authorization) throws Throwable{
+		String urlString=rootUrl + "restaurants/"+rid+"/favorite";
+		HttpPost post = new HttpPost(urlString);
+		
+		post.addHeader("X-device",udid);
+		post.addHeader("Authorization", Authorization);
+		
+		DefaultHttpClient client=new DefaultHttpClient();
+		HttpResponse response = client.execute(post);
+		HttpEntity responseEntity = response.getEntity();
+		String jsonString=parseContent(responseEntity.getContent());
+		
+		if (response.getStatusLine().getStatusCode() == 200) {
+			return jsonString;
+		}
+		else {
+			throw new Exception(jsonString);
+		}
+	}
+	
+	public static void deleteFavorite(String rootUrl,int rid,
+			String udid,String Authorization) throws Throwable{
+		String urlString=rootUrl + "user/favorites/"+rid;
+		HttpDelete delete = new HttpDelete(urlString);
+		
+		delete.addHeader("X-device",udid);
+		delete.addHeader("Authorization", Authorization);
+		
+		DefaultHttpClient client=new DefaultHttpClient();
+		HttpResponse response = client.execute(delete);
+		HttpEntity responseEntity = response.getEntity();
+		return;
 	}
 	
 	private static String parseContent(InputStream stream) throws IOException {

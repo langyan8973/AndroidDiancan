@@ -64,6 +64,7 @@
             android:label="@string/app_name" android:screenOrientation="portrait">
         </activity>
         <activity android:name=".RestaurantActivity" />
+        <activity android:name=".SearchPage" />
         <activity android:name=".MapViewActivity" />
         <activity android:name=".CaptureActivity"
 			android:screenOrientation="portrait" 
@@ -74,9 +75,12 @@
         <activity android:name=".MainFirstPage" />
         <activity android:name=".RecipeImgActivity"
             android:theme="@style/Theme.Translucent" />
-        <activity android:name=".HistoryGroup" />
         <activity android:name=".HistoryList" />
         <activity android:name=".HistoryPage" />
+        <activity android:name=".HisBrowse" />
+        <activity android:name=".CityPage" 
+            android:theme="@style/Theme.Translucent"
+            />
         <activity android:name=".UserInfoActivity" />
         <activity android:name=".MyService" tools:ignore="ExportedActivity">
             <intent-filter>

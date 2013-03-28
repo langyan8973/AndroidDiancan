@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" 
+    android:layout_height="50dip"
+    android:padding="10dip"
+    android:gravity="right|center_vertical"
+    style="@style/Widget.Layout.RestaurantItemHLayout">
+    <TextView 
+        android:id="@+id/his_recipe_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/Widget.TextView.Title.Item"
+        />
+    <TextView 
+        android:id="@+id/his_recipe_price"
+        android:layout_width="100dip"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        />
+</LinearLayout>

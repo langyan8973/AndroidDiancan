@@ -254,9 +254,7 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 		else{
 			declare.myOrderHelper.SetOrderAndItemDic(order);
 		}
-		MyRestaurant myRestaurant=new MyRestaurant();
-		myRestaurant.setId(order.getRestaurant().getId());
-		myRestaurant.setName(order.getRestaurant().getName());
+		MyRestaurant myRestaurant=new MyRestaurant(order.getRestaurant());
 		declare.myRestaurant=myRestaurant;
 		
 		//发广播更新餐桌tab标题
@@ -279,6 +277,7 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 		
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
+		MenuGroup.back_id = MenuGroup.ID_RESTAURANTACTIVITY;
 //		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		

@@ -8,7 +8,8 @@ import android.text.format.Time;
 public class HisRestaurant {
 	private int rid;
 	private String rname;
-	private String time;
+	private Date time;
+	private String image;
 	public int getRid() {
 		return rid;
 	}
@@ -21,11 +22,17 @@ public class HisRestaurant {
 	public void setRname(String rname) {
 		this.rname = rname;
 	}
-	public String getTime() {
+	public Date getTime() {
 		return time;
 	}
-	public void setTime(String time) {
+	public void setTime(Date time) {
 		this.time = time;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 	
 }

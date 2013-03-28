@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    style="@style/Widget.Layout.DefaultPageVLayout"
+    >
+	<RelativeLayout
+	    android:layout_width="fill_parent" 
+	    android:layout_height="@dimen/topbar_height"
+	    style="@style/Widget.Layout.TitleBar"
+	    >
+	    <Button android:id="@+id/bt_back" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="30dip" 
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="@string/btnback"
+		    style="@style/Widget.Button.Title.Back"/>
+	    <ProgressBar android:id="@+id/httppro"
+		      android:layout_width="wrap_content" 
+		      android:layout_height="wrap_content"
+		      android:layout_toRightOf="@+id/bt_back"
+		      android:layout_centerVertical="true"
+		      android:layout_marginLeft="5dip"
+		      android:indeterminateDrawable="@drawable/progressbar"
+		      style="?android:attr/progressBarStyleSmall">
+		</ProgressBar>
+		<TextView 
+		    android:gravity="center" 
+		    android:id="@+id/tv_title" 
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:layout_centerInParent="true"
+		    android:text="@string/restaurantsTitle" 
+		    style="@style/Widget.TextView.Title"
+		    />
+	</RelativeLayout>
+	<LinearLayout 
+        android:id="@+id/restaurantLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        style="@style/Widget.VLayout"
+        >
+        <include android:layout_width="fill_parent"
+	           android:layout_height="@dimen/searchlayout_height"
+	           layout="@layout/searchlayout"
+	           />
+		<ListView android:id="@+id/rList" 
+			    android:layout_width="fill_parent" 
+			    android:layout_height="fill_parent" 
+			    android:headerDividersEnabled="false"
+			    style="@style/Widget.ListView.Restaurant"
+			    />
+    </LinearLayout>
+	
+</LinearLayout>

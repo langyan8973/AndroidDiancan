@@ -72,6 +72,6 @@ public class History implements Serializable {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return super.toString();
+		return (rid+"-"+oid);
 	}
 }
