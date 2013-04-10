@@ -38,7 +38,7 @@ public class HttpHandler extends Handler {
 				mCallback.RequestError(msg.obj.toString());
 			}
 			else {
-				mCallback.RequestError("未知错误");
+				mCallback.RequestError("");
 			}
 		}
 		else{

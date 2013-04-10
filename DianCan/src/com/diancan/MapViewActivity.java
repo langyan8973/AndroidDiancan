@@ -155,6 +155,14 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		mLocationListener=null;
+		myLocationOverlay=null;
+		mapViewListener = null;
+		overitem = null;
+		mRestaurants = null;
+		imgDownloader.clearCache();
+		imgDownloader = null;
+		System.gc();
 	}
 
 	@Override
@@ -264,7 +272,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
 		MenuGroup.back_id = MenuGroup.ID_MAPVIEWACTIVITY;
-//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
 		contain.addView(view);
@@ -297,7 +305,7 @@ public class MapViewActivity extends MapActivity implements OnClickListener {
 					mRestaurants=MenuUtils.getAround(declare.udidString,x,y,distance,
 							declare.accessToken.getAuthorization(),declare.selectedCity.getId());
 					if(mRestaurants==null||mRestaurants.size()==0){
-						httpHandler.obtainMessage(0,"没有餐厅！").sendToTarget();
+						httpHandler.obtainMessage(0,getString(R.string.message_norestaurants)).sendToTarget();
 						return;
 					}
 					Iterator<Restaurant> iterator;

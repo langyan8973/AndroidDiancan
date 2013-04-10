@@ -152,6 +152,21 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 	}
 
 
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		mRestaurants = null;
+		restaurantAdapter = null;
+		restaurantHttpHelper = null;
+		imgDownloader.clearCache();
+		imgDownloader = null;
+		favoriteIntArray = null;
+		mLocationListener = null;
+		System.gc();
+	}
+
+
 
 	@Override
 	public void RequestComplete(Message msg) {
@@ -213,7 +228,7 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		appDiancan.myRestaurant=myRestaurant;
 		if(appDiancan.myOrder!=null){
 			if(appDiancan.myOrderHelper==null){
-				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder);
+				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder,getString(R.string.strportion));
 			}
 			else{
 				appDiancan.myOrderHelper.SetOrderAndItemDic(appDiancan.myOrder);
@@ -367,7 +382,7 @@ public class RestaurantActivity extends Activity implements HttpCallback,OnClick
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
 		MenuGroup.back_id = MenuGroup.ID_RESTAURANTACTIVITY;
-//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
 		contain.addView(view);

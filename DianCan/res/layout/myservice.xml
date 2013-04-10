@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    style="@style/Widget.Layout.GrayPageVLayout"
+    style="@style/Widget.Layout.DefaultPageVLayout"
     >
     <RelativeLayout android:id="@+id/topbar"
         android:layout_width="fill_parent" 
@@ -36,17 +36,40 @@
 		    />
     </RelativeLayout>
 	<LinearLayout
+	    android:id="@+id/serviceLayout"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_marginLeft="5dip">
-	   <!--  <ListView android:id="@+id/MessList"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:dividerHeight="10dip"
-	        android:divider="#00ffffff"
-	        android:listSelector="@drawable/co"
-	        android:cacheColorHint="#00000000">
-	           
-	    </ListView> -->
+	    style="@style/Widget.VLayout.OauthBtnLayout"
+	    >
+        
+	    <Button 
+	        android:id="@+id/callwaiter_btn"
+	        android:layout_width="200dip"
+	        android:layout_height="238dip"
+	        android:layout_margin="5dip"
+	        android:background="@drawable/call_waiter_btn"
+	        />
+	    <Button
+	        android:id="@+id/addwankuai_btn"
+	        android:layout_width="240dip"
+	        android:layout_height="50dip"
+	        android:layout_margin="5dip"
+	        android:background="@drawable/wankuaibtn_back"
+	        />
+	    <Button
+	        android:id="@+id/addtangshao_btn"
+	        android:layout_width="240dip"
+	        android:layout_height="50dip"
+	        android:layout_margin="5dip"
+	        android:background="@drawable/tangshaobtn_back"
+	        />
+	    <Button
+	        android:id="@+id/addkaishui_btn"
+	        android:layout_width="240dip"
+	        android:layout_height="50dip"
+	        android:layout_margin="5dip"
+	        android:background="@drawable/kaishuibtn_back" 
+	        />
+	   
 	</LinearLayout>
 </LinearLayout>

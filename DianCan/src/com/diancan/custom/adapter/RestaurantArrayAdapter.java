@@ -138,7 +138,6 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
 		// TODO Auto-generated method stub
 		View view;
 		ViewHolder viewHolder;
-		Restaurant restaurant = (Restaurant)getItem(position);
         if (convertView == null) {
             view = mInflater.inflate(resource, parent, false);
             viewHolder = new ViewHolder();
@@ -158,28 +157,51 @@ public class RestaurantArrayAdapter<T> extends AllMatchArrayAdapter<T> {
             view = convertView;
             viewHolder = (ViewHolder)view.getTag();
         }
-        viewHolder.titleTextView.setTag(restaurant.getId());
-        viewHolder.titleTextView.setText(restaurant.getName());
-	    viewHolder.addressTextView.setText(restaurant.getAddress());
-	    viewHolder.phoneTextView.setText(restaurant.getTelephone());
-	    String strUrl;
-		if(restaurant.getImage()==null){
-			strUrl=null;
-		}
-		else{
-			strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+restaurant.getImage();
-		}
-	    imageDownloader.download(strUrl, viewHolder.imageView);
-	    Drawable drawable;
-	    if(fSparseIntArray!=null && fSparseIntArray.get(restaurant.getId())!=0){
-	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn_select);
-	    }
-	    else{
-	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn);
-	    }
-	    viewHolder.fovariteImageView.setImageDrawable(drawable);
-	    viewHolder.fovariteImageView.setTag(restaurant.getId());
-	    viewHolder.fovariteImageView.setOnClickListener(myClickListener);
+        Object o = getItem(position);
+        if(o instanceof Restaurant){
+        	Restaurant restaurant = (Restaurant)o;
+        	viewHolder.titleTextView.setTag(restaurant.getId());
+            viewHolder.titleTextView.setText(restaurant.getName());
+    	    viewHolder.addressTextView.setText(restaurant.getAddress());
+    	    viewHolder.phoneTextView.setText(restaurant.getTelephone());
+    	    String strUrl;
+    		if(restaurant.getImage()==null){
+    			strUrl=null;
+    		}
+    		else{
+    			strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+restaurant.getImage();
+    		}
+    	    imageDownloader.download(strUrl, viewHolder.imageView);
+    	    Drawable drawable;
+    	    if(fSparseIntArray!=null && fSparseIntArray.get(restaurant.getId())!=0){
+    	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn_select);
+    	    }
+    	    else{
+    	    	drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn);
+    	    }
+    	    viewHolder.fovariteImageView.setImageDrawable(drawable);
+    	    viewHolder.fovariteImageView.setTag(restaurant.getId());
+    	    viewHolder.fovariteImageView.setOnClickListener(myClickListener);
+        }
+        else if(o instanceof favorite){
+        	favorite favorite = (favorite)o;
+        	viewHolder.titleTextView.setTag(favorite.getRid());
+            viewHolder.titleTextView.setText(favorite.getRestaurantName());
+    	    String strUrl;
+    		if(favorite.getRestaurantImage()==null){
+    			strUrl=null;
+    		}
+    		else{
+    			strUrl=MenuUtils.imageUrl+MenuUtils.IMAGE_SMALL+favorite.getRestaurantImage();
+    		}
+    	    imageDownloader.download(strUrl, viewHolder.imageView);
+    	    Drawable drawable;
+    	    drawable = mContext.getResources().getDrawable(R.drawable.favorite_btn_select);
+    	    viewHolder.fovariteImageView.setImageDrawable(drawable);
+    	    viewHolder.fovariteImageView.setTag(favorite.getRid());
+    	    viewHolder.fovariteImageView.setOnClickListener(myClickListener);
+        }
+        
         return view;
 	}
 

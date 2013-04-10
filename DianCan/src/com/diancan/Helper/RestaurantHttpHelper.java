@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.view.View;
 
+import com.diancan.R;
 import com.diancan.SearchPage;
 import com.diancan.Utils.FileUtils;
 import com.diancan.Utils.JsonUtils;
@@ -41,7 +42,7 @@ public class RestaurantHttpHelper {
 					List<Restaurant> mRestaurants=MenuUtils.getAllRestaurants(appDiancan.udidString,
 							appDiancan.accessToken.getAuthorization(),appDiancan.selectedCity.getId());
 					if(mRestaurants==null||mRestaurants.size()==0){
-						mHandler.obtainMessage(HttpHandler.RESULT_NULL,"没有餐厅！").sendToTarget();
+						mHandler.obtainMessage(HttpHandler.RESULT_NULL,appDiancan.getResources().getString(R.string.message_norestaurants)).sendToTarget();
 						return;
 					}
 					mHandler.obtainMessage(HttpHandler.REQUEST_RESTAURANTS,mRestaurants).sendToTarget();
@@ -66,7 +67,7 @@ public class RestaurantHttpHelper {
 					List<Restaurant> mRestaurants=MenuUtils.getAround(appDiancan.udidString,x,y,distance,
 							appDiancan.accessToken.getAuthorization(),appDiancan.selectedCity.getId());
 					if(mRestaurants==null||mRestaurants.size()==0){
-						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"没有餐厅！").sendToTarget();
+						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,appDiancan.getResources().getString(R.string.message_norestaurants)).sendToTarget();
 						return;
 					}
 					Iterator<Restaurant> iterator;
@@ -101,7 +102,7 @@ public class RestaurantHttpHelper {
 					List<Restaurant> mRestaurants=MenuUtils.searchRestaurants(appDiancan.udidString,keyString,
 							appDiancan.accessToken.getAuthorization(),appDiancan.selectedCity.getId());
 					if(mRestaurants==null||mRestaurants.size()==0){
-						mHandler.obtainMessage(HttpHandler.RESULT_NULL,"没有餐厅！").sendToTarget();
+						mHandler.obtainMessage(HttpHandler.RESULT_NULL,appDiancan.getResources().getString(R.string.message_norestaurants)).sendToTarget();
 						return;
 					}
 					mHandler.obtainMessage(HttpHandler.REQUEST_RESTAURANTS,mRestaurants).sendToTarget();

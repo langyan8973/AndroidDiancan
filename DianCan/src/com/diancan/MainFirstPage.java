@@ -17,6 +17,7 @@ import com.baidu.mapapi.MKSearchListener;
 import com.baidu.mapapi.MKSuggestionResult;
 import com.baidu.mapapi.MKTransitRouteResult;
 import com.baidu.mapapi.MKWalkingRouteResult;
+import com.diancan.Utils.BitmapUtil;
 import com.diancan.Utils.FileUtils;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
@@ -31,6 +32,8 @@ import android.app.Dialog;
 import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,22 +53,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainFirstPage extends Activity implements OnClickListener,HttpCallback {
+public class MainFirstPage extends Activity implements OnClickListener,HttpCallback,MKSearchListener {
 
+	TextView cityTextView;
 	Button restaurantsBtn;
 	Button captrueBtn;
-	Button historyBtn;
 	Button userBtn;
 	Button browseBtn;
 	Button searchBtn;
-	TextView cityTextView;
+	Button historyBtn;
 	AppDiancan appDiancan;
 	LocationListener mLocationListener=null;
 	/** 定义搜索服务类 */
-    private MKSearch mMKSearch;
     HttpHandler mHandler;
-    public static Oauth2AccessToken accessToken;
-    public static final String TAG = "sinasdk";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -99,9 +99,7 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 			appDiancan.mBMapMan=new BMapManager(getApplicationContext());
 			appDiancan.mBMapMan.init(appDiancan.BMapKey, new AppDiancan.MyGeneralListener());
 		}
-  		/** 初始化MKSearch */
-        mMKSearch = new MKSearch();
-        mMKSearch.init(appDiancan.mBMapMan, new MySearchListener());
+  		
         
         if(appDiancan.locationCity==null){
         	//定位监听器
@@ -113,6 +111,9 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
     				if (location != null){
     					GeoPoint pt = new GeoPoint((int)(location.getLatitude()*1e6),
     							(int)(location.getLongitude()*1e6));
+    					/** 初始化MKSearch */
+    			        MKSearch mMKSearch = new MKSearch();
+    			        mMKSearch.init(appDiancan.mBMapMan, MainFirstPage.this);
     					mMKSearch.reverseGeocode(pt);
     					
     				}
@@ -134,6 +135,23 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 		}
 	}
 	
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		
+		super.onDestroy();
+		mLocationListener = null;
+		mHandler = null;
+		System.gc();
+		BitmapUtil.destroyDrawable(cityTextView);
+		BitmapUtil.destroyDrawable(restaurantsBtn);
+		BitmapUtil.destroyDrawable(historyBtn);
+		BitmapUtil.destroyDrawable(browseBtn);
+		BitmapUtil.destroyDrawable(captrueBtn);
+		BitmapUtil.destroyDrawable(searchBtn);
+		BitmapUtil.destroyDrawable(userBtn);
+	}
 
 	@Override
 	protected void onPause() {
@@ -167,7 +185,7 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 		// TODO Auto-generated method stub
 		if(v.getId()==R.id.toRestaurants){
 			if(appDiancan.selectedCity == null){
-				ShowError("请选择城市");
+				ShowError(getString(R.string.message_select_city));
 				return;
 			}
 			ToRestaurantsPage();
@@ -178,15 +196,14 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 		else if(v.getId()==R.id.toHistory){
 			ToHistoriesListPage();
 		}else if(v.getId()==R.id.user_btn){
-			Intent intent = new Intent(this,UserInfoActivity.class);
-			startActivity(intent);
+			ToUserInfoPage();
 		}
 		else if(v.getId()==R.id.toBrowse){
 			ToHisBrowse();
 		}
 		else if(v.getId()==R.id.search_btn){
 			if(appDiancan.selectedCity == null){
-				ShowError("请选择城市");
+				ShowError(getString(R.string.message_select_city));
 				return;
 			}
 			ToSearchPage();
@@ -197,7 +214,6 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 		}
 		
 	}
-	
 	
 	/**
   	 * 显示错误信息
@@ -220,7 +236,7 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 				LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		        View layout = inflater.inflate(R.layout.dialog, null);
 		        dialog.setContentView(layout);
-		        String contentString = "定位的城市是"+c.getName()+"是否切换？";       
+		        String contentString = getString(R.string.message_locationcityis)+c.getName()+getString(R.string.message_areyouchange);       
 		        TextView contentView = (TextView)layout.findViewById(R.id.contentTxt);
 		        TextView titleView = (TextView)layout.findViewById(R.id.dialog_title);
 		        Button okBtn = (Button)layout.findViewById(R.id.dialog_button_ok);
@@ -243,7 +259,7 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 						dialog.dismiss();
 					}
 				});
-		        titleView.setText("定位提示");
+		        titleView.setText(R.string.title_location);
 		        contentView.setText(contentString);
 		        contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
 		        dialog.show();
@@ -326,6 +342,30 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
         view.startAnimation(animation);
 	}
 	
+	private void ToUserInfoPage(){
+		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_left_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
+		Intent in = new Intent(this.getParent(), UserInfoActivity.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_USERINFO, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+	
 	private void ToHisBrowse(){
 		MenuGroup parent = (MenuGroup)this.getParent();
 		LocalActivityManager manager = parent.getLocalActivityManager();
@@ -390,7 +430,10 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 							city c = iterator.next();
 							if(cityName.contains(c.getName())){
 								appDiancan.locationCity = c;
-								mHandler.obtainMessage(HttpHandler.LOCATION_CITY, c).sendToTarget();
+								if(mHandler!=null){
+									mHandler.obtainMessage(HttpHandler.LOCATION_CITY, c).sendToTarget();
+								}
+								break;
 							}
 						}
 						
@@ -405,92 +448,99 @@ public class MainFirstPage extends Activity implements OnClickListener,HttpCallb
 			}
 		}).start();
 	}
-	
-	
-	private class MySearchListener implements MKSearchListener{
 
-		@Override
-		public void onGetAddrResult(MKAddrInfo result, int iError) {
-			// TODO Auto-generated method stub
-			if( iError != 0 || result == null){
-                Toast.makeText(MainFirstPage.this, "获取地理信息失败", Toast.LENGTH_LONG).show();
-            }else {
-                String cityName =result.addressComponents.city;
-                FileUtils._cityFile=new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/city.txt");
-                if(FileUtils._cityFile.exists()){
-                	try {
-						String jsonString = FileUtils.ReadCity(FileUtils._cityFile.getAbsolutePath());
-						List<city> cities = JsonUtils.parseJsonTocities(jsonString);
-						
-						Iterator<city> iterator;
-						for(iterator=cities.iterator();iterator.hasNext();){
-							city c = iterator.next();
-							if(cityName.contains(c.getName())){
-								appDiancan.locationCity = c;
+
+	@Override
+	public void onGetAddrResult(MKAddrInfo result, int iError) {
+		// TODO Auto-generated method stub
+		if( iError != 0 || result == null){
+            Toast.makeText(MainFirstPage.this, getString(R.string.message_getcityinfo_fail), Toast.LENGTH_LONG).show();
+        }else {
+            String cityName =result.addressComponents.city;
+            if(FileUtils._cityFile.exists()){
+            	try {
+					String jsonString = FileUtils.ReadCity(FileUtils._cityFile.getAbsolutePath());
+					List<city> cities = JsonUtils.parseJsonTocities(jsonString);
+					
+					Iterator<city> iterator;
+					for(iterator=cities.iterator();iterator.hasNext();){
+						city c = iterator.next();
+						if(cityName.contains(c.getName())){
+							appDiancan.locationCity = c;
+							if (mHandler!=null) {
 								mHandler.obtainMessage(HttpHandler.LOCATION_CITY, c).sendToTarget();
 							}
+							break;
 						}
-						
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						ShowError(e.getMessage());
 					}
-                }
-                else{
-                	RequestAllCities(cityName);
-                }
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					ShowError(e.getMessage());
+				}
             }
-			
-		}
+            else{
+            	RequestAllCities(cityName);
+            }
+        }
+	}
 
-		@Override
-		public void onGetBusDetailResult(MKBusLineResult arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
 
-		@Override
-		public void onGetDrivingRouteResult(MKDrivingRouteResult arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void onGetBusDetailResult(MKBusLineResult arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 
-		@Override
-		public void onGetPoiDetailSearchResult(int arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
 
-		@Override
-		public void onGetPoiResult(MKPoiResult arg0, int arg1, int arg2) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void onGetDrivingRouteResult(MKDrivingRouteResult arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 
-		@Override
-		public void onGetRGCShareUrlResult(String arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
 
-		@Override
-		public void onGetSuggestionResult(MKSuggestionResult arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void onGetPoiDetailSearchResult(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 
-		@Override
-		public void onGetTransitRouteResult(MKTransitRouteResult arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
 
-		@Override
-		public void onGetWalkingRouteResult(MKWalkingRouteResult arg0, int arg1) {
-			// TODO Auto-generated method stub
-			
-		}
-  		
-  	}
+	@Override
+	public void onGetPoiResult(MKPoiResult arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onGetRGCShareUrlResult(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onGetSuggestionResult(MKSuggestionResult arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onGetTransitRouteResult(MKTransitRouteResult arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onGetWalkingRouteResult(MKWalkingRouteResult arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }

@@ -10,10 +10,16 @@ import com.weibo.sdk.android.WeiboException;
 import com.weibo.sdk.android.keep.AccessTokenKeeper;
 
 import android.app.Activity;
+import android.app.LocalActivityManager;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +35,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	Button tencentButton;
 	Button doubanButton;
 	Button renrenButton;
+	Button favoriteButton;
 	
 	LinearLayout userInfoLayout;
 	LinearLayout buttonsLayout;
@@ -54,6 +61,8 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 		doubanButton.setOnClickListener(this);
 		renrenButton = (Button)findViewById(R.id.renrenlogin_btn);
 		renrenButton.setOnClickListener(this);
+		favoriteButton = (Button)findViewById(R.id.favoritelist_btn);
+		favoriteButton.setOnClickListener(this);
 		
 		userInfoLayout = (LinearLayout)findViewById(R.id.infoLayout);
 		buttonsLayout = (LinearLayout)findViewById(R.id.buttonsLayout);
@@ -66,7 +75,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.bt_back:
-			this.finish();
+			ToMainFirstPage();
 			break;
 		case R.id.weibologin_btn:
 			weiboLogin();
@@ -82,6 +91,9 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.renrenlogin_btn:
 			renrenLogin();
+			break;
+		case R.id.favoritelist_btn:
+			ToFavoriteListPage();
 			break;
 		default:
 			break;
@@ -112,7 +124,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	    String resultUrlString = "http://taochike.sinaapp.com/rest/1/taochike/thirdlogin/callback";
 	    Weibo.URL_OAUTH2_ACCESS_AUTHORIZE = "https://open.weibo.cn/oauth2/authorize";
 		mWeibo = Weibo.getInstance(CONSUMER_KEY, REDIRECT_URL,resultUrlString);
-		mWeibo.authorize(this, new AuthDialogListener());
+		mWeibo.authorize(getParent(), new AuthDialogListener());
 	}
 	
 	private void tencentLogin(){
@@ -122,7 +134,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	    Weibo.URL_OAUTH2_ACCESS_AUTHORIZE = "https://open.t.qq.com/cgi-bin/oauth2/authorize";
 		mWeibo = Weibo.getInstance(CONSUMER_KEY, REDIRECT_URL,resultUrlString);
 		
-		mWeibo.authorize(this, new AuthDialogListener());
+		mWeibo.authorize(getParent(), new AuthDialogListener());
 	}
 	
 	private void qqLogin(){
@@ -132,7 +144,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	    Weibo.URL_OAUTH2_ACCESS_AUTHORIZE = "https://graph.qq.com/oauth2.0/authorize";
 		mWeibo = Weibo.getInstance(CONSUMER_KEY, REDIRECT_URL,resultUrlString);
 		
-		mWeibo.authorize(this, new AuthDialogListener());
+		mWeibo.authorize(getParent(), new AuthDialogListener());
 	}
 	
 	private void doubanLogin(){
@@ -142,7 +154,7 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	    Weibo.URL_OAUTH2_ACCESS_AUTHORIZE = "https://www.douban.com/service/auth2/auth";
 		mWeibo = Weibo.getInstance(CONSUMER_KEY, REDIRECT_URL,resultUrlString);
 		
-		mWeibo.authorize(this, new AuthDialogListener());
+		mWeibo.authorize(getParent(), new AuthDialogListener());
 	}
 	
 	private void renrenLogin(){
@@ -152,8 +164,62 @@ public class UserInfoActivity extends Activity implements OnClickListener {
 	    Weibo.URL_OAUTH2_ACCESS_AUTHORIZE = "https://graph.renren.com/oauth/authorize";
 		mWeibo = Weibo.getInstance(CONSUMER_KEY, REDIRECT_URL,resultUrlString);
 		
-		mWeibo.authorize(this, new AuthDialogListener());
+		mWeibo.authorize(getParent(), new AuthDialogListener());
 	}
+	
+	/**
+  	 * 跳回导航页
+  	 */
+  	private void ToMainFirstPage(){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_right_in);
+		Intent in = new Intent(this.getParent(), MainFirstPage.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_MAINFIRST, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+  	
+  	/**
+  	 * 跳到历史订单页面
+  	 */
+  	private void ToFavoriteListPage(){
+  		MenuGroup parent = (MenuGroup)this.getParent();
+		LocalActivityManager manager = parent.getLocalActivityManager();
+		Activity activity=manager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_left_out);
+		v1.startAnimation(sAnimation);
+	    final LinearLayout contain = (LinearLayout) parent.findViewById(R.id.group_Layout);
+		contain.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
+		Intent in = new Intent(this.getParent(), FavoriteListPage.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = manager.startActivity(MenuGroup.ID_FAVORITELISTPAGE, in);
+		View view=window.getDecorView();		
+		contain.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+  	}
 
 	class AuthDialogListener implements WeiboAuthListener {
 

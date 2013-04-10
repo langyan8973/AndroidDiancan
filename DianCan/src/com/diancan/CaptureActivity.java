@@ -241,7 +241,7 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 	private void ToRecipePage(Order order){
 		
 		if(order==null){
-			ShowError("叫服务员先为您开台！");
+			ShowError(getString(R.string.message_callwaiter));
 			ToMainFirstPage();
 			return;
 		}
@@ -249,7 +249,7 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 		AppDiancan declare=(AppDiancan)CaptureActivity.this.getApplicationContext();
 		declare.myOrder=order;
 		if(declare.myOrderHelper==null){
-			declare.myOrderHelper=new OrderHelper(order);
+			declare.myOrderHelper=new OrderHelper(order,getString(R.string.strportion));
 		}
 		else{
 			declare.myOrderHelper.SetOrderAndItemDic(order);
@@ -278,7 +278,7 @@ public class CaptureActivity extends Activity implements Callback,OnClickListene
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
 		MenuGroup.back_id = MenuGroup.ID_RESTAURANTACTIVITY;
-//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
 		contain.addView(view);

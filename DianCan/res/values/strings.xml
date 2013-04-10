@@ -54,4 +54,26 @@
     <string name="citylist">城市列表</string>
     <string name="selectCitystr">选择城市</string>
     <string name="titlecity">选城市</string>
+    <string name="myFavorites">我的收藏</string>
+    <string name="message_norestaurants">没有符合条件的餐厅！</string>
+    <string name="message_net_error">网络连接错误！</string>
+    <string name="message_select_city">请选择城市</string>
+    <string name="message_locationcityis">定位的城市是</string>
+    <string name="message_areyouchange">是否切换？</string>
+    <string name="title_location">定位提示</string>
+    <string name="message_getcityinfo_fail">获取地理信息失败</string>
+    <string name="message_callwaiter">叫服务员先为您开台！</string>
+    <string name="strline">----</string>
+    <string name="strportion">份</string>
+    <string name="strunitprice">"单价：￥ "</string>
+    <string name="str_check_totalprice">结账：￥</string>
+    <string name="str_yuan">元</string>
+    <string name="message_option_fail">操作失败！</string>
+    <string name="str_part_over">例已上</string>
+    <string name="str_part_nocommit">例未下单</string>
+    <string name="str_commited">已下单</string>
+    <string name="message_currentcommit">本次提交</string>
+    <string name="message_inputcode">请输入餐桌邀请码！</string>
+    <string name="message_getrecipesfail">获取菜品失败！</string>
+    <string name="mark_yuan">￥</string>
 </resources>

@@ -159,7 +159,24 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 		unregisterReceiver(receiver);
 	}
     
+    
+    
     @Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		recipeListHttpHelper = null;
+		if(imageDownloader!=null){
+			imageDownloader.clearCache();
+		}
+		imageDownloader = null;
+		hashOrderItems = null;
+		arrayAdapter = null;
+		sectionAdapter = null;
+		exampleArray = null;
+		System.gc();
+	}
+	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
     	mProgressBar.setVisibility(View.GONE);
@@ -272,8 +289,10 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     	Drawable[] layers={getResources().getDrawable(R.drawable.imagewaiting)};
     	imageDownloader = new ImageDownloader(layers);
     	arrayAdapter = new MyStandardArrayAdapter(this,R.id.title,exampleArray);
+    	String[] strMessage = new String[]{getString(R.string.str_part_over),getString(R.string.mark_yuan),
+    			getString(R.string.str_commited),getString(R.string.str_part_nocommit)};
 		sectionAdapter = new OrderSectionListAdapter(getLayoutInflater(),
-                arrayAdapter,imageDownloader);
+                arrayAdapter,imageDownloader,strMessage);
 		sectionAdapter.setViewClickListener(this);
 		orderListView.setAdapter(sectionAdapter);
 		orderListView.setOnScrollListener(sectionAdapter);
@@ -334,7 +353,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     private void ParseOrderRefresh(String jsString){
     	if(jsString.equals(""))
     	{
-    		ShowError("操作失败！");
+    		ShowError(getString(R.string.message_option_fail));
     	}
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
     	declare.myOrder = order;
@@ -362,7 +381,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
     private void ParseOrder(String jsString) {
     	if(jsString.equals(""))
     	{
-    		ShowError("操作失败！");
+    		ShowError(getString(R.string.message_option_fail));
     	}
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
     	declare.myOrder = order;
@@ -464,7 +483,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 				viewHolder.tvCount.setText(orderItem.GetCount()+"");
 				viewHolder.imgdelete.setVisibility(View.VISIBLE);
 				viewHolder.tvCountDeposit.setTextColor(Color.RED);
-				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+getString(R.string.str_part_nocommit));
 				declare.myOrder.setPriceAll(declare.myOrder.getPriceAll()+orderItem.getRecipe().getPrice());
 				sumTextView.setText(sumString+declare.myOrder.getPriceAll());
 				//加减菜请求
@@ -501,12 +520,12 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 			if(orderItem.getCountNew()>0){
 				viewHolder.imgdelete.setVisibility(View.VISIBLE);
 				viewHolder.tvCountDeposit.setTextColor(Color.RED);
-				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+				viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+getString(R.string.str_part_nocommit));
 			}
 			else{
 				viewHolder.imgdelete.setVisibility(View.GONE);
 				viewHolder.tvCountDeposit.setTextColor(Color.DKGRAY);
-				viewHolder.tvCountDeposit.setText("已下单");
+				viewHolder.tvCountDeposit.setText(getString(R.string.str_commited));
 			}
 		}
 		declare.myOrder.setPriceAll(declare.myOrder.getPriceAll()-orderItem.getRecipe().getPrice());
@@ -551,7 +570,7 @@ public class MyTable extends Activity implements HttpCallback,OnClickListener{
 				dialog.dismiss();
 			}
 		});
-        titleView.setText("本次提交");
+        titleView.setText(getString(R.string.message_currentcommit));
         contentView.setText(contentString);
         contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
         dialog.show();

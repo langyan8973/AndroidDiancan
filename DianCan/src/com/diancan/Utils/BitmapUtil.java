@@ -8,6 +8,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -90,6 +94,36 @@ public class BitmapUtil {
 			bmp.recycle();   //回收图片所占的内存
 	         System.gc();    //提醒系统及时回收
 		}
+	}
+	
+	public static void destroyDrawable(View view){
+		Drawable drawable  = view.getBackground();
+		drawable.setCallback(null);
+//		if(drawable instanceof StateListDrawable){
+//			StateListDrawable sDrawable = (StateListDrawable)drawable;
+//			Drawable cDrawable = sDrawable.getCurrent();
+//			if(cDrawable instanceof BitmapDrawable){
+//				BitmapDrawable bitmapDrawable = (BitmapDrawable)cDrawable;
+//				bitmapDrawable.setCallback(null);
+//			}
+//			sDrawable.setCallback(null);
+//		}
+//		else if(drawable instanceof BitmapDrawable){
+//			BitmapDrawable bDrawable = (BitmapDrawable)drawable;
+//			bDrawable.setCallback(null);
+//			bDrawable.getBitmap().recycle();
+//		}
+//		else if(drawable instanceof NinePatchDrawable){
+//			NinePatchDrawable nDrawable = (NinePatchDrawable)drawable;
+//			Drawable cDrawable = nDrawable.getCurrent();
+//			if(cDrawable instanceof BitmapDrawable){
+//				BitmapDrawable bitmapDrawable = (BitmapDrawable)cDrawable;
+//				bitmapDrawable.setCallback(null);
+//				bitmapDrawable.getBitmap().recycle();
+//			}
+//			nDrawable.setCallback(null);
+//		}
+		System.gc();
 	}
 	
 }

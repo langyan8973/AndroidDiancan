@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -33,6 +34,10 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
 	AppDiancan declare;
 	Button mCheckButton;
 	ProgressBar mProgressBar;
+	Button mCallButton;
+	Button mWankuaiButton;
+	Button mTangshaoButton;
+	Button mKaishuiButton;
 	RecipeListHttpHelper recipeListHttpHelper;
 //	NotifiReceiver receiver;
 	
@@ -48,6 +53,14 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
 		mCheckButton.setOnClickListener(this);
 		mProgressBar = (ProgressBar)findViewById(R.id.httppro);
 		mProgressBar.setVisibility(View.GONE);
+		mCallButton = (Button)findViewById(R.id.callwaiter_btn);
+		mCallButton.setOnClickListener(this);
+		mWankuaiButton = (Button)findViewById(R.id.addwankuai_btn);
+		mWankuaiButton.setOnClickListener(this);
+		mTangshaoButton = (Button)findViewById(R.id.addtangshao_btn);
+		mTangshaoButton.setOnClickListener(this);
+		mKaishuiButton = (Button)findViewById(R.id.addkaishui_btn);
+		mKaishuiButton.setOnClickListener(this);
 	}
 	
 	@Override
@@ -106,6 +119,17 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
 		// TODO Auto-generated method stub
 		if(v.getId()==R.id.checkBtn){
 			ClickCheckBtn();
+		}
+		else if(v.getId()==R.id.callwaiter_btn){
+			mCallButton.setEnabled(false);
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					mCallButton.setEnabled(true);
+				}
+			}, 1000*60*3);
 		}
 	}
 
@@ -172,7 +196,7 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
 			}
 		});
         double totalprice = declare.myOrder.getPriceDeposit()+declare.myOrder.getPriceConfirm();
-        titleView.setText("结账：￥"+totalprice+"元");
+        titleView.setText(getString(R.string.str_check_totalprice)+totalprice+getString(R.string.str_yuan));
         contentView.setText(contentString);
         contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
         dialog.show();
@@ -184,7 +208,7 @@ public class MyService extends Activity implements OnClickListener,HttpCallback 
   	private void ParseOrderRefresh(String jsString){
     	if(jsString.equals(""))
     	{
-    		ShowError("操作失败！");
+    		ShowError(getString(R.string.message_option_fail));
     	}
     	final Order order=JsonUtils.ParseJsonToOrder(jsString);
     	declare.myOrder = order;

@@ -107,7 +107,7 @@ public class TableCodePage extends Activity implements OnClickListener {
 			
 			final Order order=JsonUtils.ParseJsonToOrder(resultString);
 			declare.myOrder=order;
-			declare.myOrderHelper = new OrderHelper(declare.myOrder);
+			declare.myOrderHelper = new OrderHelper(declare.myOrder,getString(R.string.strportion));
 			declare.myOrderHelper.setCategoryDic(declare.myRestaurant.getCategoryDic());
 			
             //发广播更新餐桌tab标题
@@ -137,7 +137,7 @@ public class TableCodePage extends Activity implements OnClickListener {
 			String codeString=inpuText.getText().toString();
 			if(codeString=="")
 			{
-				Toast toast = Toast.makeText(TableCodePage.this, "请输入餐桌邀请码！", Toast.LENGTH_SHORT); 
+				Toast toast = Toast.makeText(TableCodePage.this, getString(R.string.message_inputcode), Toast.LENGTH_SHORT); 
 	            toast.show();
 				return;
 			}

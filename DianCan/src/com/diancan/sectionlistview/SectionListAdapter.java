@@ -107,11 +107,13 @@ public class SectionListAdapter implements ListAdapter,
     private View transparentSectionView;
 
     private OnItemClickListener linkedListener;
+    private String markString;
     
     public SectionListAdapter(final LayoutInflater inflater,
-            final StandardArrayAdapter linkedAdapter,ImageDownloader imgDownloader) {
+            final StandardArrayAdapter linkedAdapter,ImageDownloader imgDownloader,String strmark) {
         this.linkedAdapter = linkedAdapter;
         this.inflater = inflater;
+        markString = strmark;
         linkedAdapter.registerDataSetObserver(dataSetObserver);
         updateTotalCount();
         imageDownloader = imgDownloader;
@@ -284,7 +286,7 @@ public class SectionListAdapter implements ListAdapter,
 			}
 	        imageDownloader.download(strUrl, viewHolder.imgrecipe);
 	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
-	        viewHolder.tvPrice.setText("￥"+orderItem.getRecipe().getPrice().toString());
+	        viewHolder.tvPrice.setText(markString+orderItem.getRecipe().getPrice().toString());
 	        viewHolder.imgrecipe.setTag(position);
 	        viewHolder.imgdelete.setTag(position);
 	        viewHolder.imgadd.setTag(position);

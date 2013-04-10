@@ -50,6 +50,7 @@ public class HistoriesAdapter implements ListAdapter, OnItemClickListener,
 	private int[] mCounts;
 	private int mSectionCounts = 0; 
 	private Date currentDate;
+	private String markString;
 	
 	/**
 	 * 按钮、图片点击监听；
@@ -89,10 +90,11 @@ public class HistoriesAdapter implements ListAdapter, OnItemClickListener,
     private OnItemClickListener linkedListener;
     
     public HistoriesAdapter(final LayoutInflater inflater,
-            final MyStandardArrayAdapter linkedAdapter) {
+            final MyStandardArrayAdapter linkedAdapter,String strmark) {
         this.linkedAdapter = linkedAdapter;
         this.inflater = inflater;
         this.currentDate = new Date(System.currentTimeMillis());
+        markString = strmark;
         linkedAdapter.registerDataSetObserver(dataSetObserver);
         updateTotalCount();
     }
@@ -231,7 +233,7 @@ public class HistoriesAdapter implements ListAdapter, OnItemClickListener,
         History history = (History)currentItem.item;
         viewHolder.headTextView.setText(currentItem.section);
         viewHolder.restaurantView.setText(history.getRestaurant());
-		viewHolder.moneyTextView.setText("￥ "+history.getMoney());
+		viewHolder.moneyTextView.setText(markString+history.getMoney());
 		Date timeDate = history.getTime();
 		viewHolder.timeTextView.setText(MyDateUtils.getStringFormDate(currentDate, timeDate));
 		

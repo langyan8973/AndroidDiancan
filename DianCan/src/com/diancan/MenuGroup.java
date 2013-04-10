@@ -38,6 +38,8 @@ public class MenuGroup extends ActivityGroup {
 	public static String ID_HISTORYPAGE = "HistoryPage";
 	public static String ID_HISBROWSE = "HisBrowse";
 	public static String ID_SEARCHPAGE = "SearchPage";
+	public static String ID_USERINFO = "UserInfoActivity";
+	public static String ID_FAVORITELISTPAGE = "FavoriteListPage";
 	
 	public static String back_id;
 	public static boolean isChecked = false;
@@ -84,40 +86,49 @@ public class MenuGroup extends ActivityGroup {
 		if(childString.equals(MenuGroup.ID_MAINFIRST)){
 			if(rid!=-1){
 				intent=new Intent(MenuGroup .this,RecipeList.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_RECIPLIST,intent);
 			}
 			else{
 				intent=new Intent(MenuGroup .this,MainFirstPage.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_MAINFIRST,intent);
 			}
 			
 		}else if(childString.equals(MenuGroup.ID_RESTAURANTACTIVITY)){
 			intent=new Intent(MenuGroup .this,RestaurantActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_RESTAURANTACTIVITY,intent);
 			
 		}else if(childString.equals(MenuGroup.ID_MAPVIEWACTIVITY)){
 			intent=new Intent(MenuGroup .this,MapViewActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_MAPVIEWACTIVITY,intent);
 			
 		}else if(childString.equals(MenuGroup.ID_CAPTUREACTIVITY)){
 			intent=new Intent(MenuGroup .this,CaptureActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_CAPTUREACTIVITY,intent);
 			
 		}else if(childString.equals(MenuGroup.ID_HISTORYLIST)){
 			intent=new Intent(MenuGroup .this,HistoryList.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_HISTORYLIST,intent);
 			
 		}else if(childString.equals(MenuGroup.ID_RECIPLIST)){
 			if(rid!=-1){
 				intent=new Intent(MenuGroup .this,RecipeList.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_RECIPLIST,intent);
 			}
 			else{
 				intent=new Intent(MenuGroup .this,RestaurantActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_RESTAURANTACTIVITY,intent);
 			}
 		}else{
 			intent=new Intent(MenuGroup .this,MainFirstPage.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_MAINFIRST,intent);
 		}
 		
@@ -145,6 +156,7 @@ public class MenuGroup extends ActivityGroup {
 		
 		Animation animation = AnimationUtils.loadAnimation(MenuGroup.this, R.anim.push_right_in);
 		Intent intent=new Intent(MenuGroup .this,MainFirstPage.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         Window subActivity=getLocalActivityManager().startActivity(MenuGroup.ID_MAINFIRST,intent);
         View view=subActivity.getDecorView();
         rootLayout.addView(view);  
@@ -274,6 +286,48 @@ public class MenuGroup extends ActivityGroup {
 		return;
 	}
 	
+	private void ToUserInfoPage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_right_in);
+		Intent in = new Intent(this.getParent(), UserInfoActivity.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = getLocalActivityManager().startActivity(MenuGroup.ID_USERINFO, in);
+		View view=window.getDecorView();		
+		rootLayout.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+	
+	private void ToFavoriteListPage(){
+		Activity activity=activityManager.getCurrentActivity();
+		Window w1=activity.getWindow();
+		View v1=w1.getDecorView();
+		Animation sAnimation=AnimationUtils.loadAnimation(this, R.anim.push_right_out);
+		v1.startAnimation(sAnimation);
+		rootLayout.removeAllViews();
+		
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_right_in);
+		Intent in = new Intent(this.getParent(), FavoriteListPage.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Window window = getLocalActivityManager().startActivity(MenuGroup.ID_FAVORITELISTPAGE, in);
+		View view=window.getDecorView();		
+		rootLayout.addView(view);
+		LayoutParams params=(LayoutParams) view.getLayoutParams();
+        params.width=LayoutParams.FILL_PARENT;
+        params.height=LayoutParams.FILL_PARENT;
+        view.setLayoutParams(params);
+        view.startAnimation(animation);
+	}
+	
 	/***
 	 * 监听返回按键
 	 */
@@ -292,7 +346,8 @@ public class MenuGroup extends ActivityGroup {
 	    				||strid.equals(MenuGroup.ID_MAPVIEWACTIVITY)
 	    				||strid.equals(MenuGroup.ID_HISTORYLIST)
 	    				||strid.equals(MenuGroup.ID_HISBROWSE)
-	    				||strid.equals(MenuGroup.ID_SEARCHPAGE)){
+	    				||strid.equals(MenuGroup.ID_SEARCHPAGE)
+	    				||strid.equals(MenuGroup.ID_USERINFO)){
 	    			ToMainFirstPage();
 	    			return true;
 	    		}
@@ -309,10 +364,20 @@ public class MenuGroup extends ActivityGroup {
 	    			else if(MenuGroup.back_id == MenuGroup.ID_SEARCHPAGE){
 	    				toSearchPage();
 	    			}
+	    			else if(MenuGroup.back_id == MenuGroup.ID_FAVORITELISTPAGE){
+	    				ToFavoriteListPage();
+	    			}
+	    			else{
+	    				ToMainFirstPage();
+	    			}
 	    			return true;
 	    		}
 	    		else if(strid.equals(MenuGroup.ID_HISTORYPAGE)){
 	    			ToHistoryListPage();
+	    			return true;
+	    		}
+	    		else if(strid.equals(MenuGroup.ID_FAVORITELISTPAGE)){
+	    			ToUserInfoPage();
 	    			return true;
 	    		}
 	    		else {
@@ -337,7 +402,10 @@ public class MenuGroup extends ActivityGroup {
 		String childIdString = activityManager.getCurrentId();
 		SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
 		deviceInfo.edit().putString("childId", childIdString).commit();
+		Activity activity=activityManager.getCurrentActivity();
+		activity.finish();
 		super.onDestroy();
+		
 	}
 	
 }

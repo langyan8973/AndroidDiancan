@@ -103,6 +103,22 @@ OnItemClickListener,TextWatcher,SearchAdapterHelper,OnEditorActionListener {
 		}
 	}
 
+	
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		restaurantAdapter = null;
+		mRestaurants = null;
+		imgDownloader.clearCache();
+		imgDownloader = null;
+		restaurantHttpHelper = null;
+		System.gc();
+	}
+
+
+
 	@Override
 	public void SetListViewHeight(int count) {
 		// TODO Auto-generated method stub
@@ -145,7 +161,7 @@ OnItemClickListener,TextWatcher,SearchAdapterHelper,OnEditorActionListener {
 			appDiancan.myRestaurant=myRestaurant;
 			if(appDiancan.myOrder!=null){
 				if(appDiancan.myOrderHelper==null){
-					appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder);
+					appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder,getString(R.string.strportion));
 				}
 				else{
 					appDiancan.myOrderHelper.SetOrderAndItemDic(appDiancan.myOrder);
@@ -309,6 +325,7 @@ OnItemClickListener,TextWatcher,SearchAdapterHelper,OnEditorActionListener {
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
 		MenuGroup.back_id = MenuGroup.ID_SEARCHPAGE;
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
 		contain.addView(view);

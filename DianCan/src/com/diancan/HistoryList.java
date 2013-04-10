@@ -83,6 +83,16 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
 		// TODO Auto-generated method stub
 		super.onResume();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		mHandler = null;
+		mHistories = null;
+		idStrings = null;
+		System.gc();
+	}
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -164,7 +174,7 @@ public class HistoryList extends Activity implements OnClickListener,OnItemClick
         }
         
         arrayAdapter = new MyStandardArrayAdapter(this,R.id.his_r_name,exampleArray);
-		sectionAdapter = new HistoriesAdapter(getLayoutInflater(),arrayAdapter);
+		sectionAdapter = new HistoriesAdapter(getLayoutInflater(),arrayAdapter,getString(R.string.mark_yuan));
 		sectionAdapter.setViewClickListener(this);
     	
     	historyListView.setAdapter(sectionAdapter);

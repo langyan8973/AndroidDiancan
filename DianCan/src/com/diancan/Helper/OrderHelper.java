@@ -17,11 +17,11 @@ public class OrderHelper {
 	Order mOrder;
 	SparseArray<Category> categoryDic;
 	SparseArray<OrderItem> orderItemDic;
-	
+	String portionString;
 	int totalCount;
 	int countNew;
 	
-	public OrderHelper(Order order){
+	public OrderHelper(Order order,String strpart){
 		SetOrderAndItemDic(order);
 	}
 	public SparseArray<Category> getCategoryDic() {
@@ -118,7 +118,7 @@ public class OrderHelper {
         		stringBuilder.append("\n");
         		stringBuilder.append(orderItem.getRecipe().getName());
         		stringBuilder.append("-------");
-        		stringBuilder.append(orderItem.getCountNew()+"份");
+        		stringBuilder.append(orderItem.getCountNew()+portionString);
         	}
         }
         contentString = stringBuilder.toString();
@@ -138,7 +138,7 @@ public class OrderHelper {
         		stringBuilder.append("\n");
         		stringBuilder.append(orderItem.getRecipe().getName());
         		stringBuilder.append("-------");
-        		stringBuilder.append((orderItem.getCountDeposit()+orderItem.getCountConfirm())+"份");
+        		stringBuilder.append((orderItem.getCountDeposit()+orderItem.getCountConfirm())+portionString);
         	}
         }
         contentString = stringBuilder.toString();

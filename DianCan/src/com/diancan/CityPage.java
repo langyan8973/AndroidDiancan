@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -70,6 +71,20 @@ public class CityPage extends Activity implements HttpCallback,OnClickListener,
 		
 		startOpenAnimation();
 	}
+	
+	
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		restaurantHttpHelper = null;
+		mCities = null;
+		listAdapter = null;
+		System.gc();
+	}
+
+
 
 	@Override
 	public void SetListViewHeight(int count) {
@@ -158,6 +173,25 @@ public class CityPage extends Activity implements HttpCallback,OnClickListener,
 		}
 	}
 	
+	
+	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) { 
+	        if (event.getAction() == KeyEvent.ACTION_DOWN 
+	                && event.getRepeatCount() == 0) { 
+	        	startCloseAnimation();
+	        	
+	        } 
+	        return true;
+	    } 
+		else{
+			return super.dispatchKeyEvent(event);
+		}
+		
+	}
+
 	/**
 	 * 显示城市列表
 	 */

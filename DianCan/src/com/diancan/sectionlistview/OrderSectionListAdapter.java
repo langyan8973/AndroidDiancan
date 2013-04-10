@@ -80,11 +80,13 @@ public class OrderSectionListAdapter implements ListAdapter, OnItemClickListener
     private View transparentSectionView;
 
     private OnItemClickListener linkedListener;
+    private String[] messageStrings;
     
     public OrderSectionListAdapter(final LayoutInflater inflater,
-            final MyStandardArrayAdapter linkedAdapter,ImageDownloader imgDownloader) {
+            final MyStandardArrayAdapter linkedAdapter,ImageDownloader imgDownloader,String[] strmessages) {
         this.linkedAdapter = linkedAdapter;
         this.inflater = inflater;
+        messageStrings = strmessages;
         linkedAdapter.registerDataSetObserver(dataSetObserver);
         updateTotalCount();
         imageDownloader = imgDownloader;
@@ -250,13 +252,13 @@ public class OrderSectionListAdapter implements ListAdapter, OnItemClickListener
 	        viewHolder.tvCount.setText(orderItem.GetCount()+ "");
 	        viewHolder.tvCountConfirm.setTextColor(Color.DKGRAY);
 			if(orderItem.getCountConfirm()>0){
-				viewHolder.tvCountConfirm.setText(orderItem.getCountConfirm()+"例已上");
+				viewHolder.tvCountConfirm.setText(orderItem.getCountConfirm()+messageStrings[0]);
 			}
 			else{
 				viewHolder.tvCountConfirm.setText("");
 			}
 	        viewHolder.tvTitle.setText(orderItem.getRecipe().getName());
-	        viewHolder.tvPrice.setText("￥"+orderItem.getRecipe().getPrice().toString());
+	        viewHolder.tvPrice.setText(messageStrings[1]+orderItem.getRecipe().getPrice().toString());
 	        viewHolder.imgdelete.setTag(position);
 	        viewHolder.imgadd.setTag(position);
 	        viewHolder.imgadd.setOnClickListener(viewClickListener);
@@ -265,12 +267,12 @@ public class OrderSectionListAdapter implements ListAdapter, OnItemClickListener
 	        if(orderItem.getCountNew()<=0){
 	        	viewHolder.imgdelete.setVisibility(View.INVISIBLE);
 	        	viewHolder.tvCountDeposit.setTextColor(Color.DKGRAY);
-	        	viewHolder.tvCountDeposit.setText("已下单");
+	        	viewHolder.tvCountDeposit.setText(messageStrings[2]);
 	        }
 	        else{
 	        	viewHolder.imgdelete.setVisibility(View.VISIBLE);
 	        	viewHolder.tvCountDeposit.setTextColor(Color.RED);
-	        	viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+"例未下单");
+	        	viewHolder.tvCountDeposit.setText(orderItem.getCountNew()+messageStrings[3]);
 	        }
 	        
 			int section = getSectionForPosition(position);

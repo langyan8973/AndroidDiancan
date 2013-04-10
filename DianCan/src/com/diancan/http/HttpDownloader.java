@@ -38,6 +38,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import cn.jpush.android.c.s;
+
 import com.diancan.Utils.FileUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.model.Order;

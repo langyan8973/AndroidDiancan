@@ -76,8 +76,6 @@ public class HistoryPage extends Activity implements HttpCallback,OnRefreshListe
 		timeTextView = (TextView)findViewById(R.id.timeText);
 		titleTextView = (TextView)findViewById(R.id.tv_title);
 		ddListView = (DropDownListView)findViewById(R.id.itemList);
-//		ddListView.setonRefreshListener(this);
-//		ddListView.setMyClickListener(this);
 		
 		backButton = (Button)findViewById(R.id.bt_back);
 		backButton.setOnClickListener(this);
@@ -91,6 +89,21 @@ public class HistoryPage extends Activity implements HttpCallback,OnRefreshListe
 		
 		RequestOrder();
 	}
+	
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		dataAdapter = null;
+		hashMaps = null;
+		mHttpHandler = null;
+		mIdStrings = null;
+		recipeListHttpHelper = null;
+		System.gc();
+	}
+
+
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
@@ -155,8 +168,8 @@ public class HistoryPage extends Activity implements HttpCallback,OnRefreshListe
 		for(iterator=orderItems.iterator();iterator.hasNext();){
 			OrderItem orderItem = iterator.next();
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("title", orderItem.getRecipe().getName()+"----"+orderItem.GetCount()+"份");
-			map.put("price", "单价：￥ "+orderItem.getRecipe().getPrice());
+			map.put("title", orderItem.getRecipe().getName()+getString(R.string.strline)+orderItem.GetCount()+getString(R.string.strportion));
+			map.put("price", getString(R.string.strunitprice)+orderItem.getRecipe().getPrice());
 			hashMaps.add(map);
 		}
 		
@@ -177,7 +190,7 @@ public class HistoryPage extends Activity implements HttpCallback,OnRefreshListe
 //		else{
 //			ddListView.changeFooterVisibility(true);
 //		}
-		titleTextView.setText(order.getRestaurant().getName()+"(￥"+order.getPriceAll()+")");
+		titleTextView.setText(order.getRestaurant().getName()+"("+getString(R.string.mark_yuan)+order.getPriceAll()+")");
 		Date curDate = new Date(System.currentTimeMillis());
 		Date timeDate = order.getStarttime();
 		timeTextView.setText(MyDateUtils.getStringFormDate(curDate, timeDate));

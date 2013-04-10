@@ -16,6 +16,7 @@
 
 package com.diancan.http;
 
+import android.R.integer;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,6 +47,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import com.diancan.Utils.BitmapUtil;
 
 /**
  * This helper class download images from the Internet and binds those with the provided ImageView.
@@ -255,7 +259,6 @@ public class ImageDownloader {
                 // Or if we don't use any bitmap to task association (NO_DOWNLOADED_DRAWABLE mode)
                 if ((this == bitmapDownloaderTask) || (mode != Mode.CORRECT)) {
                 	if(bitmap!=null){
-                		
                 		imageView.setImageBitmap(bitmap);
                 	}
                 }

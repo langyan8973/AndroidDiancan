@@ -26,6 +26,7 @@ import com.baidu.mapapi.MKTransitRouteResult;
 import com.baidu.mapapi.MKWalkingRouteResult;
 import com.diancan.Helper.OrderHelper;
 import com.diancan.Helper.RecipeListHttpHelper;
+import com.diancan.Utils.BitmapUtil;
 import com.diancan.Utils.DisplayUtil;
 import com.diancan.Utils.FileUtils;
 import com.diancan.Utils.JsonUtils;
@@ -52,6 +53,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -102,6 +104,7 @@ public class InitPage extends Activity implements HttpCallback {
         if (!FileUtils.cacheDir.exists()) {
 			FileUtils.cacheDir.mkdirs();
 		}
+        FileUtils._cityFile=new File(Environment.getExternalStorageDirectory().getPath()+"/ChiHuoPro/city.txt");
         //创建数据库
         createDatabase();
         //启用缓存
@@ -142,6 +145,7 @@ public class InitPage extends Activity implements HttpCallback {
       	
       	int rid = deviceInfo.getInt("rid", -1);
         String rname = deviceInfo.getString("rname", "-1");
+        String rimage = deviceInfo.getString("rimage", "-1");
         int oid = deviceInfo.getInt("oid", -1);
         int orid = deviceInfo.getInt("orid", -1);
         
@@ -151,6 +155,9 @@ public class InitPage extends Activity implements HttpCallback {
         	myRestaurant.setId(rid);
         	if(!rname.equals("-1")){
         		myRestaurant.setName(rname);
+        	}
+        	if(!rimage.equals("-1")){
+        		myRestaurant.setImage(rimage);
         	}
         	appDiancan.myRestaurant = myRestaurant;
         }
@@ -197,8 +204,11 @@ public class InitPage extends Activity implements HttpCallback {
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		
 		super.onDestroy();
+		httpHandler = null;
+		System.gc();
+		View view = findViewById(R.id.rootlayout);
+		BitmapUtil.destroyDrawable(view);
 	}
 
 	@Override
@@ -258,7 +268,7 @@ public class InitPage extends Activity implements HttpCallback {
 							udidString,appDiancan.accessToken.getAuthorization());
 					if(resultString==null)
 					{
-						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"获取订单失败！").sendToTarget();
+						httpHandler.obtainMessage(HttpHandler.REQUEST_ERROR,getResources().getString(R.string.message_net_error)).sendToTarget();
 						return;
 					}
 					else {
@@ -321,7 +331,7 @@ public class InitPage extends Activity implements HttpCallback {
 	
 	public void InitOrder(Order order){
 		appDiancan.myOrder = order;
-		appDiancan.myOrderHelper = new OrderHelper(order);
+		appDiancan.myOrderHelper = new OrderHelper(order,getString(R.string.strportion));
 		RequestAllTypes(order.getRestaurant().getId());
 	}
 	

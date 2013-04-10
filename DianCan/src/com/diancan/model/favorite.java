@@ -8,6 +8,7 @@ public class favorite {
 	Date time;
 	String restaurantName;
 	int rid;
+	String restaurantImage;
 	public int getId() {
 		return id;
 	}
@@ -32,5 +33,17 @@ public class favorite {
 	public void setRid(int rid) {
 		this.rid = rid;
 	}
+	public String getRestaurantImage() {
+		return restaurantImage;
+	}
+	public void setRestaurantImage(String restaurantImage) {
+		this.restaurantImage = restaurantImage;
+	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return restaurantName;
+	}
+	
 	
 }

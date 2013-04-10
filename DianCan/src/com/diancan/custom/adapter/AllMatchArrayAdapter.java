@@ -98,6 +98,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
     public ArrayFilter mFilter;
 
     public LayoutInflater mInflater;
+    public String markString;
     public SearchAdapterHelper mAdapterHelper;
     
 
@@ -118,6 +119,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int textViewResourceId) {
         init(context, textViewResourceId, 0, new ArrayList<T>());
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -130,6 +132,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int resource, int textViewResourceId) {
         init(context, resource, textViewResourceId, new ArrayList<T>());
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -142,6 +145,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int textViewResourceId, T[] objects) {
         init(context, textViewResourceId, 0, Arrays.asList(objects));
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -155,6 +159,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int resource, int textViewResourceId, T[] objects) {
         init(context, resource, textViewResourceId, Arrays.asList(objects));
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -167,6 +172,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
         init(context, textViewResourceId, 0, objects);
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -180,6 +186,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
      */
     public AllMatchArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
         init(context, resource, textViewResourceId, objects);
+        markString = context.getString(R.string.mark_yuan);
     }
 
     /**
@@ -418,7 +425,7 @@ public class AllMatchArrayAdapter<T> extends BaseAdapter implements Filterable {
         	}
             text.setText(str);
             Recipe recipe = (Recipe)item;
-            priceView.setText("￥"+recipe.getPrice());
+            priceView.setText(markString+recipe.getPrice());
         }
 
         return view;

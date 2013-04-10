@@ -14,6 +14,7 @@ import android.R.integer;
 import android.util.SparseArray;
 import android.widget.Toast;
 
+import com.diancan.R;
 import com.diancan.Utils.JsonUtils;
 import com.diancan.Utils.MenuUtils;
 import com.diancan.diancanapp.AppDiancan;
@@ -76,7 +77,7 @@ public class RecipeListHttpHelper{
 					List<Recipe> recipes=MenuUtils.getAllRecipes(appDiancan.myRestaurant.getId(),
 							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					if(recipes==null){
-						String strnull="获取菜品失败！";
+						String strnull=appDiancan.getString(R.string.message_getrecipesfail);
 						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,strnull).sendToTarget();
 						return;
 					}
@@ -108,7 +109,7 @@ public class RecipeListHttpHelper{
 							appDiancan.udidString,appDiancan.accessToken.getAuthorization());
 					if(resultString==null)
 					{
-						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,"获取订单失败！").sendToTarget();
+						mHandler.obtainMessage(HttpHandler.REQUEST_ERROR,appDiancan.getString(R.string.message_net_error)).sendToTarget();
 						return;
 					}
 					else {

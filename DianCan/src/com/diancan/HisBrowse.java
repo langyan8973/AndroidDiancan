@@ -48,6 +48,7 @@ public class HisBrowse extends Activity implements OnClickListener,
 	HisBrowseAdapter browseAdapter;
 	SparseIntArray favoriteSparseIntArray = new SparseIntArray();
 	RestaurantHttpHelper restaurantHttpHelper;
+	ImageDownloader imgDownloader;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,32 @@ public class HisBrowse extends Activity implements OnClickListener,
 		displayListView();
 	}
 	
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+	
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		mHandler = null;
+		mHisRestaurants = null;
+		browseAdapter = null;
+		favoriteSparseIntArray = null;
+		restaurantHttpHelper = null;
+		if(imgDownloader!=null){
+			imgDownloader.clearCache();
+			imgDownloader = null;
+		}
+		
+		System.gc();
+	}
+
+
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
@@ -132,7 +159,7 @@ public class HisBrowse extends Activity implements OnClickListener,
 		appDiancan.myRestaurant=myRestaurant;
 		if(appDiancan.myOrder!=null){
 			if(appDiancan.myOrderHelper==null){
-				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder);
+				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder,getString(R.string.strportion));
 			}
 			else{
 				appDiancan.myOrderHelper.SetOrderAndItemDic(appDiancan.myOrder);
@@ -178,7 +205,7 @@ public class HisBrowse extends Activity implements OnClickListener,
 		Date curDate = new Date(System.currentTimeMillis());
         if(browseAdapter==null){
         	Drawable[] layers={getResources().getDrawable(R.drawable.imagewaiting)};
-        	ImageDownloader imgDownloader=new ImageDownloader(layers);
+        	imgDownloader=new ImageDownloader(layers);
     		browseAdapter = new HisBrowseAdapter(this,mHisRestaurants,getLayoutInflater(),imgDownloader,favoriteSparseIntArray);
         	browseAdapter.setMyClickListener(this);
         	browseListView.setAdapter(browseAdapter);
@@ -208,7 +235,7 @@ public class HisBrowse extends Activity implements OnClickListener,
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
 		Intent intent = new Intent(this.getParent(), RecipeList.class);
 		MenuGroup.back_id = MenuGroup.ID_HISBROWSE;
-//		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		Window window = manager.startActivity(MenuGroup.ID_RECIPLIST, intent);
 		View view=window.getDecorView();		
 		contain.addView(view);

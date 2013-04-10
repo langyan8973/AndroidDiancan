@@ -181,6 +181,31 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		
 	}
 	
+	
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		imgDownloader.clearCache();
+	}
+
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		nameAdapter = null;
+		mItemDic = null;
+		allRecipes = null;
+		hashlist = null;
+		simpleAdapter = null;
+		imgDownloader.clearCache();
+		imgDownloader = null;
+		recipeListHttpHelper = null;
+		System.gc();
+	}
+
 	@Override
 	public void RequestComplete(Message msg) {
 		// TODO Auto-generated method stub
@@ -262,7 +287,6 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub
 		if(arg0.getId()==R.id.CategoryList){
-			HashMap<String, Object> map=hashlist.get(arg2);
 			cIndex=arg2;
 			int position = sectionAdapter.getPositionForSection(cIndex);
 			RecipeListViewPosition(position,0);
@@ -409,7 +433,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		if(order!=null){
 			appDiancan.myOrder = order;
 			if(appDiancan.myOrderHelper==null){
-				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder);
+				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder,getString(R.string.strportion));
 			}
 			else{
 				appDiancan.myOrderHelper.SetOrderAndItemDic(order);
@@ -475,7 +499,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		arrayAdapter = new StandardArrayAdapter(this,R.id.title,exampleArray);
 		
 		sectionAdapter = new SectionListAdapter(getLayoutInflater(),
-                arrayAdapter,imgDownloader);
+                arrayAdapter,imgDownloader,getString(R.string.mark_yuan));
 		sectionAdapter.setCategoryAdapter(simpleAdapter);
 		sectionAdapter.setViewClickListener(this);
         
@@ -489,7 +513,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		if(order!=null){
 			appDiancan.myOrder = order;
 			if(appDiancan.myOrderHelper==null){
-				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder);
+				appDiancan.myOrderHelper = new OrderHelper(appDiancan.myOrder,getString(R.string.strportion));
 			}
 			else{
 				appDiancan.myOrderHelper.SetOrderAndItemDic(order);
@@ -625,7 +649,7 @@ public class RecipeList extends Activity implements HttpCallback,OnItemClickList
 		clicktime=cld.getTimeInMillis();
 		
 		if(appDiancan.myOrder==null){
-			ShowError("点菜前请您先开台！");
+			ShowError(getString(R.string.message_callwaiter));
 			return;
 		}else if(appDiancan.myOrder.getRestaurant().getId()!=appDiancan.myRestaurant.getId()){
 			return;

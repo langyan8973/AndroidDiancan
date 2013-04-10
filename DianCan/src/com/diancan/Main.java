@@ -32,9 +32,9 @@ public class Main extends TabActivity {
 	/** Called when the activity is first created. */
 	private TabHost m_tabHost;
 	private TabWidget m_tabWidget;
-	private long exitTime = 0;
 	Resources rsResources;
 	BroadcastReceiver receiver;	
+	IntentFilter filter;
 	 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +106,7 @@ public class Main extends TabActivity {
 	    		}
 	    	}
 	    };
-	    IntentFilter filter = new IntentFilter();
+	    filter = new IntentFilter();
 	    filter.addAction("animation");
 	    filter.addAction("selectedtable");
 	    filter.addAction("setcount");
@@ -196,13 +196,27 @@ public class Main extends TabActivity {
 	    m_tabHost.addTab(m_tabHost.newTabSpec("menu3").setIndicator(v).setContent(intent));
     }  
     
+//    
+//
+//	@Override
+//	protected void onPause() {
+//		// TODO Auto-generated method stub
+//		super.onPause();
+//		unregisterReceiver(receiver);
+//	}
+//
+//	@Override
+//	protected void onResume() {
+//		// TODO Auto-generated method stub
+//		super.onResume();
+//		registerReceiver(receiver, filter);
+//	}
 
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		unregisterReceiver(receiver);
-  		
   		WriteRestaurantAndOrder();
 	}
   	
@@ -259,11 +273,6 @@ public class Main extends TabActivity {
 //		}
 		return super.dispatchKeyEvent(event);
 	}
-//	private void Destroy(){
-//		unregisterReceiver(receiver);
-//  		AppDiancan declare=(AppDiancan)getApplicationContext();
-//  		WriteRestaurantAndOrder(declare.myRestaurant,declare.myOrder);
-//	}
 	private void  WriteRestaurantAndOrder(){
 		AppDiancan declare=(AppDiancan)getApplicationContext();
 		SharedPreferences deviceInfo = getSharedPreferences("StartInfo", 0);
@@ -271,16 +280,19 @@ public class Main extends TabActivity {
 		int oid;
 		int orid;
 		String rnameString;
+		String rimageString;
 		int currentTab;
 		
 		if(declare.myRestaurant!=null)
 		{
 			rid = declare.myRestaurant.getId();
 			rnameString = declare.myRestaurant.getName();
+			rimageString = declare.myRestaurant.getImage();
 		}
 		else{
 			rid = -1;
 			rnameString = "-1";
+			rimageString = "-1";
 		}
 		if(declare.myOrder!=null){
 			oid = declare.myOrder.getId();
@@ -288,6 +300,7 @@ public class Main extends TabActivity {
 			if(rid==-1){
 				rid=orid;
 				rnameString = declare.myOrder.getRestaurant().getName();
+				rimageString = declare.myOrder.getRestaurant().getImage();
 			}
 		}
 		else{
@@ -302,9 +315,19 @@ public class Main extends TabActivity {
 		}
 		deviceInfo.edit().putInt("rid", rid).commit();
 		deviceInfo.edit().putString("rname",rnameString).commit();
+		deviceInfo.edit().putString("rimage", rimageString).commit();
 		deviceInfo.edit().putInt("oid", oid).commit();
 		deviceInfo.edit().putInt("orid", orid).commit();
 		deviceInfo.edit().putInt("ctab", currentTab).commit();
+		declare.accessToken = null;
+		declare.locationCity = null;
+		declare.mBMapMan = null;
+		declare.myOrder = null;
+		declare.myOrderHelper = null;
+		declare.myRestaurant = null;
+		declare.selectedCity = null;
+		declare = null;
+		System.gc();
 	}
 	
 	//新浪和腾讯微博授权后要接收返回结果并把它传递给MenuGroup

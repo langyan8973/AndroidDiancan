@@ -45,11 +45,10 @@ import android.widget.AbsListView.OnScrollListener;
  * pinned header can be pushed up and dissolved as needed.
  */
 public class PinnedHeaderListView extends ListView implements OnScrollListener {
-	private static final String TAG = "PinnedHeaderListView";
     /**
      * 分组列表分组功能所用的一些成员变量
      */
-    private static final int MAX_ALPHA = 255;
+    private final int MAX_ALPHA = 255;
     private PinnedHeaderAdapter mAdapter;
     private View mHeaderView;
     private boolean mHeaderViewVisible;

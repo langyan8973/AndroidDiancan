@@ -65,6 +65,15 @@ public class RecipeImgActivity extends Activity implements OnClickListener {
 		super.onResume();
 		
 	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		imageDownloader.clearCache();
+		imageDownloader = null;
+		System.gc();
+	}
 
 	@Override
 	public void onClick(View v) {
